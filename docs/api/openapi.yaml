@@ -1,0 +1,973 @@
+openapi: 3.1.0
+info:
+  title: SentRealm GUI API
+  description: |
+    gui/ui 与 apps/gui/api 之间的本地 HTTP 契约。
+    人类可读说明见 docs/api/README.md。
+  version: 1.0.0
+
+servers:
+  - url: http://127.0.0.1:17300
+    description: 本地默认（Tauri spawn FastAPI）
+
+tags:
+  - name: health
+    description: 健康检查（无版本前缀）
+  - name: settings
+    description: 用户配置（/api/v1）
+  - name: preprocess
+    description: 文稿预处理（/api/v1）
+  - name: workspace
+    description: 工作区、项目与文稿持久化（/api/v1）
+
+paths:
+  /health:
+    get:
+      tags: [health]
+      summary: 健康检查
+      operationId: getHealth
+      responses:
+        "200":
+          description: 服务就绪
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+  /api/v1/settings:
+    get:
+      tags: [settings]
+      summary: 读取用户配置
+      operationId: getSettings
+      responses:
+        "200":
+          description: 当前配置
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settings"
+    put:
+      tags: [settings]
+      summary: 更新用户配置
+      operationId: putSettings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Settings"
+      responses:
+        "200":
+          description: 更新后的配置（preset 与 max_chars 已按联动规则修正）
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settings"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+        "500":
+          description: 服务器内部错误
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpError"
+
+  /api/v1/preprocess:
+    post:
+      tags: [preprocess]
+      summary: 预处理文稿
+      operationId: postPreprocess
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PreprocessRequest"
+      responses:
+        "200":
+          description: 处理结果
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PreprocessResponse"
+        "400":
+          description: 错误请求（如文稿为空）
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpError"
+              example:
+                detail: 文稿不能为空
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /api/v1/preprocess/stream:
+    post:
+      tags: [preprocess]
+      summary: 预处理文稿（SSE 流式进度）
+      operationId: postPreprocessStream
+      description: |
+        与 POST /preprocess 相同请求体；响应为 text/event-stream。
+        事件 type=progress 推送中间断句结果；type=done 为最终结果。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PreprocessRequest"
+      responses:
+        "200":
+          description: SSE 事件流
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        "400":
+          description: 错误请求（如文稿为空）
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpError"
+
+  /api/v1/break-lexicon/defaults:
+    get:
+      tags: [settings]
+      summary: 读取内置断句词表默认
+      operationId: getBreakLexiconDefaults
+      description: 返回打包 `data/break_lexicon/*.txt` 内容；供 GUI「恢复默认」，不读 SQLite。
+      responses:
+        "200":
+          description: 内置词表
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BreakLexiconSettings"
+
+  /api/v1/settings/llm-key-status:
+    get:
+      tags: [settings]
+      summary: LLM 密钥是否已通过环境变量配置
+      operationId: getLlmKeyStatus
+      responses:
+        "200":
+          description: 仅返回是否配置，不返回密钥明文
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [configured]
+                properties:
+                  configured:
+                    type: boolean
+
+  /api/v1/settings/llm-test:
+    post:
+      tags: [settings]
+      summary: 检测 LLM 端点连通性
+      operationId: postLlmTest
+      description: |
+        使用 SQLite 中的 llm_endpoint / llm_model 与环境变量密钥发起一次轻量请求。
+        未启用或未完整配置 LLM 时返回 ok=true 且 skipped=true。
+      responses:
+        "200":
+          description: 检测结果（失败时 ok=false，message 为用户可读原因）
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LlmTestResponse"
+        "500":
+          description: 服务器内部错误
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpError"
+
+  /api/v1/workspace:
+    get:
+      tags: [workspace]
+      summary: 读取工作区状态
+      operationId: getWorkspace
+      description: 冷启动时自动初始化默认项目与文稿
+      responses:
+        "200":
+          description: 工作区元数据与最近列表
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkspaceResponse"
+
+  /api/v1/workspace/active:
+    put:
+      tags: [workspace]
+      summary: 切换活动项目与文稿
+      operationId: putWorkspaceActive
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetActiveRequest"
+      responses:
+        "200":
+          description: 更新后的工作区状态
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkspaceResponse"
+        "404":
+          description: 项目或文稿不存在
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpError"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /api/v1/projects:
+    get:
+      tags: [workspace]
+      summary: 项目列表
+      operationId: listProjects
+      responses:
+        "200":
+          description: 项目摘要列表
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProjectSummary"
+    post:
+      tags: [workspace]
+      summary: 新建项目
+      operationId: createProject
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProjectRequest"
+      responses:
+        "200":
+          description: 新建的项目
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /api/v1/projects/{project_id}:
+    get:
+      tags: [workspace]
+      summary: 项目详情
+      operationId: getProject
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      responses:
+        "200":
+          description: 项目元数据
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "404":
+          description: 项目不存在
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpError"
+    patch:
+      tags: [workspace]
+      summary: 重命名项目
+      operationId: renameProject
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RenameProjectRequest"
+      responses:
+        "200":
+          description: 更新后的项目
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "404":
+          description: 项目不存在
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpError"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+    delete:
+      tags: [workspace]
+      summary: 删除项目
+      operationId: deleteProject
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      responses:
+        "204":
+          description: 删除成功
+        "404":
+          description: 项目不存在
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpError"
+        "409":
+          description: 无法删除最后一个项目或当前活动项目
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpError"
+
+  /api/v1/projects/{project_id}/documents:
+    get:
+      tags: [workspace]
+      summary: 文稿摘要列表
+      operationId: listDocuments
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      responses:
+        "200":
+          description: 文稿摘要列表
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DocumentSummary"
+        "404":
+          description: 项目不存在
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpError"
+    post:
+      tags: [workspace]
+      summary: 新建文稿
+      operationId: createDocument
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDocumentRequest"
+      responses:
+        "200":
+          description: 新建的文稿
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+        "404":
+          description: 项目不存在
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpError"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /api/v1/projects/{project_id}/documents/{document_id}:
+    get:
+      tags: [workspace]
+      summary: 文稿详情
+      operationId: getDocument
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+        - $ref: "#/components/parameters/DocumentId"
+      responses:
+        "200":
+          description: 文稿元数据、正文与最近处理结果
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentDetail"
+        "404":
+          description: 文稿不存在
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpError"
+    patch:
+      tags: [workspace]
+      summary: 更新文稿标题或正文
+      operationId: updateDocument
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+        - $ref: "#/components/parameters/DocumentId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateDocumentRequest"
+      responses:
+        "200":
+          description: 更新后的文稿详情
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentDetail"
+        "404":
+          description: 文稿不存在
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpError"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+    delete:
+      tags: [workspace]
+      summary: 删除文稿
+      operationId: deleteDocument
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+        - $ref: "#/components/parameters/DocumentId"
+      responses:
+        "204":
+          description: 删除成功
+        "404":
+          description: 文稿不存在
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpError"
+        "409":
+          description: 无法删除当前活动文稿
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpError"
+
+  /api/v1/projects/{project_id}/documents/{document_id}/result:
+    put:
+      tags: [workspace]
+      summary: 写入最近处理结果
+      operationId: putDocumentResult
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+        - $ref: "#/components/parameters/DocumentId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DocumentResult"
+      responses:
+        "200":
+          description: 已持久化的处理结果
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentResult"
+        "404":
+          description: 文稿不存在
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpError"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /api/v1/projects/{project_id}/documents/{document_id}/export:
+    post:
+      tags: [workspace]
+      summary: 将处理后文本导出为文稿目录下的 .txt
+      operationId: exportDocument
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+        - $ref: "#/components/parameters/DocumentId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExportDocumentRequest"
+      responses:
+        "200":
+          description: 已写入文稿目录
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExportDocumentResponse"
+        "404":
+          description: 文稿不存在
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpError"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+components:
+  parameters:
+    ProjectId:
+      name: project_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    DocumentId:
+      name: document_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    HealthResponse:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [ok]
+          example: ok
+
+    LlmTestResponse:
+      type: object
+      required: [ok]
+      properties:
+        ok:
+          type: boolean
+        skipped:
+          type: boolean
+          default: false
+        message:
+          type: string
+          nullable: true
+
+    Preset:
+      type: string
+      enum: [landscape, portrait, custom]
+
+    Settings:
+      type: object
+      description: |
+        用户配置。PUT 时 preset 与 max_chars 联动：landscape→15、portrait→10、custom 由用户指定（>=1）。
+        完整默认值见 docs/api/README.md。
+      required:
+        - preset
+        - max_chars
+        - min_chars
+        - punctuation_remove
+        - punctuation_keep
+        - llm_enabled
+        - llm_endpoint
+        - llm_model
+        - break_lexicon
+      properties:
+        preset:
+          $ref: "#/components/schemas/Preset"
+          default: landscape
+        max_chars:
+          type: integer
+          minimum: 1
+          default: 15
+          description: landscape 固定 15；portrait 固定 10；custom 为用户指定
+          example: 15
+        min_chars:
+          type: integer
+          minimum: 1
+          default: 5
+          description: |
+            规则断句与 LLM 断句结果的单行最短字数（不含去标点换行）。
+            须 ≤ max_chars；用户可在设置中编辑。
+          example: 5
+        punctuation_remove:
+          type: array
+          items:
+            type: string
+          default:
+            - "，"
+            - "。"
+            - "！"
+            - "？"
+            - "："
+            - "；"
+            - "——"
+            - "、"
+            - ","
+            - "."
+            - "!"
+            - "?"
+            - ";"
+            - ":"
+            - "“"
+            - "”"
+            - "‘"
+            - "’"
+            - "\""
+            - "'"
+            - "（"
+            - "）"
+            - "("
+            - ")"
+            - "…"
+        punctuation_keep:
+          type: array
+          items:
+            type: string
+          default: ["%", "％"]
+          example: ["%", "％"]
+        llm_enabled:
+          type: boolean
+          default: false
+          description: 是否启用 LLM 断句；关闭时即使已配置 endpoint/model 与 API key 也跳过
+        llm_endpoint:
+          type: string
+          default: ""
+          example: ""
+        llm_model:
+          type: string
+          default: ""
+          example: ""
+        break_lexicon:
+          $ref: "#/components/schemas/BreakLexiconSettings"
+
+    BreakLexiconSettings:
+      type: object
+      description: 规则断句字词表（四类，与 data/break_lexicon/*.txt 对应）
+      required:
+        - protected_words
+        - break_after_words
+        - break_after_chars
+        - break_before_words
+      properties:
+        protected_words:
+          type: array
+          items:
+            type: string
+          description: 受保护词，禁止从中切断（每项最长 4 字）
+        break_after_words:
+          type: array
+          items:
+            type: string
+          description: 整词结束后可换行
+        break_after_chars:
+          type: array
+          items:
+            type: string
+          description: 单字结束后可换行（每项须为单字符）
+        break_before_words:
+          type: array
+          items:
+            type: string
+          description: 整词开始前可换行
+
+    PreprocessRequest:
+      type: object
+      required: [text]
+      properties:
+        text:
+          type: string
+          description: 文稿正文；空白或仅空格时返回 400
+        settings:
+          oneOf:
+            - type: "null"
+            - $ref: "#/components/schemas/Settings"
+          description: 省略或 null 时使用 SQLite 配置；提供时仅当次请求生效
+
+    PreprocessResponse:
+      type: object
+      required: [original, processed, line_count, flagged_lines]
+      properties:
+        original:
+          type: string
+          description: 请求中的原文
+        processed:
+          type: string
+          description: 处理后文本，行以换行符分隔
+        line_count:
+          type: integer
+          minimum: 0
+          description: 处理后行数
+        flagged_lines:
+          type: array
+          items:
+            type: integer
+            minimum: 0
+          description: 仍超出字数上限的行号（0-based）
+
+    WorkspaceResponse:
+      type: object
+      required:
+        - root_path
+        - schema_version
+        - active_project_id
+        - active_document_id
+        - recent_projects
+        - recent_documents
+      properties:
+        root_path:
+          type: string
+          description: 工作区根目录绝对路径
+        schema_version:
+          type: integer
+          example: 1
+        active_project_id:
+          type: string
+          format: uuid
+        active_document_id:
+          type: string
+          format: uuid
+        recent_projects:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProjectSummary"
+        recent_documents:
+          type: array
+          items:
+            $ref: "#/components/schemas/RecentDocumentItem"
+
+    RecentDocumentItem:
+      type: object
+      required: [project_id, document_id, title, updated_at]
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        document_id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        updated_at:
+          type: string
+          format: date-time
+
+    ProjectSummary:
+      type: object
+      required: [id, name, updated_at, document_count]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        updated_at:
+          type: string
+          format: date-time
+        document_count:
+          type: integer
+          minimum: 0
+
+    Project:
+      type: object
+      required: [schema_version, id, name, created_at, updated_at]
+      properties:
+        schema_version:
+          type: integer
+          example: 1
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    CreateProjectRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+
+    RenameProjectRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+
+    DocumentSummary:
+      type: object
+      required: [id, title, updated_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        updated_at:
+          type: string
+          format: date-time
+        char_count:
+          type: integer
+          minimum: 0
+          nullable: true
+
+    Document:
+      type: object
+      required: [meta, source_text]
+      properties:
+        meta:
+          $ref: "#/components/schemas/DocumentMeta"
+        source_text:
+          type: string
+
+    DocumentMeta:
+      type: object
+      required: [schema_version, id, project_id, title, created_at, updated_at]
+      properties:
+        schema_version:
+          type: integer
+          example: 1
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    CreateDocumentRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          default: 未命名文稿
+
+    UpdateDocumentRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        source_text:
+          type: string
+
+    DocumentDetail:
+      type: object
+      required: [id, project_id, title, source_text, created_at, updated_at, result]
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        source_text:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        result:
+          oneOf:
+            - $ref: "#/components/schemas/DocumentResult"
+            - type: "null"
+
+    DocumentResult:
+      type: object
+      required: [schema_version, processed_at, line_count, flagged_lines, processed]
+      properties:
+        schema_version:
+          type: integer
+          example: 1
+        processed_at:
+          type: string
+          format: date-time
+        line_count:
+          type: integer
+          minimum: 0
+        flagged_lines:
+          type: array
+          items:
+            type: integer
+            minimum: 0
+        processed:
+          type: string
+          description: 处理后文本，行以换行符分隔
+
+    ExportDocumentRequest:
+      type: object
+      required: [processed]
+      properties:
+        processed:
+          type: string
+          description: 要导出的处理后文本（当前预览内容）
+
+    ExportDocumentResponse:
+      type: object
+      required: [path, filename]
+      properties:
+        path:
+          type: string
+          description: 写入文件的绝对路径
+        filename:
+          type: string
+          description: 文稿目录下的文件名（由标题生成）
+
+    SetActiveRequest:
+      type: object
+      required: [project_id, document_id]
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        document_id:
+          type: string
+          format: uuid
+
+    HttpError:
+      type: object
+      properties:
+        detail:
+          oneOf:
+            - type: string
+            - type: array
+              items: {}
+
+    ValidationError:
+      type: object
+      properties:
+        detail:
+          type: array
+          items:
+            type: object
+            properties:
+              loc:
+                type: array
+                items:
+                  oneOf:
+                    - type: string
+                    - type: integer
+              msg:
+                type: string
+              type:
+                type: string
+
+  responses:
+    ValidationError:
+      description: 请求体验证失败
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ValidationError"

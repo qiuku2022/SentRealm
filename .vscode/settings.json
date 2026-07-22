@@ -1,0 +1,19 @@
+{
+  "python.terminal.activateEnvironment": true,
+  "python.envFile": "${workspaceFolder}/.env",
+  "python.testing.pytestEnabled": true,
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestArgs": ["tests"],
+  "rust-analyzer.linkedProjects": ["apps/gui/src-tauri/Cargo.toml"],
+  "rust-analyzer.cargo.buildScripts.enable": true,
+  "files.watcherExclude": {
+    "**/apps/gui/src-tauri/target/**": true,
+    "**/node_modules/**": true,
+    "**/.venv/**": true
+  },
+  "search.exclude": {
+    "**/apps/gui/src-tauri/target": true,
+    "**/node_modules": true
+  },
+  "tailwindCSS.experimental.configFile": "apps/gui/src/styles/globals.css"
+}

@@ -1,0 +1,68 @@
+# SentRealm — Git ignore
+
+# --- Secrets / local env ---
+.env
+.env.local
+.env.*.local
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# uv 项目虚拟环境（见 docs/dev/setup.md、ADR-011）
+.venv/
+uv-cache/
+.uv/
+
+# --- Node / frontend ---
+node_modules/
+npm-debug.log*
+pnpm-debug.log*
+yarn-error.log*
+*.tsbuildinfo
+.turbo/
+
+# --- Tauri / Rust ---
+apps/gui/src-tauri/target/
+**/src-tauri/target/
+# 本地打包出的 sidecar 二进制（按 TARGET_TRIPLE 命名，由构建脚本生成）
+apps/gui/src-tauri/binaries/*
+!apps/gui/src-tauri/binaries/.gitkeep
+
+# --- IDE / OS ---
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/settings.json
+*.swp
+*~
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# --- Local working notes（本机执行清单 / 进度，不入库）---
+.local/
+
+# --- Packaging (PyInstaller) ---
+packaging/build/
+packaging/dist/
+
+# --- Misc ---
+*.log
+*.tmp
+.cache/

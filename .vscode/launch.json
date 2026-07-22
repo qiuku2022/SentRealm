@@ -1,0 +1,187 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Desktop: pnpm dev",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "pnpm dev",
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env",
+      "presentation": {
+        "group": "desktop",
+        "order": 1
+      }
+    },
+    {
+      "name": "Desktop: pnpm dev（断点模式）",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "pnpm dev",
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env",
+      "env": {
+        "SENTREALM_SKIP_BACKEND_SPAWN": "1"
+      },
+      "presentation": {
+        "group": "desktop",
+        "order": 2
+      }
+    },
+    {
+      "name": "Python: FastAPI",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": [
+        "apps.gui.api.main:app",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "17300",
+        "--reload"
+      ],
+      "cwd": "${workspaceFolder}",
+      "python": "${workspaceFolder}/.venv/Scripts/python.exe",
+      "envFile": "${workspaceFolder}/.env",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}"
+      },
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "preLaunchTask": "uv:sync",
+      "presentation": {
+        "group": "python",
+        "order": 1
+      }
+    },
+    {
+      "name": "Python: pytest（当前文件）",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": ["${file}", "-v"],
+      "cwd": "${workspaceFolder}",
+      "python": "${workspaceFolder}/.venv/Scripts/python.exe",
+      "envFile": "${workspaceFolder}/.env",
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "preLaunchTask": "uv:sync",
+      "presentation": {
+        "group": "python",
+        "order": 2
+      }
+    },
+    {
+      "name": "Python: pytest（tests/）",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": ["tests", "-v"],
+      "cwd": "${workspaceFolder}",
+      "python": "${workspaceFolder}/.venv/Scripts/python.exe",
+      "envFile": "${workspaceFolder}/.env",
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "preLaunchTask": "uv:sync",
+      "presentation": {
+        "group": "python",
+        "order": 3
+      }
+    },
+    {
+      "name": "Python: CLI preprocess --stdin",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/packages/cli/src/sentrealm_cli/main.py",
+      "args": ["preprocess", "--stdin"],
+      "cwd": "${workspaceFolder}",
+      "python": "${workspaceFolder}/.venv/Scripts/python.exe",
+      "envFile": "${workspaceFolder}/.env",
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "preLaunchTask": "uv:sync",
+      "presentation": {
+        "group": "python",
+        "order": 4
+      }
+    },
+    {
+      "name": "Rust: Tauri（CodeLLDB）",
+      "type": "lldb",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/apps/gui",
+      "cargo": {
+        "args": [
+          "build",
+          "--manifest-path=${workspaceFolder}/apps/gui/src-tauri/Cargo.toml"
+        ]
+      },
+      "envFile": "${workspaceFolder}/.env",
+      "env": {
+        "RUST_BACKTRACE": "1",
+        "SENTREALM_SKIP_BACKEND_SPAWN": "1"
+      },
+      "preLaunchTask": "ui:dev",
+      "presentation": {
+        "group": "rust",
+        "order": 1
+      }
+    },
+    {
+      "name": "Rust: Tauri（MSVC）",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/apps/gui/src-tauri/target/debug/sentrealm-gui.exe",
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env",
+      "env": {
+        "RUST_BACKTRACE": "1",
+        "SENTREALM_SKIP_BACKEND_SPAWN": "1"
+      },
+      "preLaunchTask": "tauri:debug-build",
+      "presentation": {
+        "group": "rust",
+        "order": 2
+      }
+    },
+    {
+      "name": "Web: Chrome（Vite 1420）",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://127.0.0.1:1420",
+      "webRoot": "${workspaceFolder}/apps/gui/src",
+      "preLaunchTask": "ui:dev",
+      "presentation": {
+        "group": "web",
+        "order": 1
+      }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "▶ Desktop + API 断点",
+      "configurations": [
+        "Python: FastAPI",
+        "Desktop: pnpm dev（断点模式）"
+      ],
+      "stopAll": true,
+      "presentation": {
+        "group": "推荐",
+        "order": 1
+      }
+    },
+    {
+      "name": "Rust + API 断点",
+      "configurations": [
+        "Python: FastAPI",
+        "Rust: Tauri（MSVC）"
+      ],
+      "stopAll": true,
+      "presentation": {
+        "group": "推荐",
+        "order": 2
+      }
+    }
+  ]
+}
