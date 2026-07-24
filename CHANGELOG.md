@@ -11,6 +11,12 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **安装包 sidecar 改为 PyInstaller onedir**：经 `bundle.resources` 嵌入 `sentrealm-api/`，避免 onefile 每次解压 `%TEMP%\_MEI*`，缩短冷启动与退出（见 [packaging.md](./docs/dev/packaging.md)）
+- **生产退出**：不再调用会弹黑框的 `taskkill`，改为直接终止 onedir 单进程；sidecar 改为无控制台子系统，避免启动闪窗
+- **启动体验**：Rust `setup` 不再同步等待 `/health`，窗口可立即绘制；就绪改由前端 `waitForHealth` +「启动中」提示承接
+
 ### Fixed
 
 - **安装包无法连接后端**：生产 WebView 源为 `https://tauri.localhost`，原先 CORS 仅允许 Vite `1420` 且 sidecar 关闭了 CORS，导致 `fetch /health` 一直失败

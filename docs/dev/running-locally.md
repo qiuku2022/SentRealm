@@ -18,7 +18,7 @@ pnpm dev
 | 启动内容 | Tauri 桌面窗口 + React 前端 |
 | 后端 | Rust 在 `setup` 阶段 spawn：`uv run uvicorn apps.gui.api.main:app --host 127.0.0.1 --port 17300`（使用项目 `.venv`，见 [setup.md](./setup.md)、[ADR-006](../architecture/adr/006-tauri-spawn-fastapi.md)） |
 | 已就绪跳过 | 若 `GET /health` 已成功，**不重复 spawn**（避免 dev 时端口冲突） |
-| 就绪检查 | Rust 轮询 `GET http://127.0.0.1:17300/health`（200ms 间隔，30s 超时）；前端同样轮询直至就绪 |
+| 就绪检查 | Rust 仅 spawn；前端 `waitForHealth` 轮询 `GET /health`（200ms 间隔，30s 超时）直至就绪 |
 | base URL | 前端经 `invoke('get_api_base_url')` 获取，默认 `http://127.0.0.1:17300` |
 | 启动失败 | `invoke('get_backend_startup_error')` 可读取 Rust 侧错误摘要 |
 
@@ -38,7 +38,7 @@ health 成功前，前端不调用 `/api/v1/*` 业务接口。
 | `Rust: Tauri` | Rust 断点；须先启动 `Python: FastAPI` |
 | `Rust + API 断点` | compound：MSVC + FastAPI |
 
-**断点模式机制**：`SENTREALM_SKIP_BACKEND_SPAWN=1` 时 Tauri 不 spawn 后端，仅轮询 `/health`（最多 30s）。见 `apps/gui/src-tauri/src/backend.rs`。
+**断点模式机制**：`SENTREALM_SKIP_BACKEND_SPAWN=1` 时 Tauri 不 spawn 后端；前端轮询 `/health`（最多 30s）。见 `apps/gui/src-tauri/src/backend.rs`。
 
 ## 仅调试 HTTP API（可选）
 

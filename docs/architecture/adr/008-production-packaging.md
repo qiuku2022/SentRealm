@@ -16,10 +16,10 @@
 
 ### A. PyInstaller 打成 sidecar 可执行文件（本决策选中）
 
-用 PyInstaller（或等价）将 FastAPI 入口打成单文件/目录式可执行文件；Tauri 2 通过 `bundle.externalBin` 嵌入，生产环境用 `shell().sidecar(...)` spawn；仍监听 `127.0.0.1:17300`，就绪检查逻辑与开发一致。
+用 PyInstaller（或等价）将 FastAPI 入口打成**目录式（onedir）**可执行文件；Tauri 2 通过 `bundle.resources` 嵌入整目录，生产环境由 Rust 解析 `$RESOURCE/sentrealm-api/sentrealm-api.exe` 后 spawn；仍监听 `127.0.0.1:17300`，就绪检查逻辑与开发一致。
 
-- 优点：与 [Tauri 2 Embedding External Binaries](https://v2.tauri.app/develop/sidecar/) 官方路径一致；用户无需安装 Python；开发/生产均为「壳 + 独立后端进程 + 本地 HTTP」，边界清晰
-- 缺点：安装包体积增大；需维护 `.spec` 与 hiddenimports；PyInstaller onefile 在 Windows 上杀进程时注意 bootloader 与子进程关系；每次后端变更需重打 sidecar
+- 优点：用户无需安装 Python；开发/生产均为「壳 + 独立后端进程 + 本地 HTTP」；onedir 避免 onefile 每次解压到 `%TEMP%\_MEI*`，冷启动与退出更快
+- 缺点：安装包体积增大；需维护 `.spec` 与 hiddenimports；每次后端变更需重打 sidecar；不走 Tauri `externalBin` 单文件约定，资源路径需自行解析
 
 ### B. 安装包内嵌完整 Python venv
 
@@ -47,11 +47,11 @@
 | 项 | 约定 |
 |----|------|
 | 目标平台 | Windows 10/11 **x86_64**（`x86_64-pc-windows-msvc`）；macOS/Linux 打包另议 |
-| Sidecar 名 | 建议 `sentrealm-api`（具体以 `tauri.conf.json` `externalBin` 为准） |
-| 二进制命名 | Tauri 要求：`{name}-{TARGET_TRIPLE}.exe`，例如 `sentrealm-api-x86_64-pc-windows-msvc.exe` |
-| 放置路径 | `apps/gui/src-tauri/binaries/`（构建产物，默认不入 git，见根 `.gitignore`） |
+| Sidecar 名 | `sentrealm-api`（onedir 目录名） |
+| 布局 | PyInstaller onedir：`sentrealm-api/sentrealm-api.exe` + `_internal/` |
+| 放置路径 | `apps/gui/src-tauri/resources/sentrealm-api/`（构建产物，默认不入 git，见根 `.gitignore`）；经 `bundle.resources` 打进安装包 |
 | 监听 | 生产仍为 `127.0.0.1:17300`；被占用则启动失败（与 ADR-006 一致，暂不自动换端口） |
-| 就绪 | 沿用 `GET /health` 轮询（200ms / 30s） |
+| 就绪 | 前端 `GET /health` 轮询（200ms / 30s）；Rust 只 spawn |
 | 配置与文稿 | 仍写用户目录：`%APPDATA%/SentRealm/settings.db`、`Documents/SentRealm/`；不打进安装包 |
 | 密钥 | 仍仅环境变量 / 用户本机配置；安装包**不**内置 API key |
 | cli / mcp | **不**随桌面安装包分发（开发者继续用源码 + uv）；桌面 MVP 只交付 gui |
@@ -69,12 +69,12 @@ Rust 侧应用启动/退出钩子在开发与生产共用生命周期语义；**
 
 ### 构建流水线（约定）
 
-1. 在 `uv sync` 后的项目 `.venv` 中：用 PyInstaller + 项目 `.spec` 产出 sidecar（需纳入 `sentrealm_core` 数据文件如 `break_lexicon/`）
-2. 复制/重命名到 `src-tauri/binaries/` 带 TARGET_TRIPLE 后缀
-3. `pnpm` / `tauri build` 打 NSIS（或 MSI）安装包
-4. 干净机冒烟：安装 → 打开 → 处理样例 → 复制；确认退出无残留后端进程
+1. 在 `uv sync` 后的项目 `.venv` 中：用 PyInstaller + 项目 `.spec`（**onedir**）产出 sidecar（需纳入 `sentrealm_core` 数据文件如 `break_lexicon/`）
+2. 复制整目录到 `src-tauri/resources/sentrealm-api/`
+3. `pnpm` / `tauri build` 打 NSIS（或 MSI）安装包（`tauri.conf.json` → `bundle.resources`）
+4. 干净机冒烟：安装 → 打开 → 处理样例 → 复制；确认退出无残留后端进程、无新增 `_MEI*`
 
-具体脚本路径与 CI 在实现 M3 时落仓库，不在本 ADR 钉死文件名。
+具体脚本：`scripts/build_sidecar.ps1`、`scripts/build_installer.ps1`；说明见 [packaging.md](../../dev/packaging.md)。
 
 ### 明确不做（本 ADR）
 
@@ -95,12 +95,11 @@ Rust 侧应用启动/退出钩子在开发与生产共用生命周期语义；**
 
 - 需维护 PyInstaller spec、体积与杀软误报风险（路线图已列）
 - 后端每次发版多一步「打 sidecar」
-- onefile 模式下结束进程需按 PyInstaller 特性验证（避免残留）
 - 开发机仍双轨（uv 开发 vs 偶发本地验证 sidecar）
 
 ### 后续工作
 
-- 实现：`.spec`、binaries 构建脚本、Rust 生产分支、`tauri.conf.json` `externalBin`
+- 实现：`.spec`（onedir）、resources 构建脚本、Rust 生产分支、`tauri.conf.json` `bundle.resources`
 - 文档：更新 [用户手册](../../user/README.md) 分发状态与安装步骤；[路线图](../../planning/03-roadmap.md) M3 DoD
 - 修订 [ADR-006](./006-tauri-spawn-fastapi.md)「生产打包待定」指向本文
 
@@ -110,4 +109,4 @@ Rust 侧应用启动/退出钩子在开发与生产共用生命周期语义；**
 - [架构概览](../overview.md)
 - [路线图 M3](../../planning/03-roadmap.md)
 - [setup.md](../../dev/setup.md)（开发环境为 uv，见 [ADR-011](./011-uv-python-environment.md)）
-- Tauri 2：[Embedding External Binaries](https://v2.tauri.app/develop/sidecar/)
+- Tauri 2：[Embedding Additional Files（resources）](https://v2.tauri.app/develop/resources/)；单文件 sidecar 另见 [Embedding External Binaries](https://v2.tauri.app/develop/sidecar/)

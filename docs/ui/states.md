@@ -39,7 +39,7 @@ stateDiagram-v2
 | 未就绪 / 不可达 | 后端未就绪 | `--err` |
 | 已停止 | 后端已停止 | `--err` |
 
-前端 `waitForHealth` 与 Rust 轮询参数：间隔 200ms、总超时 30s（overview / ADR-006）。
+前端 `waitForHealth`：间隔 200ms、总超时 30s（ADR-006）。Rust 仅负责 spawn，不阻塞等 health。
 
 ## 错误 Banner（Board 05）
 

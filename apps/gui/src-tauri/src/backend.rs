@@ -1,14 +1,12 @@
 use std::path::{Path, PathBuf};
 use std::process::{Child, Command, Stdio};
 use std::sync::Mutex;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 use reqwest::blocking::Client;
 
 pub const API_HOST: &str = "127.0.0.1";
 pub const API_PORT: u16 = 17300;
-const HEALTH_POLL_MS: u64 = 200;
-const HEALTH_TIMEOUT_SECS: u64 = 30;
 
 pub fn api_base_url() -> String {
     format!("http://{API_HOST}:{API_PORT}")
@@ -28,17 +26,6 @@ pub fn is_health_ok() -> bool {
         .unwrap_or(false)
 }
 
-fn wait_for_health(timeout: Duration, interval: Duration) -> bool {
-    let started = Instant::now();
-    while started.elapsed() < timeout {
-        if is_health_ok() {
-            return true;
-        }
-        std::thread::sleep(interval);
-    }
-    false
-}
-
 fn repo_root() -> PathBuf {
     let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     let root = manifest.join("..").join("..");
@@ -52,23 +39,8 @@ fn skip_backend_spawn() -> bool {
         .unwrap_or(false)
 }
 
-/// 生产 sidecar 路径：与主程序同目录的 `sentrealm-api.exe`（Tauri `externalBin`）。
-#[cfg(not(debug_assertions))]
-fn sidecar_exe() -> Result<PathBuf, String> {
-    let mut path = std::env::current_exe().map_err(|err| format!("无法解析当前可执行文件路径：{err}"))?;
-    path.pop();
-    path.push("sentrealm-api.exe");
-    if !path.is_file() {
-        return Err(format!(
-            "找不到后端 sidecar：{}。请确认安装完整或重新安装。",
-            path.display()
-        ));
-    }
-    Ok(path)
-}
-
 #[cfg(debug_assertions)]
-fn spawn_backend(repo_root: &Path) -> Result<Child, String> {
+fn spawn_backend(_sidecar: Option<&Path>, repo_root: &Path) -> Result<Child, String> {
     let mut cmd = Command::new("uv");
     cmd.args([
         "run",
@@ -98,9 +70,18 @@ fn spawn_backend(repo_root: &Path) -> Result<Child, String> {
 }
 
 #[cfg(not(debug_assertions))]
-fn spawn_backend(_repo_root: &Path) -> Result<Child, String> {
-    let exe = sidecar_exe()?;
-    let mut cmd = Command::new(&exe);
+fn spawn_backend(sidecar: Option<&Path>, _repo_root: &Path) -> Result<Child, String> {
+    let exe = sidecar.ok_or_else(|| {
+        "未配置生产 sidecar 路径（resources/sentrealm-api/sentrealm-api.exe）。".to_string()
+    })?;
+    if !exe.is_file() {
+        return Err(format!(
+            "找不到后端 sidecar：{}。请确认安装完整或重新安装。",
+            exe.display()
+        ));
+    }
+
+    let mut cmd = Command::new(exe);
     // Discard stdio: piped stderr is never drained and can stall the sidecar.
     cmd.stdout(Stdio::null()).stderr(Stdio::null());
 
@@ -111,7 +92,7 @@ fn spawn_backend(_repo_root: &Path) -> Result<Child, String> {
     #[cfg(windows)]
     {
         use std::os::windows::process::CommandExt;
-        // Sidecar is a console EXE; hide the flash console when spawned by the GUI.
+        // Belt-and-suspenders if an older console-subsystem sidecar is still installed.
         const CREATE_NO_WINDOW: u32 = 0x0800_0000;
         cmd.creation_flags(CREATE_NO_WINDOW);
     }
@@ -126,17 +107,27 @@ fn spawn_backend(_repo_root: &Path) -> Result<Child, String> {
         .map_err(|err| format!("无法 spawn sidecar（{}）：{err}", exe.display()))
 }
 
-/// 终止子进程及其后代（Windows 上 kill 仅 uv 会残留 uvicorn/python）。
+/// 终止子进程及其后代。
+///
+/// - 生产 onedir：单进程，直接 `Child::kill`（避免 `taskkill` 弹黑框、拖慢关窗）
+/// - 开发 `uv run`：须杀整棵树，否则会残留 uvicorn/python
 fn kill_process_tree(child: &mut Child) {
     let pid = child.id();
 
     #[cfg(windows)]
     {
-        let _ = Command::new("taskkill")
-            .args(["/PID", &pid.to_string(), "/T", "/F"])
-            .stdout(Stdio::null())
-            .stderr(Stdio::null())
-            .status();
+        if cfg!(debug_assertions) {
+            use std::os::windows::process::CommandExt;
+            const CREATE_NO_WINDOW: u32 = 0x0800_0000;
+            let _ = Command::new("taskkill")
+                .args(["/PID", &pid.to_string(), "/T", "/F"])
+                .stdout(Stdio::null())
+                .stderr(Stdio::null())
+                .creation_flags(CREATE_NO_WINDOW)
+                .status();
+        } else {
+            let _ = child.kill();
+        }
     }
 
     #[cfg(unix)]
@@ -156,6 +147,8 @@ pub struct BackendManager {
     child: Mutex<Option<Child>>,
     spawned_by_us: Mutex<bool>,
     startup_error: Mutex<Option<String>>,
+    /// 生产 onedir：`$RESOURCE/sentrealm-api/sentrealm-api.exe`。
+    sidecar_path: Mutex<Option<PathBuf>>,
 }
 
 impl BackendManager {
@@ -164,7 +157,12 @@ impl BackendManager {
             child: Mutex::new(None),
             spawned_by_us: Mutex::new(false),
             startup_error: Mutex::new(None),
+            sidecar_path: Mutex::new(None),
         }
+    }
+
+    pub fn set_sidecar_path(&self, path: PathBuf) {
+        *self.sidecar_path.lock().expect("sidecar path lock") = Some(path);
     }
 
     pub fn ensure_started(&self) {
@@ -173,43 +171,23 @@ impl BackendManager {
             return;
         }
 
+        // IDE 断点：外部已起 uvicorn；就绪由前端 waitForHealth 轮询，不阻塞窗口首帧。
         if skip_backend_spawn() {
-            let ready = wait_for_health(
-                Duration::from_secs(HEALTH_TIMEOUT_SECS),
-                Duration::from_millis(HEALTH_POLL_MS),
-            );
-            if !ready {
-                *self.startup_error.lock().expect("error lock") = Some(
-                    "外部后端未就绪（SENTREALM_SKIP_BACKEND_SPAWN=1）。请先启动「FastAPI（uvicorn · 断点）」或手动 uvicorn。"
-                        .to_string(),
-                );
-            }
             return;
         }
 
         let root = repo_root();
-        match spawn_backend(&root) {
+        let sidecar = self.sidecar_path.lock().expect("sidecar path lock").clone();
+        match spawn_backend(sidecar.as_deref(), &root) {
             Ok(child) => {
                 *self.child.lock().expect("child lock") = Some(child);
                 *self.spawned_by_us.lock().expect("spawn lock") = true;
             }
             Err(message) => {
                 *self.startup_error.lock().expect("error lock") = Some(message);
-                return;
             }
         }
-
-        let ready = wait_for_health(
-            Duration::from_secs(HEALTH_TIMEOUT_SECS),
-            Duration::from_millis(HEALTH_POLL_MS),
-        );
-
-        if !ready {
-            *self.startup_error.lock().expect("error lock") = Some(
-                "后端 health 检查超时（30s）。端口 17300 可能被占用，或 uvicorn 启动失败。"
-                    .to_string(),
-            );
-        }
+        // 不等待 /health：setup 阻塞会导致空白窗约数秒；前端 banner「启动中」+ waitForHealth。
     }
 
     pub fn startup_error(&self) -> Option<String> {

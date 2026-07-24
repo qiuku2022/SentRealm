@@ -38,9 +38,10 @@ yarn-error.log*
 # --- Tauri / Rust ---
 apps/gui/src-tauri/target/
 **/src-tauri/target/
-# 本地打包出的 sidecar 二进制（按 TARGET_TRIPLE 命名，由构建脚本生成）
+# 本地打包出的 sidecar（旧 onefile externalBin；现 onedir → resources/）
 apps/gui/src-tauri/binaries/*
 !apps/gui/src-tauri/binaries/.gitkeep
+apps/gui/src-tauri/resources/sentrealm-api/
 
 # --- IDE / OS ---
 .idea/

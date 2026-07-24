@@ -1,6 +1,8 @@
 # -*- mode: python ; coding: utf-8 -*-
 """PyInstaller spec for SentRealm FastAPI sidecar (ADR-008).
 
+onedir（目录包）：避免 onefile 每次启动解压到 %TEMP%\\_MEI*，加快冷启动与退出。
+
 Build from repo root:
   uv run pyinstaller packaging/sentrealm-api.spec --noconfirm --clean
 """
@@ -84,22 +86,29 @@ pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 exe = EXE(
     pyz,
     a.scripts,
-    a.binaries,
-    a.zipfiles,
-    a.datas,
     [],
+    exclude_binaries=True,
     name="sentrealm-api",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=False,
-    upx_exclude=[],
-    runtime_tmpdir=None,
-    # Console subsystem: Rust spawn uses CREATE_NO_WINDOW to hide the flash console.
-    console=True,
+    # Windowed subsystem: no console flash when spawned by the GUI (stdio discarded).
+    console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+)
+
+coll = COLLECT(
+    exe,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
+    strip=False,
+    upx=False,
+    upx_exclude=[],
+    name="sentrealm-api",
 )

@@ -34,7 +34,7 @@ Rust 在 `setup` 阶段 spawn FastAPI，但不等待就绪；React 启动后自�
 
 ### C. Tauri spawn + Rust 健康检查（本决策选中）
 
-Rust spawn 子进程后轮询 `GET /health`，成功后再放行前端调用业务 API；失败则 UI 提示后端未就绪。
+Rust spawn 子进程后**立即返回**（不阻塞窗口）；前端轮询 `GET /health`，成功后再调用业务 API；失败则 UI 提示后端未就绪。
 
 - 优点：就绪逻辑集中在 Rust；前端契约清晰；dev 与 prod 可共用同一模型
 - 缺点：Rust 侧需维护 spawn、轮询、终止逻辑
@@ -67,17 +67,17 @@ Rust spawn 子进程后轮询 `GET /health`，成功后再放行前端调用业�
 | uvicorn 模块 | `apps.gui.api.main:app` |
 | 绑定 | `127.0.0.1:17300` |
 | base URL | Tauri command `get_api_base_url` → `http://127.0.0.1:17300` |
-| health 轮询 | 间隔 **200ms**，总超时 **30s**（Rust）；前端 `waitForHealth` 使用相同参数作补充 |
+| health 轮询 | **前端** `waitForHealth`：间隔 **200ms**，总超时 **30s**。Rust `setup` **只 spawn、不阻塞等 health**（避免空白窗） |
 | 前端契约 | `GET /health` 成功前，前端**不调用** `/api/v1/*` 业务接口 |
 | 已就绪跳过 | 若启动前 `GET /health` 已成功，跳过 spawn（dev 便利；避免重复绑定 17300） |
-| IDE 跳过 spawn | `SENTREALM_SKIP_BACKEND_SPAWN=1`（或 `true` / `yes`）时永不 spawn；health 超时则 `get_backend_startup_error` 提示启动外部 FastAPI |
-| 错误透传 | Tauri command `get_backend_startup_error` 返回 spawn / health 失败摘要 |
+| IDE 跳过 spawn | `SENTREALM_SKIP_BACKEND_SPAWN=1`（或 `true` / `yes`）时永不 spawn；由前端轮询 `/health`，超时显示未就绪 |
+| 错误透传 | Tauri command `get_backend_startup_error` 返回 **spawn 失败**摘要；health 超时由前端文案提示 |
 
 ### 就绪检查
 
-- Rust 轮询 `GET http://127.0.0.1:17300/health`（无版本前缀）
-- 成功后再允许前端调用 `/api/v1/*` 业务接口
-- **超时或启动失败**：向 WebView 发送状态或事件；UI 显示「后端未就绪」
+- 前端轮询 `GET http://127.0.0.1:17300/health`（无版本前缀）
+- 成功后再调用 `/api/v1/*`；启动中侧栏 / banner 显示「正在连接后端」
+- **超时或启动失败**：UI 显示「后端未就绪」
 
 ### 端口冲突（MVP）
 
@@ -98,7 +98,7 @@ Rust spawn 子进程后轮询 `GET /health`，成功后再放行前端调用业�
 
 ### 生产打包
 
-生产环境将 FastAPI 后端打成 **PyInstaller sidecar**，由 Tauri `externalBin` 嵌入并 spawn；开发环境为 uv 项目 `.venv` + `uv run uvicorn`。详见 [ADR-008](./008-production-packaging.md)。
+生产环境将 FastAPI 后端打成 **PyInstaller onedir sidecar**，由 Tauri `bundle.resources` 嵌入；开发环境为 uv 项目 `.venv` + `uv run uvicorn`。详见 [ADR-008](./008-production-packaging.md)。
 
 ### 与 ADR-007 的关系
 

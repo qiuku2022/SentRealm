@@ -24,6 +24,18 @@ pub fn run() {
             get_backend_startup_error
         ])
         .setup(|app| {
+            #[cfg(not(debug_assertions))]
+            {
+                use tauri::path::BaseDirectory;
+                let sidecar = app
+                    .path()
+                    .resolve("sentrealm-api/sentrealm-api.exe", BaseDirectory::Resource)
+                    .map_err(|err| -> Box<dyn std::error::Error> {
+                        format!("无法解析 sidecar 资源路径：{err}").into()
+                    })?;
+                app.state::<BackendManager>().set_sidecar_path(sidecar);
+            }
+
             let manager = app.state::<BackendManager>();
             manager.ensure_started();
             Ok(())

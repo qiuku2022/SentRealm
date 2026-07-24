@@ -62,7 +62,7 @@ flowchart TB
 | 阶段 | 行为 |
 |------|------|
 | 应用启动 | 开发：`uv run uvicorn apps.gui.api.main:app --host 127.0.0.1 --port 17300`（`uv sync` 后，cwd = 仓库根）；生产：spawn PyInstaller sidecar（[ADR-008](./adr/008-production-packaging.md)） |
-| 就绪检查 | Rust 轮询 `GET /health`（间隔 200ms，总超时 30s）；前端 `waitForHealth` 同参数补充；失败则 UI 提示「后端未就绪」 |
+| 就绪检查 | Rust spawn 后不阻塞；前端 `waitForHealth` 轮询 `GET /health`（间隔 200ms，总超时 30s）；失败则 UI 提示「后端未就绪」 |
 | 运行中 | 前端经 `get_api_base_url` 获取 `http://127.0.0.1:17300`；Rust 监控子进程；异常退出时 UI 提示「后端已停止」 |
 | 应用关闭 | Tauri 退出时终止 FastAPI 子进程，避免残留后台进程 |
 
