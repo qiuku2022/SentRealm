@@ -17,20 +17,20 @@ Phase 0 起，开发环境与 CI 对齐以下版本（小版本补丁可随安�
 
 | 工具 | 锁定版本 |
 |------|----------|
-| Python（由 uv 管理） | **3.12.13**（见根目录 `.python-version`） |
-| [uv](https://docs.astral.sh/uv/) | **0.11.28** |
-| [Node.js](https://nodejs.org/) | **24.18.0** LTS |
+| Python（项目 `.venv`，由 uv 管理） | **3.12.13**（见根目录 `.python-version`） |
+| [uv](https://docs.astral.sh/uv/) | **0.12.1** |
+| [Node.js](https://nodejs.org/) | **24.18.1** LTS |
 | [pnpm](https://pnpm.io/) | **11.15.0** |
-| [Rust](https://www.rust-lang.org/tools/install) | **1.97.0**（`stable` 通道） |
+| [Rust](https://www.rust-lang.org/tools/install) | **1.97.1**（`stable` 通道） |
 
 ## 前置依赖
 
 | 工具 | 用途 | 版本 |
 |------|------|------|
-| [uv](https://docs.astral.sh/uv/) | Python 解释器、虚拟环境、包依赖与脚本入口 | **0.11.28** |
-| [Node.js](https://nodejs.org/) | 前端与 Tauri 构建 | **24.18.0** LTS |
+| [uv](https://docs.astral.sh/uv/) | Python 解释器、虚拟环境、包依赖与脚本入口 | **0.12.1** |
+| [Node.js](https://nodejs.org/) | 前端与 Tauri 构建 | **24.18.1** LTS |
 | [pnpm](https://pnpm.io/) | Node 包管理 | **11.15.0** |
-| [Rust](https://www.rust-lang.org/tools/install) | Tauri 2 桌面壳构建 | **1.97.0**（`stable`）；满足 [Tauri 2 前置要求](https://v2.tauri.app/start/prerequisites/) |
+| [Rust](https://www.rust-lang.org/tools/install) | Tauri 2 桌面壳构建 | **1.97.1**（`stable`）；满足 [Tauri 2 前置要求](https://v2.tauri.app/start/prerequisites/) |
 | Windows 额外 | Tauri 桌面构建 | [WebView2](https://developer.microsoft.com/microsoft-edge/webview2/)（Win10/11 通常已预装） |
 
 **主开发平台（Phase 0）**：**Windows**。Phase 0 验收以 Windows 为准。
@@ -63,7 +63,7 @@ uv sync
 
 | 项 | 约定 |
 |----|------|
-| Python 版本 | **3.12.13**（`.python-version` + `pyproject.toml` `requires-python`） |
+| Python 版本 | 项目 **`.venv` 中的 3.12.13**（`.python-version` + `pyproject.toml` `requires-python`）；系统 Python 不作为基准 |
 | 虚拟环境 | 仓库根 **`.venv/`**（`uv sync` 创建；不入 git） |
 | 依赖安装 / 更新 | `uv sync`（读 `uv.lock`） |
 | 运行入口 | `uv run <命令>`（或 IDE 选用 `.venv` 解释器） |
@@ -106,6 +106,7 @@ Copy-Item .env.example .env
 ```bash
 uv sync
 uv run python --version
+uv run python -c "import sys; print(sys.executable)"
 uv run python -c "import sentrealm_core; print('ok')"
 uv run pytest --version
 
@@ -120,11 +121,12 @@ cd apps/gui && pnpm exec tauri --version
 
 | 检查项 | 期望 |
 |--------|------|
-| `uv run python --version` | `Python 3.12.13` |
-| `uv --version` | `0.11.28` |
-| `node --version` | `v24.18.0` |
+| `uv run python --version` | `Python 3.12.13`（来自项目 `.venv`） |
+| `uv run python -c "import sys; print(sys.executable)"` | 仓库内 `.venv` 解释器；Windows 为 `.venv\Scripts\python.exe` |
+| `uv --version` | `0.12.1` |
+| `node --version` | `v24.18.1` |
 | `pnpm --version` | `11.15.0` |
-| `rustc --version` | `1.97.0`（stable） |
+| `rustc --version` | `1.97.1`（stable） |
 | `uv sync` | 无报错；`.venv/` 已创建 |
 | `uv run pytest` | 可执行（Phase 0 起有测试用例） |
 | `pnpm install` | `apps/gui` 依赖安装完成 |

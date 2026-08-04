@@ -161,6 +161,7 @@ impl BackendManager {
         }
     }
 
+    #[cfg(not(debug_assertions))]
     pub fn set_sidecar_path(&self, path: PathBuf) {
         *self.sidecar_path.lock().expect("sidecar path lock") = Some(path);
     }

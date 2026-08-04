@@ -22,7 +22,7 @@
 
 ## 开发者快速开始
 
-前置：Windows（Phase 0 主平台）、**uv** **0.11.28**（Python **3.12.13** + 依赖）、Node **24.18.0**、pnpm **11.15**、Rust **1.97**。详见 [docs/dev/setup.md](./docs/dev/setup.md)。
+前置：Windows（Phase 0 主平台）、**uv** **0.12.1**（项目 `.venv` 使用 Python **3.12.13**）、Node **24.18.1**、pnpm **11.15.0**、Rust **1.97.1**。系统 Python 版本不作为项目基准，详见 [docs/dev/setup.md](./docs/dev/setup.md)。
 
 ```bash
 uv sync
