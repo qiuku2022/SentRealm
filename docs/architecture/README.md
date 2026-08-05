@@ -35,6 +35,7 @@
 | [008](./adr/008-production-packaging.md) | 生产打包（PyInstaller sidecar） |
 | [010](./adr/010-workspace-document-persistence.md) | 文稿与项目本地持久化（`Documents/SentRealm`） |
 | [011](./adr/011-uv-python-environment.md) | uv 管理 Python 开发环境 |
+| [012](./adr/012-natural-boundary-segmentation.md) | 基于自然边界的全局规则断句 |
 
 ## 与相邻文档的分工
 

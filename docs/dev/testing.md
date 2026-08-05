@@ -35,7 +35,7 @@ pnpm lint
 | 无全局 mock 开关 | 不使用 `SENTREALM_LLM_MOCK=1` 类环境变量静默 mock |
 | 未启用 / 未配置 LLM | `llm_enabled=false` 或缺少 endpoint/model/密钥时，跳过流水线步骤 6，超长行进入标记（与生产行为一致） |
 | HTTP API | MVP 不提供 API 层 mock 模式；mock 在 `core` 层完成 |
-| 发送池 / 质检 | 单测须覆盖：批量 ≤10、语义质检不合格回池、满 3 次放弃标记；`llm_quality_ok` 与 `MockLlmClient.break_lines` |
+| 发送池 / 质检 | 单测须覆盖：批量 ≤10、内容守恒、有效切分、有进展、不合格回池、满 3 次放弃标记；LLM 结果不以 `min_chars` / `max_chars` 作硬门禁；`llm_quality_ok` 与 `MockLlmClient.break_lines` |
 
 `MockLlmClient` 应返回**确定性**切分结果，便于断言 `flagged_lines` 与行内容。
 
@@ -47,9 +47,10 @@ Phase 1 起，`tests/` 应至少包含：
 2. **有 mock LLM**：规则断句后仍超长的行经发送池 / mock 切分；含质检通过与返工放弃路径
 3. **字词表**：`test_break_lexicon.py`（词表加载、受保护词检测）
 4. **各步骤边界**：见 [data-flow.md 黄金样例](../architecture/data-flow.md)
-   - [去标点并换行](../architecture/data-flow.md)
+   - [标点分级与去除](../architecture/data-flow.md)
    - [空格规范化](../architecture/data-flow.md)
    - [规则断句](../architecture/data-flow.md)
+5. **真实稿件回归**：`test_pipeline_finance_regression.py` 覆盖引号不孤立、高风险单字不误切、规则短行数量约束
 
 产品成功标准（剪映粘贴抽样）见 [产品定义与 MVP](../planning/01-product-definition-and-mvp.md#成功标准)。
 

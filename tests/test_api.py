@@ -70,7 +70,7 @@ def test_get_break_lexicon_defaults(client: TestClient) -> None:
     assert response.status_code == 200
     data = response.json()
     assert "重要" in data["protected_words"]
-    assert "非常" in data["break_after_words"]
+    assert "非常" not in data["break_after_words"]
     assert "了" in data["break_after_chars"]
     assert "在" in data["break_before_words"]
 

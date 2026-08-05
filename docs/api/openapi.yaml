@@ -582,11 +582,14 @@ components:
           minimum: 1
           default: 5
           description: |
-            规则断句与 LLM 断句结果的单行最短字数（不含去标点换行）。
+            自动规则断句结果的单行最短字数；完整自然短句与 LLM 结果不受此硬门禁。
             须 ≤ max_chars；用户可在设置中编辑。
           example: 5
         punctuation_remove:
           type: array
+          description: |
+            需要去除的符号。内置句末符号形成硬边界；逗号等仅作为超长时的候选断点；
+            引号、括号及未知自定义去除符号只删除。与 punctuation_keep 冲突时以保留为准。
           items:
             type: string
           default:
@@ -617,6 +620,7 @@ components:
             - "…"
         punctuation_keep:
           type: array
+          description: 保留且不参与内置边界分类的符号
           items:
             type: string
           default: ["%", "％"]

@@ -21,12 +21,29 @@ from sentrealm_core.store.sqlite import SCHEMA_VERSION, SqliteSettingsStore, mig
 def test_load_default_lexicon_contains_product_examples() -> None:
     lexicon = load_break_lexicon()
     assert "重要" in lexicon.protected_words
-    assert "非常" in lexicon.break_after_words
+    assert "非常" not in lexicon.break_after_words
     assert "但是" in lexicon.break_after_words
     assert "了" in lexicon.break_after_chars
     assert "吗" in lexicon.break_after_chars
+    assert "的" not in lexicon.break_after_chars
     assert "在" in lexicon.break_before_words
     assert "对于" in lexicon.break_before_words
+    assert {
+        "可能",
+        "需要",
+        "可以",
+        "仍然",
+        "能够",
+        "不能",
+        "真正",
+        "通常",
+        "容易",
+        "提供",
+    }.issubset(lexicon.break_before_words)
+    assert {"不可能", "未必能够", "不提供"}.issubset(lexicon.protected_words)
+    assert {"不可能", "未必能够", "不提供"}.issubset(
+        lexicon.break_before_words
+    )
     assert len(lexicon.break_after_words) >= 20
     assert len(lexicon.break_before_words) >= 15
 
