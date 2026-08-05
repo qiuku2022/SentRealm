@@ -40,9 +40,9 @@ M1 Phase 0 脚手架 ──► M2 Phase 1 MVP 核心 ──► M3 可分发 MVP 
 
 | 交付 | 说明 |
 |------|------|
-| 8 步流水线 | 去标点 → 空格 → 检测 → 规则断句 → … → LLM 发送池（可选）→ 标记 |
+| 8 步流水线 | 标点分级与去除 → 空格 → 自然句检测 → 全局规则断句/短行修复 → LLM 发送池（可选）→ 标记 |
 | 字词表规则断句 | 禁止硬切；数据在 `break_lexicon/` |
-| LLM 发送池 | 批 ≤10；质检（长短 + 句意守恒）；每行最多 3 次返工（[产品定义](./01-product-definition-and-mvp.md#llm-发送池与质检返工)、[ADR-005](../architecture/adr/005-llm-integration-privacy.md)） |
+| LLM 发送池 | 批 ≤10；质检（内容守恒 + 有效切分 + 有进展，不做 min/max 硬门禁）；每行最多 3 次返工（[产品定义](./01-product-definition-and-mvp.md#llm-发送池与质检返工)、[ADR-005](../architecture/adr/005-llm-integration-privacy.md)） |
 | GUI 核心 | 输入 / 参数 / 对照预览 / 超长高亮 / 复制 |
 | 多入口一致 | 相同 Settings + 文稿 → gui/cli/mcp 结果一致 |
 | 隐私边界 | LLM 仅池内超长行；密钥环境变量（[ADR-005](../architecture/adr/005-llm-integration-privacy.md)） |

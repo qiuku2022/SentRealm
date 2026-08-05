@@ -16,6 +16,7 @@
 | [008](./008-production-packaging.md) | 生产打包（PyInstaller sidecar） | 已接受 |
 | [010](./010-workspace-document-persistence.md) | 文稿与项目本地持久化 | 已接受 |
 | [011](./011-uv-python-environment.md) | uv 管理 Python 开发环境 | 已接受 |
+| [012](./012-natural-boundary-segmentation.md) | 基于自然边界的全局规则断句 | 已接受 |
 
 ## 后续 ADR
 

@@ -20,6 +20,8 @@
 | LLM 配置 | `llm_endpoint`、`llm_model` 始终从 SQLite 读取；密钥从 `SENTREALM_LLM_API_KEY` 读取 |
 | 与 gui 一致性 | 相同 `Settings` 与输入文稿时，三入口处理结果须一致（Phase 1 验收项） |
 
+三入口共用 ADR-012 的自然边界规则：句末符号结束自然句，逗号等只在超长时作为候选，引号/括号只删除；无法自然切开的局部超长行保留在 `processed` 并列入 `flagged_lines`。
+
 ---
 
 ## CLI：`sentrealm preprocess`

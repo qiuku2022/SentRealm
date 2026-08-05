@@ -312,8 +312,7 @@ export function SettingsDrawer({
               <div>
                 <div className="shell-row-set-lbl">最小字数</div>
                 <div className="shell-row-set-sub">
-                  规则断句与 LLM 切分后，每行不少于该字数（不含去标点换行）。须 ≤
-                  最大字数。
+                  自动规则切分后每行不少于该字数；完整短句与 LLM 结果例外。须 ≤ 最大字数。
                 </div>
               </div>
               <div className="shell-input-row shell-input-row-narrow">
@@ -339,7 +338,7 @@ export function SettingsDrawer({
               <div>
                 <div className="shell-row-set-lbl">去除标点</div>
                 <div className="shell-row-set-sub">
-                  关闭时按下方列表保留指定符号（默认 % 和 ％）。
+                  逗号等仅在超长时参与断句；引号和括号只删除。
                 </div>
               </div>
               <button

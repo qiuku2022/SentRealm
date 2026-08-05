@@ -44,11 +44,11 @@ sequenceDiagram
 对齐 [产品定义：断句处理流程](../planning/01-product-definition-and-mvp.md)：
 
 ```
-去标点（去除位置换行） → 空格规范化
+识别标点边界并去标点 → 空格规范化
     ↓
-检测每行字数
+按硬边界形成自然句并检测字数
     ↓
-超出限制的行 → 规则断句换行
+超长自然句 → 候选边界 + 字词表全局断句 → 短行修复
     ↓
 检测每行字数
     ↓
@@ -61,9 +61,9 @@ sequenceDiagram
 
 ```mermaid
 flowchart TD
-    input[输入文稿] --> punct[去标点并换行]
+    input[输入文稿] --> punct[标点分级并去除]
     punct --> space[空格规范化]
-    space --> check1[检测每行字数]
+    space --> check1[形成自然句并检测字数]
     check1 --> ruleBreak{有超长行?}
     ruleBreak -->|是| rules[规则断句]
     ruleBreak -->|否| output[组装响应]
@@ -86,10 +86,10 @@ flowchart TD
 
 | 步骤 | 执行模块 | 外部依赖 | 说明 |
 |------|----------|----------|------|
-| 1. 去标点并换行 | `pipeline/punctuation.py` | 无 | 去除标点在原位置换行；默认保留 `%` `％` |
+| 1. 标点分级并去除 | `pipeline/punctuation.py` | 无 | 句末符号为硬边界；逗号等记录为候选；引号/括号仅删除；默认保留 `%` `％` |
 | 2. 空格规范化 | `pipeline/whitespace.py` | 无 | 保留英词间、英中文间空格；去除其余 |
 | 3. 检测字数 | `pipeline/line_count.py` | 无 | 中文/英文/数字各计 1 字；合并空行 |
-| 4. 规则断句 | `pipeline/rule_break.py` | 无 | 仅超长行；字词表白名单（见下文） |
+| 4. 规则断句与短行修复 | `pipeline/rule_break.py` + `pipeline/short_line_repair.py` | 无 | 仅超长自然句；候选标点、英文词界、字词表全局选点；局部难切段可保留超长 |
 | 5. 检测字数 | `pipeline/line_count.py` | 无 | 同上 |
 | 6. LLM 发送池 | `pipeline/llm_break.py` | LLM API | 入池 → 批量 ≤10 → 质检返工；未配置则跳过 |
 | 7. 检测字数 | `pipeline/line_count.py` | 无 | 同上 |
@@ -112,13 +112,13 @@ flowchart TD
 
 API / cli / mcp 的**字段结构**始终以 [openapi.yaml](../api/openapi.yaml) 与 [cli-mcp.md](../cli-mcp.md) 为准。
 
-### 去标点并换行（步骤 1）
+### 标点分级与去除（步骤 1）
 
 | | 内容 |
 |---|------|
 | 输入（全文） | `大家好，欢迎来到今天的节目。今天我们聊聊 AI 技术。` |
-| 期望输出 | 三行：`大家好` / `欢迎来到今天的节目` / `今天我们聊聊 AI 技术` |
-| 要点 | 去除的 `，` `。` 在原位置换行；`AI` 与 `技术` 之间空格保留（步骤 2 再规范化） |
+| 期望输出 | 横屏默认 15 字下两行：`大家好欢迎来到今天的节目` / `今天我们聊聊 AI 技术` |
+| 要点 | `，` 仅记录为超长时候选；`。` 结束自然句；`AI` 与 `技术` 之间空格保留 |
 
 ### 空格规范化（步骤 2）
 
@@ -137,21 +137,21 @@ API / cli / mcp 的**字段结构**始终以 [openapi.yaml](../api/openapi.yaml)
 
 实现约束见下文 [规则断句（字词表）](#规则断句字词表)。以下 `max_chars = 10`，仅示意步骤 4（输入已为单行，不含去标点前置步骤）。
 
-样例 A — 英文词界：
+样例 A — 自然边界优先：
 
 | | 内容 |
 |---|------|
-| 输入行 | `使用 iPhone 15 拍摄了一段精彩的口播视频` |
-| 期望输出（多行） | `使用 iPhone 15`<br>`拍摄了一段精彩的`<br>`口播视频` |
-| 要点 | `iPhone` 与 `15` 之间的空格保留；不在 `iPhone` 中间切断 |
+| 输入行 | `第一部分内容比较完整，第二部分内容也很完整。` |
+| 期望输出（`max_chars=10`） | `第一部分内容比较完整`<br>`第二部分内容也很完整` |
+| 要点 | 句子超长后优先使用原始逗号候选；未超长时逗号不会自动换行 |
 
-样例 B — 避免单字成行：
+样例 B — 避免高风险语法切点：
 
 | | 内容 |
 |---|------|
-| 输入行 | `这是一个非常重要的技术突破` |
-| 期望输出（多行） | `这是一个非常`<br>`重要的技术突破` |
-| 要点 | 尽量避免 `的` 等单字单独成行；禁止硬切成 `这是一个非常重` / `要的技术突破` |
+| 输入行 | `普通人的生活压力似乎会随之减轻` |
+| 期望输出 | 整行保留并标记超长，不切成 `普通人的` / `生活压力似乎会随之减轻` |
+| 要点 | 宁可标记局部超长，也不在修饰语与中心语之间制造短片段 |
 
 单元测试应至少覆盖本节全部样例（无 LLM、有 mock LLM 场景）；约定见 [testing.md](../dev/testing.md)。
 
@@ -164,10 +164,10 @@ API / cli / mcp 的**字段结构**始终以 [openapi.yaml](../api/openapi.yaml)
 | 禁止硬切 | 无白名单切点则保留整行 |
 | 英文词界 | 禁止切断英文单词；仅在英文词间空格后切分 |
 | 受保护词 | `protected_words.txt` 内的词禁止从中切断 |
-| 避免过短成行 | 左右段各至少 `min_chars` 字（设置项；默认 5；**仅规则断句**） |
+| 避免过短成行 | 自动规则切分各段至少 `min_chars` 字；完整自然短句例外；低于建议长度时尝试相邻回并 |
 | 仅处理超长行 | 未超 `max_chars` 的行不改动 |
 
-**选点策略**：`ideal = total / ceil(total / max_chars)`，合法切点中取左段字数最接近 `ideal` 的位置（并列取左段更长）；逐段重复直至合规或无法继续切分。
+**选点策略**：在整个自然句上使用动态规划，综合边界等级、行长均衡、短行、局部超长和高风险切点惩罚；允许保留最小范围的局部超长段继续进入 LLM/标记，避免部分贪心切分。见 [ADR-012](./adr/012-natural-boundary-segmentation.md)。
 
 词表数据：运行时读 SQLite `Settings.break_lexicon`（`resolve_break_lexicon`）；出厂默认与「恢复默认」来自 `packages/core/src/sentrealm_core/data/break_lexicon/*.txt`；加载逻辑：`pipeline/break_lexicon.py`。GUI 经 FAB「编辑规则」写入 Settings。
 
@@ -186,6 +186,7 @@ packages/core/src/sentrealm_core/
     whitespace.py
     line_count.py
     rule_break.py
+    short_line_repair.py
     break_lexicon.py   # 字词表加载与查询
     llm_quality.py     # llm_quality_ok 等
     llm_break.py       # 发送池编排
