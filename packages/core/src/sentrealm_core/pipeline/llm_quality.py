@@ -71,12 +71,21 @@ def quality_ok(
     )
 
 
-def llm_quality_ok(original: str, parts: list[str]) -> bool:
-    """Semantic-first LLM gate: conservation, real split, shorter longest segment."""
+def llm_quality_ok(
+    original: str,
+    parts: list[str],
+    *,
+    min_chars: int,
+) -> bool:
+    """LLM gate: minimum length, conservation, real split, and progress."""
+    if min_chars < 1:
+        raise ValueError("min_chars must be >= 1")
     cleaned = [part.strip() for part in parts if part.strip()]
     if len(cleaned) < 2:
         return False
     if not conservation_ok(original, cleaned):
+        return False
+    if any(count_line_chars(part) < min_chars for part in cleaned):
         return False
     original_count = count_line_chars(original)
     if original_count <= 0:

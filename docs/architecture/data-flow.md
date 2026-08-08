@@ -86,7 +86,7 @@ flowchart TD
 
 | 步骤 | 执行模块 | 外部依赖 | 说明 |
 |------|----------|----------|------|
-| 1. 去标点并换行 | `pipeline/punctuation.py` | 无 | 去除标点在原位置换行；默认保留 `%` `％` |
+| 1. 去标点并换行 | `pipeline/punctuation.py` | 无 | 去除标点在原位置换行；默认保留 `%` `.` |
 | 2. 空格规范化 | `pipeline/whitespace.py` | 无 | 保留英词间、英中文间空格；去除其余 |
 | 3. 检测字数 | `pipeline/line_count.py` | 无 | 中文/英文/数字各计 1 字；合并空行 |
 | 4. 规则断句 | `pipeline/rule_break.py` | 无 | 仅超长行；字词表白名单（见下文） |
@@ -141,17 +141,17 @@ API / cli / mcp 的**字段结构**始终以 [openapi.yaml](../api/openapi.yaml)
 
 | | 内容 |
 |---|------|
-| 输入行 | `使用 iPhone 15 拍摄了一段精彩的口播视频` |
-| 期望输出（多行） | `使用 iPhone 15`<br>`拍摄了一段精彩的`<br>`口播视频` |
+| 输入行 | `使用 iPhone 15 拍摄口播视频` |
+| 期望输出（多行） | `使用 iPhone 15`<br>`拍摄口播视频` |
 | 要点 | `iPhone` 与 `15` 之间的空格保留；不在 `iPhone` 中间切断 |
 
-样例 B — 避免单字成行：
+样例 B — 通用篇章连接语：
 
 | | 内容 |
 |---|------|
-| 输入行 | `这是一个非常重要的技术突破` |
-| 期望输出（多行） | `这是一个非常`<br>`重要的技术突破` |
-| 要点 | 尽量避免 `的` 等单字单独成行；禁止硬切成 `这是一个非常重` / `要的技术突破` |
+| 输入行 | `方案需要调整所以我们明天继续讨论` |
+| 期望输出（多行） | `方案需要调整所以`<br>`我们明天继续讨论` |
+| 要点 | 仅在词表中的高置信度切点换行；`的`、`得`、`有` 等上下文相关单字不作为出厂默认切点 |
 
 单元测试应至少覆盖本节全部样例（无 LLM、有 mock LLM 场景）；约定见 [testing.md](../dev/testing.md)。
 
@@ -164,12 +164,12 @@ API / cli / mcp 的**字段结构**始终以 [openapi.yaml](../api/openapi.yaml)
 | 禁止硬切 | 无白名单切点则保留整行 |
 | 英文词界 | 禁止切断英文单词；仅在英文词间空格后切分 |
 | 受保护词 | `protected_words.txt` 内的词禁止从中切断 |
-| 避免过短成行 | 左右段各至少 `min_chars` 字（设置项；默认 5；**仅规则断句**） |
+| 避免过短成行 | 左右段各至少 `min_chars` 字（设置项；默认 5；LLM 结果另在语义质检中执行同一最短值） |
 | 仅处理超长行 | 未超 `max_chars` 的行不改动 |
 
 **选点策略**：`ideal = total / ceil(total / max_chars)`，合法切点中取左段字数最接近 `ideal` 的位置（并列取左段更长）；逐段重复直至合规或无法继续切分。
 
-词表数据：运行时读 SQLite `Settings.break_lexicon`（`resolve_break_lexicon`）；出厂默认与「恢复默认」来自 `packages/core/src/sentrealm_core/data/break_lexicon/*.txt`；加载逻辑：`pipeline/break_lexicon.py`。GUI 经 FAB「编辑规则」写入 Settings。
+词表数据：运行时读 SQLite `Settings.break_lexicon`（`resolve_break_lexicon`）；出厂默认与「恢复默认」来自 `packages/core/src/sentrealm_core/data/break_lexicon/*.txt`；加载逻辑：`pipeline/break_lexicon.py`。出厂词表采用高精度优先的保守集合，减少规则误切；GUI 经 FAB「编辑规则」写入 Settings。
 
 ## core 模块边界
 
@@ -219,8 +219,8 @@ apps/gui/api/
 | 数据 | 流向 |
 |------|------|
 | 文稿全文 | gui 持久化至 `Documents/SentRealm/.../source.txt`；cli/mcp 仍仅内存处理 |
-| LLM 请求 | 仅发送规则断句后仍超长的行（发送池，每批最多 **10** 行）+ `max_chars` 参考上限 |
-| LLM 响应 | 仅用于断句切分，**不改写文稿用词**；须过语义质检（`llm_quality_ok`）后写回 |
+| LLM 请求 | 仅发送规则断句后仍超长的行（发送池，每批最多 **10** 行）+ `min_chars` 最短行长 + `max_chars` 参考上限 |
+| LLM 响应 | 仅用于断句切分，**不改写文稿用词**；须过含最短行长校验的语义质检（`llm_quality_ok`）后写回 |
 | 用户配置 | 写入本地 SQLite（`%APPDATA%/SentRealm/settings.db`）；含 `break_lexicon` 字词表 |
 | 处理结果 | gui 缓存至 `result.json`；经 API 返回前端展示 |
 

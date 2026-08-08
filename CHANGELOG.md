@@ -13,16 +13,22 @@
 
 ### Changed
 
+- **品牌图标**：桌面程序、安装包、浏览器页签与应用侧栏统一使用新版圆角 SentRealm 图标
+- **桌面窗口**：默认尺寸由 `1280×800` 调整为 `1440×900`，首次打开时提供更宽裕的编辑空间
+- **LLM 断句最短行长**：提示词与质检现均使用 `min_chars`；低于设置值的碎句不再写回，并进入既有的最多 3 次返工流程
+- **出厂断句词表 v3**：保留四类可编辑结构，默认内容收敛为高置信度通用切点；移除 `的/地/得/了/有/在/找/非常` 等易受上下文影响的切点，规则无法可靠切分的超长行交由已启用的 LLM（已有 SQLite 自定义配置不自动覆盖）
 - **安装包 sidecar 改为 PyInstaller onedir**：经 `bundle.resources` 嵌入 `sentrealm-api/`，避免 onefile 每次解压 `%TEMP%\_MEI*`，缩短冷启动与退出（见 [packaging.md](./docs/dev/packaging.md)）
 - **生产退出**：不再调用会弹黑框的 `taskkill`，改为直接终止 onedir 单进程；sidecar 改为无控制台子系统，避免启动闪窗
 - **启动体验**：Rust `setup` 不再同步等待 `/health`，窗口可立即绘制；就绪改由前端 `waitForHealth` +「启动中」提示承接
 
 ### Fixed
 
+- **保留标点**：默认改为 `%` 与 `.`，避免小数和模型版本号被拆开；保留列表优先于去除列表，GUI 支持按单个字符编辑并提供主题一致的「恢复默认」按钮
 - **安装包无法连接后端**：生产 WebView 源为 `https://tauri.localhost`，原先 CORS 仅允许 Vite `1420` 且 sidecar 关闭了 CORS，导致 `fetch /health` 一直失败
 
 ### Added
 
+- **启动动画**：桌面应用启动时播放 SentRealm 品牌动画；播放失败或超时自动进入主界面，并遵循系统“减少动态效果”设置
 - **Windows 安装包构建**（ADR-008）：PyInstaller sidecar + Tauri NSIS；`pwsh -File scripts/build_installer.ps1`（见 [packaging.md](./docs/dev/packaging.md)）
 - GUI（OD Wave A）：设置中可开关「去除标点」并编辑保留标点列表（US-11）
 - GUI：后端不可达、启动中、处理失败等分型错误提示条（可关闭，不伪造 health 状态）

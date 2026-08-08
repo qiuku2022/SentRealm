@@ -121,17 +121,17 @@ MVP 不引入独立业务错误码枚举。
     ",", ".", "!", "?", ";", ":",
     "“", "”", "‘", "’", "\"", "'",
     "（", "）", "(", ")",
-    "…"
+    "…", "％"
   ],
-  "punctuation_keep": ["%", "％"],
+  "punctuation_keep": ["%", "."],
   "llm_enabled": false,
   "llm_endpoint": "",
   "llm_model": "",
   "break_lexicon": {
-    "protected_words": ["就业", "重要", "全方位"],
-    "break_after_words": ["不是", "所以", "非常"],
-    "break_after_chars": ["了", "到", "有", "的"],
-    "break_before_words": ["在", "即将", "找"]
+    "protected_words": [],
+    "break_after_words": ["所以", "因此", "但是", "然而", "不过", "另外", "此外", "然后", "首先", "最后", "总之", "一般来说"],
+    "break_after_chars": ["吗", "吧", "呢"],
+    "break_before_words": ["对于", "关于", "为了", "由于", "根据", "随着", "一旦", "无论", "不管", "虽然", "尽管", "即使"]
   }
 }
 ```
@@ -167,7 +167,7 @@ MVP 不引入独立业务错误码枚举。
 | `max_chars` | `15` |
 | `min_chars` | `5` |
 | `punctuation_remove` | 见上方响应示例完整数组 |
-| `punctuation_keep` | `["%", "％"]` |
+| `punctuation_keep` | `["%", "."]` |
 | `llm_enabled` | `false` |
 | `llm_endpoint` / `llm_model` | `""`（未配置 LLM） |
 | `break_lexicon` | 与内置 `data/break_lexicon/*.txt` 一致 |

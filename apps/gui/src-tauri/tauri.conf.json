@@ -13,8 +13,8 @@
     "windows": [
       {
         "title": "SentRealm",
-        "width": 1280,
-        "height": 800,
+        "width": 1440,
+        "height": 900,
         "minWidth": 800,
         "minHeight": 600,
         "center": true,

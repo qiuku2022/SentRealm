@@ -615,12 +615,13 @@ components:
             - "("
             - ")"
             - "…"
+            - "％"
         punctuation_keep:
           type: array
           items:
             type: string
-          default: ["%", "％"]
-          example: ["%", "％"]
+          default: ["%", "."]
+          example: ["%", "."]
         llm_enabled:
           type: boolean
           default: false

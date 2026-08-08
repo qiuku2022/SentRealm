@@ -8,22 +8,31 @@ from sentrealm_core.pipeline.rule_break import rule_break_lines
 
 
 def test_golden_sample_a_english_word_boundary() -> None:
-    line = "使用 iPhone 15 拍摄了一段精彩的口播视频"
+    line = "使用 iPhone 15 拍摄口播视频"
     result = rule_break_lines(line, max_chars=10)
     assert result.split("\n") == [
         "使用 iPhone 15",
-        "拍摄了一段精彩的",
-        "口播视频",
+        "拍摄口播视频",
     ]
 
 
-def test_golden_sample_b_avoid_single_char_line() -> None:
-    line = "这是一个非常重要的技术突破"
+def test_golden_sample_b_common_discourse_marker() -> None:
+    line = "方案需要调整所以我们明天继续讨论"
     result = rule_break_lines(line, max_chars=10)
     assert result.split("\n") == [
-        "这是一个非常",
-        "重要的技术突破",
+        "方案需要调整所以",
+        "我们明天继续讨论",
     ]
+
+
+def test_default_lexicon_does_not_split_ambiguous_function_words() -> None:
+    samples = [
+        "这套方法有助于提高所有人的表达能力",
+        "他把问题讲得非常清楚大家一下就明白了",
+    ]
+
+    for line in samples:
+        assert rule_break_lines(line, max_chars=10) == line
 
 
 def test_short_line_unchanged() -> None:
@@ -37,12 +46,12 @@ def test_no_hard_cut_when_no_valid_break_point() -> None:
 
 
 def test_multiline_only_breaks_long_rows() -> None:
-    text = "短行\n这是一个非常重要的技术突破"
+    text = "短行\n方案需要调整所以我们明天继续讨论"
     result = rule_break_lines(text, max_chars=10)
     assert result.split("\n") == [
         "短行",
-        "这是一个非常",
-        "重要的技术突破",
+        "方案需要调整所以",
+        "我们明天继续讨论",
     ]
 
 

@@ -159,7 +159,7 @@ def test_llm_break_batches_at_most_ten(
     assert sum(len(batch) for batch in client.calls) >= 11
 
 
-def test_llm_break_accepts_semantic_short_segments(
+def test_llm_break_accepts_semantic_segments_above_min_chars(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setenv("SENTREALM_LLM_API_KEY", "sk-test")
@@ -188,6 +188,34 @@ def test_llm_break_accepts_semantic_short_segments(
     )
 
     assert result.split("\n") == ["短", "而如果", "加上往届未就业的"]
+
+
+def test_llm_break_rejects_parts_below_configured_min_chars(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("SENTREALM_LLM_API_KEY", "sk-test")
+    settings = _configured_settings()
+    settings.min_chars = 4
+    original = "发布满打满算才三周时间"
+
+    class _TooFragmentedClient:
+        def break_lines(
+            self,
+            lines: list[str],
+            max_chars: int,
+            *,
+            min_chars: int | None = None,
+        ) -> list[list[str]]:
+            return [["发布满打", "满算才", "三周时间"] for _line in lines]
+
+    result = llm_break_lines(
+        original,
+        max_chars=10,
+        settings=settings,
+        llm_client=_TooFragmentedClient(),
+    )
+
+    assert result == original
 
 
 def test_iter_llm_break_progress_counts_terminal_items(

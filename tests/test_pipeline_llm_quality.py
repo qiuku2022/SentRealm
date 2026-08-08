@@ -46,21 +46,22 @@ def test_quality_ok_respects_explicit_min_chars() -> None:
     assert quality_ok(original, parts, max_chars=10, min_chars=4) is False
 
 
-def test_llm_quality_ok_allows_short_segments() -> None:
+def test_llm_quality_ok_respects_min_chars() -> None:
     original = "而如果加上往届未就业的"
     parts = ["而如果", "加上往届未就业的"]
-    assert llm_quality_ok(original, parts) is True
+    assert llm_quality_ok(original, parts, min_chars=3) is True
+    assert llm_quality_ok(original, parts, min_chars=4) is False
 
 
 def test_llm_quality_ok_allows_over_max_if_shorter_than_original() -> None:
     original = "一二三四五六七八九十十一"
     parts = ["一二三四五六", "七八九十十一"]
-    assert llm_quality_ok(original, parts) is True
+    assert llm_quality_ok(original, parts, min_chars=4) is True
 
 
 def test_llm_quality_ok_rejects_single_part() -> None:
     original = "一二三四五六七八九十十一"
-    assert llm_quality_ok(original, [original]) is False
+    assert llm_quality_ok(original, [original], min_chars=4) is False
 
 
 def test_llm_quality_ok_rejects_no_progress() -> None:
@@ -68,9 +69,13 @@ def test_llm_quality_ok_rejects_no_progress() -> None:
     original = "，，"
     parts = ["，", "，"]
     assert conservation_ok(original, parts) is True
-    assert llm_quality_ok(original, parts) is False
+    assert llm_quality_ok(original, parts, min_chars=1) is False
 
 
 def test_llm_quality_ok_rejects_rewrite() -> None:
     original = "一二三四五六七八九十十一"
-    assert llm_quality_ok(original, ["一二三四", "五六七八九十X"]) is False
+    assert llm_quality_ok(
+        original,
+        ["一二三四", "五六七八九十X"],
+        min_chars=4,
+    ) is False

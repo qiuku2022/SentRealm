@@ -30,6 +30,37 @@
   --shell-scrollbar-thumb-hover: hsl(0 0% 32%);
 }
 
+.shell-startup-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #000;
+  opacity: 1;
+  transition: opacity 0.18s ease-out;
+}
+
+.shell-startup-splash.is-leaving {
+  pointer-events: none;
+  opacity: 0;
+}
+
+.shell-startup-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell-startup-splash {
+    display: none;
+  }
+}
+
 .shell-app {
   display: flex;
   flex-direction: column;
@@ -857,11 +888,9 @@
   width: 28px;
   height: 28px;
   border-radius: var(--shell-r-md);
-  background: var(--shell-surface-2);
-  display: grid;
-  place-items: center;
-  font-size: 12px;
-  font-weight: 700;
+  display: block;
+  object-fit: cover;
+  flex-shrink: 0;
 }
 
 .shell-side-note {
@@ -2084,6 +2113,53 @@
 
 .shell-input-row-keep {
   max-width: 160px;
+}
+
+.shell-punctuation-control {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.shell-inline-reset-btn {
+  min-height: 26px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: var(--shell-r-md);
+  background: transparent;
+  color: var(--shell-muted-2);
+  font-size: 11.5px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.shell-inline-reset-btn:hover:not(:disabled) {
+  border-color: var(--shell-border);
+  background: hsl(0 0% 100% / 0.04);
+  color: var(--shell-fg);
+}
+
+.shell-inline-reset-btn:focus-visible {
+  outline: 2px solid hsl(0 0% 100% / 0.16);
+  outline-offset: 1px;
+}
+
+.shell-inline-reset-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.shell-inline-reset-btn svg {
+  width: 12px;
+  height: 12px;
 }
 
 .shell-input-row-model {
