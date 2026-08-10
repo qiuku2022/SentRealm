@@ -15,7 +15,11 @@ def main() -> None:
         app,
         host="127.0.0.1",
         port=17300,
-        log_level="info",
+        # PyInstaller windowed mode has no sys.stdout/sys.stderr. Uvicorn's
+        # default logging config binds both streams and otherwise fails before
+        # the socket starts listening. Tauri discards sidecar stdio anyway.
+        log_config=None,
+        access_log=False,
         # No reload in production sidecar.
         reload=False,
     )
