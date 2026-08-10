@@ -2,14 +2,14 @@
 
 > 对照 docs 与仓库**实际代码树**的快照说明。不替代 ADR / 产品定义。
 
-**核对日期**：2026-07-21  
+**核对日期**：2026-08-05
 **工作区根**：`d:\Work\SentRealm`
 
 ## 结论
 
-**LLM 发送池契约已落地**：规则后仍超长行入池 → 每批 ≤10 调用 `break_lines` → 语义质检（`llm_quality_ok`：守恒 + 有效切分 + 有进展 + 每段 `≥ min_chars`）→ 不合格回池最多 3 次 → 放弃保留原文并由 `flag_overlength_lines` 标记。见 [产品定义](../planning/01-product-definition-and-mvp.md#llm-发送池与质检返工) 与 [ADR-005](../architecture/adr/005-llm-integration-privacy.md)。
+**LLM 发送池契约已落地**：规则后仍超长行入池 → 每批 ≤10 调用 `break_lines` → 语义质检（`llm_quality_ok`：守恒 + 有效切分 + 有进展）→ 不合格回池最多 3 次 → 放弃保留原文并由 `flag_overlength_lines` 标记。见 [产品定义](../planning/01-product-definition-and-mvp.md#llm-发送池与质检返工) 与 [ADR-005](../architecture/adr/005-llm-integration-privacy.md)。
 
-**Phase 1（M2）MVP 核心已对齐文档**：去标点/空格/规则断句（均衡选点）、LLM 发送池、工作区、OD 三栏 GUI（Wave A/B）、断句词表 GUI 编辑、SSE 流式进度、LLM 处理前预检、结果导出等。**ADR-008 安装包链路已落地**（sidecar + NSIS，见 [packaging.md](./packaging.md)）；仍延后：公开发布 / 代码签名、ADR-009 物理拆包。默认 `uv run pytest` **155 passed**（核对日快照）。
+**Phase 1（M2）MVP 核心已对齐文档**：标点分级/空格/自然边界规则断句（全局选点、短行修复、出厂断句词表 v3）、LLM 发送池、工作区、OD 三栏 GUI（Wave A/B）、断句词表 GUI 编辑、SSE 流式进度、LLM 处理前预检、结果导出等。**ADR-008 安装包链路已落地**（sidecar + NSIS，见 [packaging.md](./packaging.md)）；仍延后：公开发布 / 代码签名、ADR-009 物理拆包。默认 `uv run pytest` **162 passed**（核对日快照）。
 
 **本机修改文档**（gitignore）：[`.local/break-lexicon-editor/`](../../.local/break-lexicon-editor/README.md)（词表 GUI）；[`.local/llm-send-pool/`](../../.local/llm-send-pool/README.md)（发送池回顾）。
 
@@ -19,7 +19,7 @@
 |----|------|------|
 | §0 前提 | 完成 | P0 基线绿；范围确认 |
 | §1 流水线 1–3 | 完成 | `punctuation` / `whitespace` / `line_count` |
-| §2 词表 + 规则断句 | 完成 | `break_lexicon/` + Settings 持久化 + FAB Modal；`rule_break` 均衡选点 |
+| §2 词表 + 规则断句 | 完成 | `break_lexicon/` + Settings 持久化 + FAB Modal；`rule_break` 自然候选边界全局选点；`short_line_repair` 局部回并 |
 | §3 LLM + 标记 | 完成 | 发送池 / `llm_quality_ok` / `break_lines` / 语义质检返工 / `flag_lines` |
 | §4 编排 + 三入口 | 完成 | `preprocess()`；gui/cli/mcp 一致 |
 | §5 工作区 | 完成 | ADR-010 |

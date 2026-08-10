@@ -83,9 +83,9 @@ CREATE TABLE app_settings (
 |------|--------------|------|
 | `preset` | string | `landscape` / `portrait` / `custom` |
 | `max_chars` | integer | 自定义单行最大字数（`preset=custom` 时生效） |
-| `min_chars` | integer | 规则断句与 LLM 断句的单行最短字数（须 ≤ `max_chars`） |
-| `punctuation_remove` | string[] | 去除并在原位置换行的符号 |
-| `punctuation_keep` | string[] | 保留不换行的符号 |
+| `min_chars` | integer | 自动规则断句的单行最短字数（须 ≤ `max_chars`；完整自然短句与 LLM 结果例外） |
+| `punctuation_remove` | string[] | 去除的符号；具体硬边界/候选/仅删除等级由 ADR-012 的内置分类决定 |
+| `punctuation_keep` | string[] | 保留且不参与内置边界分类的符号 |
 | `llm_enabled` | boolean | 是否启用 LLM 断句；关闭时即使已配置 endpoint/model 与密钥也跳过 |
 | `llm_endpoint` | string | LLM API 端点 URL |
 | `llm_model` | string | 模型名称 |

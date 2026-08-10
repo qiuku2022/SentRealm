@@ -7,32 +7,19 @@ from sentrealm_core.pipeline.line_count import count_line_chars
 from sentrealm_core.pipeline.rule_break import rule_break_lines
 
 
-def test_golden_sample_a_english_word_boundary() -> None:
-    line = "使用 iPhone 15 拍摄口播视频"
+def test_does_not_use_risky_particle_cut_to_force_complete_segmentation() -> None:
+    line = "使用 iPhone 15 拍摄了一段精彩的口播视频"
     result = rule_break_lines(line, max_chars=10)
     assert result.split("\n") == [
         "使用 iPhone 15",
-        "拍摄口播视频",
+        "拍摄了一段精彩的口播视频",
     ]
 
 
-def test_golden_sample_b_common_discourse_marker() -> None:
-    line = "方案需要调整所以我们明天继续讨论"
+def test_does_not_split_modifier_from_head_word() -> None:
+    line = "这是一个非常重要的技术突破"
     result = rule_break_lines(line, max_chars=10)
-    assert result.split("\n") == [
-        "方案需要调整所以",
-        "我们明天继续讨论",
-    ]
-
-
-def test_default_lexicon_does_not_split_ambiguous_function_words() -> None:
-    samples = [
-        "这套方法有助于提高所有人的表达能力",
-        "他把问题讲得非常清楚大家一下就明白了",
-    ]
-
-    for line in samples:
-        assert rule_break_lines(line, max_chars=10) == line
+    assert result == line
 
 
 def test_short_line_unchanged() -> None:
@@ -46,13 +33,15 @@ def test_no_hard_cut_when_no_valid_break_point() -> None:
 
 
 def test_multiline_only_breaks_long_rows() -> None:
-    text = "短行\n方案需要调整所以我们明天继续讨论"
+    text = "短行\n这是一个非常重要的技术突破"
     result = rule_break_lines(text, max_chars=10)
-    assert result.split("\n") == [
-        "短行",
-        "方案需要调整所以",
-        "我们明天继续讨论",
-    ]
+    assert result.split("\n") == ["短行", "这是一个非常重要的技术突破"]
+
+
+def test_rejects_partial_split_that_leaves_overlength_remainder() -> None:
+    line = "普通人的生活压力似乎会随之减轻"
+    lexicon = BreakLexicon(break_after_chars=frozenset({"的"}))
+    assert rule_break_lines(line, max_chars=10, min_chars=4, lexicon=lexicon) == line
 
 
 def test_balanced_split_prefers_mid_break_over_near_max() -> None:
@@ -96,3 +85,21 @@ def test_rule_break_respects_custom_min_chars() -> None:
     # After 十 leaves right=4 < 6 → invalid; after 七 leaves 7|7 → ok
     result = rule_break_lines(line, max_chars=10, lexicon=lexicon, min_chars=6)
     assert result.split("\n") == ["一二三四五六七", "八九十甲乙丙丁"]
+
+
+def test_high_frequency_predicate_breaks_before_modal() -> None:
+    line = "上游公司的订单和议价能力可能率先提升"
+    result = rule_break_lines(line, max_chars=15)
+    assert result.split("\n") == [
+        "上游公司的订单和议价能力",
+        "可能率先提升",
+    ]
+
+
+def test_protected_negative_modal_breaks_as_a_whole() -> None:
+    line = "这个方案绝对不可能短期完成任务"
+    result = rule_break_lines(line, max_chars=10)
+    assert result.split("\n") == [
+        "这个方案绝对",
+        "不可能短期完成任务",
+    ]

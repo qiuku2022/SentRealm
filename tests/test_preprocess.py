@@ -21,11 +21,45 @@ def test_preprocess_golden_sample_punctuation_and_whitespace() -> None:
 
     assert result.original == text
     assert result.processed.split("\n") == [
-        "大家好",
-        "欢迎来到今天的节目",
+        "大家好欢迎来到今天的节目",
         "今天我们聊聊 AI 技术",
     ]
-    assert result.line_count == 3
+    assert result.line_count == 2
+    assert result.flagged_lines == []
+
+
+def test_preprocess_quotes_do_not_create_isolated_lines() -> None:
+    text = "每当“降息”两个字登上新闻。"
+    result = preprocess(text, Settings.defaults())
+
+    assert result.processed == "每当降息两个字登上新闻"
+    assert result.line_count == 1
+
+
+def test_preprocess_uses_comma_candidate_only_for_overlength_sentence() -> None:
+    text = "第一部分内容比较完整，第二部分内容也很完整。"
+    settings = Settings.defaults()
+    settings.max_chars = 10
+    settings.min_chars = 5
+
+    result = preprocess(text, settings)
+
+    assert result.processed.split("\n") == [
+        "第一部分内容比较完整",
+        "第二部分内容也很完整",
+    ]
+    assert result.flagged_lines == []
+
+
+def test_preprocess_kept_percent_stays_with_left_clause() -> None:
+    text = "增长50%，后续变化明显。"
+    settings = Settings.defaults()
+    settings.max_chars = 7
+    settings.min_chars = 4
+
+    result = preprocess(text, settings)
+
+    assert result.processed.split("\n") == ["增长50%", "后续变化明显"]
     assert result.flagged_lines == []
 
 

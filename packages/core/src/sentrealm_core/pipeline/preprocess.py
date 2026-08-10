@@ -10,9 +10,9 @@ from sentrealm_core.pipeline.break_lexicon import resolve_break_lexicon
 from sentrealm_core.pipeline.flag_lines import flag_overlength_lines
 from sentrealm_core.pipeline.line_count import detect_and_merge_lines
 from sentrealm_core.pipeline.llm_break import iter_llm_break_lines, llm_break_lines
-from sentrealm_core.pipeline.punctuation import remove_punctuation_and_break_lines
+from sentrealm_core.pipeline.punctuation import strip_punctuation_with_boundaries
 from sentrealm_core.pipeline.rule_break import rule_break_lines
-from sentrealm_core.pipeline.whitespace import normalize_whitespace
+from sentrealm_core.pipeline.whitespace import normalize_whitespace_line
 
 
 class EmptyTextError(ValueError):
@@ -50,20 +50,26 @@ def iter_preprocess(
         raise EmptyTextError("text must not be empty or whitespace-only")
 
     max_chars = settings.max_chars
-    working = remove_punctuation_and_break_lines(
+    natural_sentences = strip_punctuation_with_boundaries(
         text,
         punctuation_remove=settings.punctuation_remove,
         punctuation_keep=settings.punctuation_keep,
     )
-    working = normalize_whitespace(working)
-    working = detect_and_merge_lines(working)
     lexicon = resolve_break_lexicon(settings)
-    working = rule_break_lines(
-        working,
-        max_chars,
-        lexicon=lexicon,
-        min_chars=settings.min_chars,
-    )
+    rule_lines: list[str] = []
+    for sentence in natural_sentences:
+        normalized = normalize_whitespace_line(sentence.text)
+        if not normalized:
+            continue
+        broken = rule_break_lines(
+            normalized,
+            max_chars,
+            lexicon=lexicon,
+            min_chars=settings.min_chars,
+            punctuation_boundaries=[sentence.boundaries],
+        )
+        rule_lines.extend(broken.split("\n"))
+    working = "\n".join(rule_lines)
     working = detect_and_merge_lines(working)
 
     yield _progress_snapshot(

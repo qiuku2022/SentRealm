@@ -12,7 +12,7 @@ export interface BreakLexiconSettings {
 export interface Settings {
   preset: Preset;
   max_chars: number;
-  /** Minimum chars per rule/LLM segment (editable; must be <= max_chars). */
+  /** Minimum chars per automatic rule segment (editable; must be <= max_chars). */
   min_chars: number;
   punctuation_remove: string[];
   punctuation_keep: string[];

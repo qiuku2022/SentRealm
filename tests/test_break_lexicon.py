@@ -18,41 +18,34 @@ from sentrealm_core.pipeline.break_lexicon import (
 from sentrealm_core.store.sqlite import SCHEMA_VERSION, SqliteSettingsStore, migrate_settings_v1_to_v2
 
 
-def test_load_default_lexicon_is_conservative() -> None:
+def test_load_default_lexicon_contains_product_examples() -> None:
     lexicon = load_break_lexicon()
-    assert lexicon.protected_words == ()
-    assert lexicon.break_after_words == (
-        "所以",
-        "因此",
-        "但是",
-        "然而",
-        "不过",
-        "另外",
-        "此外",
-        "然后",
-        "首先",
-        "最后",
-        "总之",
-        "一般来说",
+    assert "重要" in lexicon.protected_words
+    assert "非常" not in lexicon.break_after_words
+    assert "但是" in lexicon.break_after_words
+    assert "了" in lexicon.break_after_chars
+    assert "吗" in lexicon.break_after_chars
+    assert "的" not in lexicon.break_after_chars
+    assert "在" in lexicon.break_before_words
+    assert "对于" in lexicon.break_before_words
+    assert {
+        "可能",
+        "需要",
+        "可以",
+        "仍然",
+        "能够",
+        "不能",
+        "真正",
+        "通常",
+        "容易",
+        "提供",
+    }.issubset(lexicon.break_before_words)
+    assert {"不可能", "未必能够", "不提供"}.issubset(lexicon.protected_words)
+    assert {"不可能", "未必能够", "不提供"}.issubset(
+        lexicon.break_before_words
     )
-    assert lexicon.break_after_chars == frozenset({"吗", "呢", "吧"})
-    assert lexicon.break_before_words == (
-        "对于",
-        "关于",
-        "为了",
-        "由于",
-        "根据",
-        "随着",
-        "一旦",
-        "无论",
-        "不管",
-        "虽然",
-        "尽管",
-        "即使",
-    )
-    assert not {"的", "地", "得", "着", "了", "就", "也", "还", "又", "到", "有"} & set(
-        lexicon.break_after_chars
-    )
+    assert len(lexicon.break_after_words) >= 20
+    assert len(lexicon.break_before_words) >= 15
 
 
 def test_protected_ranges_detects_internal_split() -> None:
@@ -132,16 +125,13 @@ def test_break_lexicon_settings_validation() -> None:
 
 def test_settings_defaults_include_bundled_lexicon() -> None:
     settings = Settings.defaults()
-    assert settings.break_lexicon.protected_words == []
-    assert "但是" in settings.break_lexicon.break_after_words
-    assert settings.break_lexicon.break_after_chars == ["吗", "吧", "呢"]
+    assert "重要" in settings.break_lexicon.protected_words
 
 
 def test_migrate_settings_v1_to_v2_adds_break_lexicon() -> None:
     migrated = migrate_settings_v1_to_v2({"preset": "landscape", "max_chars": 15})
     assert "break_lexicon" in migrated
-    assert migrated["break_lexicon"]["protected_words"] == []
-    assert "但是" in migrated["break_lexicon"]["break_after_words"]
+    assert "重要" in migrated["break_lexicon"]["protected_words"]
 
 
 def test_sqlite_store_migrates_v1_to_v2(tmp_path: Path) -> None:
@@ -185,8 +175,7 @@ def test_sqlite_store_migrates_v1_to_v2(tmp_path: Path) -> None:
 
     store = SqliteSettingsStore(db_path=db_path)
     settings = store.load()
-    assert settings.break_lexicon.protected_words == []
-    assert "但是" in settings.break_lexicon.break_after_words
+    assert "重要" in settings.break_lexicon.protected_words
 
     conn = sqlite3.connect(db_path)
     row = conn.execute(

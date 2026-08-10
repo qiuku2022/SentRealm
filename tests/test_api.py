@@ -60,8 +60,8 @@ def test_get_settings_returns_defaults(client: TestClient) -> None:
     assert data["llm_enabled"] is False
     assert data["llm_endpoint"] == ""
     assert data["llm_model"] == ""
-    assert data["break_lexicon"]["protected_words"] == []
-    assert data["break_lexicon"]["break_after_chars"] == ["吗", "吧", "呢"]
+    assert "重要" in data["break_lexicon"]["protected_words"]
+    assert "了" in data["break_lexicon"]["break_after_chars"]
 
 
 def test_get_break_lexicon_defaults(client: TestClient) -> None:
@@ -69,10 +69,10 @@ def test_get_break_lexicon_defaults(client: TestClient) -> None:
 
     assert response.status_code == 200
     data = response.json()
-    assert data["protected_words"] == []
-    assert "但是" in data["break_after_words"]
-    assert data["break_after_chars"] == ["吗", "吧", "呢"]
-    assert "对于" in data["break_before_words"]
+    assert "重要" in data["protected_words"]
+    assert "非常" not in data["break_after_words"]
+    assert "了" in data["break_after_chars"]
+    assert "在" in data["break_before_words"]
 
 
 def test_put_settings_rejects_invalid_break_lexicon(client: TestClient) -> None:

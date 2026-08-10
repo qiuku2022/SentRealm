@@ -121,17 +121,17 @@ MVP 不引入独立业务错误码枚举。
     ",", ".", "!", "?", ";", ":",
     "“", "”", "‘", "’", "\"", "'",
     "（", "）", "(", ")",
-    "…", "％"
+    "…"
   ],
-  "punctuation_keep": ["%", "."],
+  "punctuation_keep": ["%", "％"],
   "llm_enabled": false,
   "llm_endpoint": "",
   "llm_model": "",
   "break_lexicon": {
-    "protected_words": [],
-    "break_after_words": ["所以", "因此", "但是", "然而", "不过", "另外", "此外", "然后", "首先", "最后", "总之", "一般来说"],
-    "break_after_chars": ["吗", "吧", "呢"],
-    "break_before_words": ["对于", "关于", "为了", "由于", "根据", "随着", "一旦", "无论", "不管", "虽然", "尽管", "即使"]
+    "protected_words": ["就业", "重要", "全方位"],
+    "break_after_words": ["不是", "所以", "因此"],
+    "break_after_chars": ["了", "吗", "呢", "吧"],
+    "break_before_words": ["在", "可能", "需要", "通常"]
   }
 }
 ```
@@ -140,9 +140,9 @@ MVP 不引入独立业务错误码枚举。
 |------|------|------|
 | `preset` | string | `landscape` \| `portrait` \| `custom` |
 | `max_chars` | integer | 单行最大字数；与 `preset` 联动见下文 |
-| `min_chars` | integer | 规则/LLM 断句单行最短字数（≥1 且 ≤ `max_chars`）；默认 `5` |
-| `punctuation_remove` | string[] | 去除并在原位置换行的符号 |
-| `punctuation_keep` | string[] | 保留不换行的符号 |
+| `min_chars` | integer | 自动规则断句单行最短字数（≥1 且 ≤ `max_chars`）；完整自然短句与 LLM 结果不受此硬门禁；默认 `5` |
+| `punctuation_remove` | string[] | 去除的符号；句末符号形成硬边界，逗号等作为超长候选，引号/括号仅删除 |
+| `punctuation_keep` | string[] | 保留且不参与内置边界分类的符号 |
 | `llm_enabled` | boolean | 是否启用 LLM 断句（默认 `false`） |
 | `llm_endpoint` | string | LLM API 端点（未配置时为 `""`） |
 | `llm_model` | string | 模型名（未配置时为 `""`） |
@@ -167,7 +167,7 @@ MVP 不引入独立业务错误码枚举。
 | `max_chars` | `15` |
 | `min_chars` | `5` |
 | `punctuation_remove` | 见上方响应示例完整数组 |
-| `punctuation_keep` | `["%", "."]` |
+| `punctuation_keep` | `["%", "％"]` |
 | `llm_enabled` | `false` |
 | `llm_endpoint` / `llm_model` | `""`（未配置 LLM） |
 | `break_lexicon` | 与内置 `data/break_lexicon/*.txt` 一致 |
