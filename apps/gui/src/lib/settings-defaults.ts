@@ -26,9 +26,10 @@ export const DEFAULT_PUNCTUATION_REMOVE: string[] = [
   "(",
   ")",
   "…",
+  "％",
 ];
 
-export const DEFAULT_PUNCTUATION_KEEP: string[] = ["%", "％"];
+export const DEFAULT_PUNCTUATION_KEEP: string[] = ["%", "."];
 
 export const PRESET_MAX_CHARS = {
   landscape: 15,

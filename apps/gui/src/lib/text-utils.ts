@@ -13,10 +13,8 @@ export function formatLineNumber(index: number): string {
 }
 
 export function parsePunctuationKeep(raw: string): string[] {
-  return raw
-    .split(/[\s/]+/)
-    .map((token) => token.trim())
-    .filter(Boolean);
+  const tokens = Array.from(raw).filter((token) => !/\s/u.test(token));
+  return [...new Set(tokens)];
 }
 
 export function formatPunctuationKeep(tokens: string[]): string {

@@ -35,9 +35,10 @@ DEFAULT_PUNCTUATION_REMOVE: list[str] = [
     "(",
     ")",
     "…",
+    "％",
 ]
 
-DEFAULT_PUNCTUATION_KEEP: list[str] = ["%", "％"]
+DEFAULT_PUNCTUATION_KEEP: list[str] = ["%", "."]
 
 PRESET_MAX_CHARS: dict[Preset, int] = {
     "landscape": 15,

@@ -1,4 +1,10 @@
-import { CheckIcon, LoaderCircleIcon, SettingsIcon, XIcon } from "lucide-react";
+import {
+  CheckIcon,
+  LoaderCircleIcon,
+  RotateCcwIcon,
+  SettingsIcon,
+  XIcon,
+} from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
@@ -203,6 +209,12 @@ export function SettingsDrawer({
     settings.llm_endpoint.trim() &&
     settings.llm_model.trim();
   const validationError = validateSettings(settings);
+  const punctuationDefaultsApplied =
+    settings.punctuation_keep.length === DEFAULT_PUNCTUATION_KEEP.length &&
+    DEFAULT_PUNCTUATION_KEEP.every((token) =>
+      settings.punctuation_keep.includes(token),
+    ) &&
+    settings.punctuation_remove.includes("％");
 
   const setRemoveEnabled = (enabled: boolean) => {
     onChange({
@@ -338,7 +350,7 @@ export function SettingsDrawer({
               <div>
                 <div className="shell-row-set-lbl">去除标点</div>
                 <div className="shell-row-set-sub">
-                  逗号等仅在超长时参与断句；引号和括号只删除。
+                  逗号等仅在超长时参与断句；引号和括号只删除；默认保留 % 和 .。
                 </div>
               </div>
               <button
@@ -354,23 +366,43 @@ export function SettingsDrawer({
               <div>
                 <div className="shell-row-set-lbl">保留标点（可编辑）</div>
                 <div className="shell-row-set-sub">
-                  去除标点开启时，这些符号不会被去除。
+                  逐个字符输入；默认保留 % 和 .，空格用于分隔。
                 </div>
               </div>
-              <div className="shell-input-row shell-input-row-keep">
-                <input
-                  className="shell-input-x"
-                  type="text"
-                  value={formatPunctuationKeep(settings.punctuation_keep)}
-                  disabled={!removeEnabled}
-                  placeholder="% ％"
-                  onChange={(e) =>
+              <div className="shell-punctuation-control">
+                <div className="shell-input-row shell-input-row-keep">
+                  <input
+                    className="shell-input-x"
+                    type="text"
+                    value={formatPunctuationKeep(settings.punctuation_keep)}
+                    disabled={!removeEnabled}
+                    placeholder="% ."
+                    aria-label="保留标点，逐个字符输入"
+                    onChange={(e) =>
+                      onChange({
+                        ...settings,
+                        punctuation_keep: parsePunctuationKeep(e.target.value),
+                      })
+                    }
+                  />
+                </div>
+                <button
+                  type="button"
+                  className="shell-inline-reset-btn"
+                  disabled={!removeEnabled || punctuationDefaultsApplied}
+                  onClick={() =>
                     onChange({
                       ...settings,
-                      punctuation_keep: parsePunctuationKeep(e.target.value),
+                      punctuation_remove: [
+                        ...new Set([...settings.punctuation_remove, "％"]),
+                      ],
+                      punctuation_keep: [...DEFAULT_PUNCTUATION_KEEP],
                     })
                   }
-                />
+                >
+                  <RotateCcwIcon aria-hidden="true" />
+                  恢复默认
+                </button>
               </div>
             </div>
           </section>

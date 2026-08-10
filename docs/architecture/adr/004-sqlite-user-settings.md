@@ -99,7 +99,7 @@ CREATE TABLE app_settings (
 | `max_chars` | `15`（横屏）；`preset=portrait` 时为 `10`；`preset=custom` 时由用户指定 |
 | `min_chars` | `5`（用户可改；切换预设导致 `max_chars` 变小时自动夹紧到 ≤ `max_chars`） |
 | `punctuation_remove` | 全角/半角标点、引号、括号、`…` 等（完整列表见产品文档） |
-| `punctuation_keep` | `%`、`％` |
+| `punctuation_keep` | `%`、`.` |
 | `llm_enabled` | `false` |
 | `llm_endpoint` / `llm_model` | 空字符串（未配置 LLM） |
 | `break_lexicon` | 与打包 `data/break_lexicon/*.txt` 一致（四类列表） |

@@ -59,7 +59,10 @@ import {
   isTauriRuntime,
 } from "@/lib/export-file";
 import { DEFAULT_DOCUMENT_TITLES } from "@/lib/settings-defaults";
-import { suggestTitleFromText } from "@/lib/text-utils";
+import {
+  parsePunctuationKeep,
+  suggestTitleFromText,
+} from "@/lib/text-utils";
 import type {
   DocumentDetail,
   FlowState,
@@ -73,6 +76,7 @@ import type {
 function normalizeSettings(raw: Settings): Settings {
   return {
     ...raw,
+    punctuation_keep: parsePunctuationKeep(raw.punctuation_keep.join("")),
     break_lexicon: raw.break_lexicon ?? emptyBreakLexicon(),
   };
 }

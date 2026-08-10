@@ -361,7 +361,7 @@ export function SidebarPanel({
     <aside className={`shell-side ${collapsed ? "is-collapsed" : ""}`}>
       <div className="shell-side-head">
         <div className="shell-brand">
-          <span className="shell-brand-mark">S</span>
+          <img className="shell-brand-mark" src="/icon.png" alt="SentRealm" />
           {!collapsed && <span className="shell-brand-name">SentRealm</span>}
           <button
             type="button"

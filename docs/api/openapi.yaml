@@ -618,13 +618,14 @@ components:
             - "("
             - ")"
             - "…"
+            - "％"
         punctuation_keep:
           type: array
           description: 保留且不参与内置边界分类的符号
           items:
             type: string
-          default: ["%", "％"]
-          example: ["%", "％"]
+          default: ["%", "."]
+          example: ["%", "."]
         llm_enabled:
           type: boolean
           default: false

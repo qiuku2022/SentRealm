@@ -106,7 +106,11 @@ def iter_llm_break_lines(
 
         for item, parts in zip(batch, results, strict=True):
             item.attempts += 1
-            if parts is not None and llm_quality_ok(item.text, parts):
+            if parts is not None and llm_quality_ok(
+                item.text,
+                parts,
+                min_chars=settings.min_chars,
+            ):
                 slots[item.slot_id] = [part.strip() for part in parts if part.strip()]
                 llm_current += 1
             elif item.attempts < _MAX_ATTEMPTS:

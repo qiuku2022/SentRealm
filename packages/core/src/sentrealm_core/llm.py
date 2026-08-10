@@ -17,10 +17,11 @@ _SYSTEM_PROMPT = (
     "必须遵守："
     "1. 只切分，不改写：不得增删改任何字，标点也保持原样（仅通过换行切分）。"
     "2. 切在语义完整处：意群、短语、并列、分句成分之间；可以在长句中间断开，"
-    "但避免无意义的碎句（不要一个字一行）。"
+    "但避免无意义的碎句。用户会给出最短行长 M：每行不得少于 M 字，并在满足约束时尽量少分行。"
+    "输出前逐行自检；不足 M 字的行必须与相邻行合并，即使合并后略超参考上限，也不得保留短行。"
     "3. 符合现代汉语语法与口播习惯：每行读起来自然，不要拆破固定搭配。"
     "4. 英文与数字：不要在英文单词中间断开。"
-    "用户会给出参考上限 N 字：尽量让每行不超过 N，但若语义需要可略超；优先保证语义与守恒。"
+    "用户还会给出参考上限 N 字：尽量让每行不超过 N，但若语义需要可略超；优先保证语义与守恒。"
     "输出：仅输出切分后的多行文本，每行一条，不要编号、不要解释。"
 )
 
@@ -133,7 +134,7 @@ def _balanced_split(
     if remaining:
         segments.append(remaining)
 
-    if llm_quality_ok(line, segments):
+    if llm_quality_ok(line, segments, min_chars=floor):
         return segments
     return _greedy_max_split(line, max_chars)
 
@@ -356,11 +357,14 @@ def _build_batch_user_prompt(
     *,
     min_chars: int | None = None,
 ) -> str:
-    del min_chars  # rule-break only; LLM prompt uses max_chars as a soft reference
+    from sentrealm_core.pipeline.llm_quality import resolve_min_chars
+
+    floor = resolve_min_chars(max_chars, min_chars)
     n = len(lines)
     if n == 1:
         return "\n".join(
             [
+                f"最短行长（每行不得少于）：{floor} 字",
                 f"参考上限（每行尽量不超过）：{max_chars} 字",
                 "",
                 "待切分文本：",
@@ -370,6 +374,7 @@ def _build_batch_user_prompt(
         )
 
     parts = [
+        f"最短行长（每行不得少于）：{floor} 字",
         f"参考上限（每行尽量不超过）：{max_chars} 字",
         f"共 {n} 条待切分。对每条分别切分；输出时用「### 1」…「### {n}」分隔，"
         "其下每行一条切分结果，不要解释。",

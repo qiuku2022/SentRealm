@@ -6,6 +6,7 @@ import pytest
 
 from sentrealm_core.llm import (
     MockLlmClient,
+    _build_batch_user_prompt,
     _parse_batch_break_response,
     check_llm_connection,
     is_llm_configured,
@@ -39,7 +40,7 @@ def test_mock_llm_client_splits_balanced_and_passes_quality() -> None:
     parts = MockLlmClient().break_line(line, max_chars=5)
     assert parts == ["一二三四", "五六七八", "九十十一"]
     assert all(count_line_chars(part) <= 5 for part in parts)
-    assert llm_quality_ok(line, parts)
+    assert llm_quality_ok(line, parts, min_chars=2)
     assert quality_ok(line, parts, max_chars=5)
     assert "".join(parts) == line
 
@@ -51,12 +52,20 @@ def test_mock_llm_client_break_lines_batch() -> None:
     assert len(result) == 2
     assert len(client.calls) == 1
     assert client.calls[0] == lines
-    assert all(llm_quality_ok(src, parts) for src, parts in zip(lines, result))
+    assert all(
+        llm_quality_ok(src, parts, min_chars=2)
+        for src, parts in zip(lines, result)
+    )
 
 
 def test_mock_llm_client_returns_single_line_when_short() -> None:
     line = "短行"
     assert MockLlmClient().break_line(line, max_chars=10) == [line]
+
+
+def test_llm_prompt_includes_min_chars() -> None:
+    prompt = _build_batch_user_prompt(["发布满打满算才三周时间"], 10, min_chars=4)
+    assert "最短行长（每行不得少于）：4 字" in prompt
 
 
 def test_parse_batch_break_response_sections() -> None:
