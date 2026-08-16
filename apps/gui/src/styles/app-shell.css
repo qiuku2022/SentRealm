@@ -28,6 +28,13 @@
   --shell-scrollbar-size: 8px;
   --shell-scrollbar-thumb: hsl(0 0% 23%);
   --shell-scrollbar-thumb-hover: hsl(0 0% 32%);
+  /* Caption / label scale — bumped for readability (was 10–11.5px) */
+  --shell-font-caption: 12px;
+  --shell-font-caption-sm: 12px;
+  --shell-font-label: 12px;
+  --shell-font-label-lg: 12.5px;
+  --shell-font-weight-caption: 500;
+  --shell-font-weight-label: 500;
 }
 
 .shell-startup-splash {
@@ -69,6 +76,7 @@
   background: var(--shell-bg);
   color: var(--shell-fg);
   color-scheme: dark;
+  font-family: var(--font-ui);
 }
 
 /* Unified scrollbars — editor textarea, results, settings, sidebar */
@@ -125,7 +133,6 @@
   justify-content: space-between;
   height: var(--shell-topbar-h);
   padding: 0 16px;
-  border-bottom: 1px solid var(--shell-border);
   background: var(--shell-bg);
   flex-shrink: 0;
 }
@@ -201,25 +208,20 @@
   border-bottom: none;
 }
 
-.shell-brand {
+.shell-side-head-row {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 40px;
-  padding: 0 12px;
-  font-weight: 600;
-  font-size: 13px;
-  width: 100%;
-  border-bottom: 1px solid var(--shell-border);
+  align-items: flex-start;
+  gap: 4px;
+  padding: 10px 8px 10px 12px;
 }
 
-.shell-brand-name {
-  flex: 1;
-  min-width: 0;
+.shell-side-toolbar {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0;
 }
 
 .shell-side-toggle {
-  margin-left: auto;
   width: 36px;
   height: 36px;
   display: grid;
@@ -244,7 +246,6 @@
 
 .shell-side-search {
   padding: 10px 12px 8px;
-  border-bottom: 1px solid var(--shell-border);
 }
 
 .shell-side-search-box {
@@ -253,13 +254,13 @@
   gap: 8px;
   padding: 6px 10px;
   border-radius: var(--shell-r-md);
-  border: 1px solid var(--shell-border);
+  border: none;
   background: var(--shell-surface-2);
   color: var(--shell-muted);
 }
 
 .shell-side-search-box:focus-within {
-  border-color: hsl(0 0% 23%);
+  box-shadow: 0 0 0 1px hsl(0 0% 23%);
 }
 
 .shell-side-search-icon {
@@ -288,12 +289,12 @@
 }
 
 .shell-kbd-hint {
-  font-size: 10.5px;
+  font-size: var(--shell-font-caption-sm);
+  font-weight: var(--shell-font-weight-caption);
   color: var(--shell-muted-2);
   border: 1px solid var(--shell-border);
   border-radius: 4px;
   padding: 1px 4px;
-  font-family: ui-monospace, Consolas, monospace;
   flex-shrink: 0;
   background: var(--shell-bg);
 }
@@ -302,7 +303,8 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
+  font-size: var(--shell-font-label);
+  font-weight: var(--shell-font-weight-label);
   color: var(--shell-muted);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -388,7 +390,6 @@
 
 .shell-doc-row.is-active {
   background: hsl(0 0% 100% / 0.06);
-  border-color: var(--shell-border);
 }
 
 .shell-doc-row .shell-doc-item-main {
@@ -700,9 +701,9 @@
 }
 
 .shell-rules-nav-file {
-  font-size: 10px;
+  font-size: var(--shell-font-caption);
+  font-weight: var(--shell-font-weight-caption);
   color: var(--shell-muted);
-  font-family: ui-monospace, Consolas, "JetBrains Mono", monospace;
 }
 
 .shell-rules-panel {
@@ -733,7 +734,6 @@
   border-radius: var(--shell-r-md);
   background: var(--shell-surface-2);
   color: var(--shell-fg);
-  font-family: ui-monospace, Consolas, "JetBrains Mono", monospace;
   font-size: 13px;
   line-height: 1.6;
   resize: none;
@@ -745,7 +745,8 @@
 }
 
 .shell-rules-meta {
-  font-size: 11px;
+  font-size: var(--shell-font-label);
+  font-weight: var(--shell-font-weight-caption);
   color: var(--shell-muted);
 }
 
@@ -805,26 +806,8 @@
   padding: 10px 0 8px;
 }
 
-.shell-side.is-collapsed .shell-brand {
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  min-height: 0;
-  padding: 0;
-  border-bottom: none;
-}
-
-.shell-side.is-collapsed .shell-brand-mark {
-  width: 36px;
-  height: 36px;
-  font-size: 13px;
-  flex-shrink: 0;
-}
-
-.shell-side.is-collapsed .shell-side-toggle {
-  margin-left: 0;
-  flex-shrink: 0;
+.shell-side.is-collapsed .shell-side-toolbar {
+  padding: 10px 0 8px;
 }
 
 .shell-side.is-collapsed .shell-side-toggle svg {
@@ -884,22 +867,15 @@
   flex-shrink: 0;
 }
 
-.shell-brand-mark {
-  width: 28px;
-  height: 28px;
-  border-radius: var(--shell-r-md);
-  display: block;
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
 .shell-side-note {
+  flex: 1;
+  min-width: 0;
   margin: 0;
-  padding: 10px 12px 12px;
-  font-size: 11.5px;
+  padding: 0;
+  font-size: var(--shell-font-label-lg);
+  font-weight: var(--shell-font-weight-caption);
   line-height: 1.5;
   color: var(--shell-muted-2);
-  border-bottom: 1px solid var(--shell-border);
 }
 
 .shell-side-body {
@@ -929,7 +905,6 @@
 
 .shell-doc-item.is-active {
   background: hsl(0 0% 100% / 0.06);
-  border-color: var(--shell-border);
 }
 
 .shell-doc-title {
@@ -939,13 +914,13 @@
 
 .shell-doc-meta {
   margin-top: 4px;
-  font-size: 11px;
+  font-size: var(--shell-font-label);
+  font-weight: var(--shell-font-weight-caption);
   color: var(--shell-muted);
 }
 
 .shell-side-foot {
   padding: 8px 10px;
-  border-top: 1px solid var(--shell-border);
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -994,8 +969,8 @@
 .shell-health-meta {
   margin-left: auto;
   color: var(--shell-muted-2);
-  font-family: ui-monospace, Consolas, monospace;
-  font-size: 10.5px;
+  font-size: var(--shell-font-caption-sm);
+  font-weight: var(--shell-font-weight-caption);
 }
 
 .shell-side-set-btn {
@@ -1031,8 +1006,8 @@
 .shell-side-set-shortcut {
   margin-left: auto;
   color: var(--shell-muted-2);
-  font-family: ui-monospace, Consolas, monospace;
-  font-size: 10.5px;
+  font-size: var(--shell-font-caption-sm);
+  font-weight: var(--shell-font-weight-caption);
   flex-shrink: 0;
 }
 
@@ -1052,7 +1027,6 @@
   justify-content: space-between;
   gap: 12px;
   padding: 16px 24px;
-  border-bottom: 1px solid var(--shell-border);
 }
 
 .shell-doc-name {
@@ -1098,7 +1072,8 @@
 }
 
 .shell-pill {
-  font-size: 11px;
+  font-size: var(--shell-font-label);
+  font-weight: var(--shell-font-weight-caption);
   padding: 4px 10px;
   border-radius: 999px;
   border: 1px solid var(--shell-border);
@@ -1192,7 +1167,49 @@
   border-radius: var(--shell-r-lg);
 }
 
+.shell-editor-highlight-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.shell-editor-pulse-mark {
+  position: absolute;
+  border-radius: 4px;
+  background: hsl(142 69% 58% / 0.28);
+  box-shadow: 0 0 0 1px hsl(142 69% 58% / 0.35);
+  animation: shell-source-pulse 0.45s ease-in-out 2;
+}
+
+.shell-editor-pulse-mark.is-static {
+  animation: none;
+  background: hsl(142 69% 58% / 0.32);
+}
+
+@keyframes shell-source-pulse {
+  0%,
+  100% {
+    background: hsl(142 69% 58% / 0.08);
+    box-shadow: 0 0 0 1px hsl(142 69% 58% / 0.12);
+  }
+  50% {
+    background: hsl(142 69% 58% / 0.38);
+    box-shadow: 0 0 0 1px hsl(142 69% 58% / 0.45);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell-editor-pulse-mark {
+    animation: none;
+  }
+}
+
 .shell-editor-input {
+  position: relative;
+  z-index: 2;
   flex: 1;
   min-height: 0;
   width: 100%;
@@ -1230,6 +1247,8 @@
 }
 
 .shell-meta-bar {
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1237,13 +1256,12 @@
   flex-wrap: wrap;
   flex-shrink: 0;
   padding: 10px 16px;
-  border-top: 1px solid var(--shell-border);
   background: var(--shell-surface-2);
   border-bottom-left-radius: var(--shell-r-lg);
   border-bottom-right-radius: var(--shell-r-lg);
-  font-size: 11px;
+  font-size: var(--shell-font-label);
+  font-weight: var(--shell-font-weight-caption);
   color: var(--shell-muted);
-  font-family: ui-monospace, Consolas, monospace;
 }
 
 .shell-meta-stats {
@@ -1265,7 +1283,8 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
+  font-size: var(--shell-font-label);
+  font-weight: var(--shell-font-weight-caption);
   color: var(--shell-warn);
 }
 
@@ -1290,7 +1309,7 @@
   max-width: calc(100% - 48px);
   border-radius: var(--shell-r-xl);
   background: var(--shell-surface);
-  border: 1px solid var(--shell-border);
+  border: none;
   box-shadow: 0 12px 32px hsl(0 0% 0% / 0.45);
   z-index: 2;
 }
@@ -1472,7 +1491,6 @@
   min-width: 0;
   padding: 0 14px;
   margin-left: 6px;
-  border-left: 1px solid var(--shell-border);
 }
 
 .shell-fab-status-main {
@@ -1482,7 +1500,8 @@
 }
 
 .shell-fab-status-sub {
-  font-size: 10px;
+  font-size: var(--shell-font-caption);
+  font-weight: var(--shell-font-weight-caption);
   color: var(--shell-muted);
   white-space: nowrap;
   overflow: hidden;
@@ -1519,7 +1538,6 @@
 
 .shell-right-head {
   padding: 14px 18px 12px;
-  border-bottom: 1px solid var(--shell-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1532,7 +1550,6 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--shell-fg-2);
-  font-family: ui-monospace, Consolas, "JetBrains Mono", monospace;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1540,8 +1557,8 @@
 }
 
 .shell-right-live {
-  font-size: 10px;
-  font-weight: 500;
+  font-size: var(--shell-font-caption);
+  font-weight: 600;
   letter-spacing: 0;
   text-transform: none;
   color: var(--shell-ok);
@@ -1650,14 +1667,64 @@
   letter-spacing: 0.005em;
 }
 
+.shell-result-line.is-clickable {
+  cursor: pointer;
+}
+
+.shell-result-line.is-clickable:focus-visible {
+  outline: 1px solid hsl(0 0% 100% / 0.28);
+  outline-offset: 1px;
+}
+
 .shell-result-line:hover {
   background: hsl(0 0% 100% / 0.06);
 }
 
+.shell-result-line.is-active {
+  animation: shell-result-focus-pulse 0.5s ease-out 1;
+}
+
+.shell-result-line.is-long.is-active {
+  /* 超长行保留 warn 底，脉冲只用外圈亮度 */
+  animation-name: shell-result-focus-pulse-long;
+}
+
+@keyframes shell-result-focus-pulse {
+  0% {
+    box-shadow: inset 0 0 0 1px hsl(0 0% 100% / 0);
+  }
+  35% {
+    box-shadow: inset 0 0 0 1px hsl(0 0% 100% / 0.28);
+  }
+  100% {
+    box-shadow: inset 0 0 0 1px hsl(0 0% 100% / 0);
+  }
+}
+
+@keyframes shell-result-focus-pulse-long {
+  0% {
+    box-shadow: inset 0 0 0 1px hsl(0 0% 100% / 0);
+  }
+  35% {
+    box-shadow: inset 0 0 0 1px hsl(0 0% 100% / 0.32);
+  }
+  100% {
+    box-shadow: inset 0 0 0 1px hsl(0 0% 100% / 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell-result-line.is-active,
+  .shell-result-line.is-long.is-active {
+    animation: none;
+    box-shadow: inset 0 0 0 1px hsl(0 0% 100% / 0.2);
+  }
+}
+
 .shell-result-num {
-  font-size: 10.5px;
+  font-size: var(--shell-font-caption-sm);
+  font-weight: var(--shell-font-weight-caption);
   color: var(--shell-muted-2);
-  font-family: ui-monospace, Consolas, monospace;
   text-align: right;
   padding-top: 5px;
 }
@@ -1669,9 +1736,9 @@
 }
 
 .shell-result-ct {
-  font-size: 10.5px;
+  font-size: var(--shell-font-caption-sm);
+  font-weight: var(--shell-font-weight-caption);
   color: var(--shell-muted-2);
-  font-family: ui-monospace, Consolas, monospace;
   text-align: right;
   white-space: nowrap;
   padding-top: 5px;
@@ -1679,8 +1746,6 @@
 
 .shell-result-line.is-long {
   background: var(--shell-warn-soft);
-  border-left: 2px solid var(--shell-warn-line);
-  padding-left: 12px;
 }
 
 .shell-result-line.is-long:hover {
@@ -1696,10 +1761,9 @@
   align-items: center;
   gap: 4px;
   margin-left: 8px;
-  font-size: 10.5px;
-  font-weight: 500;
+  font-size: var(--shell-font-caption-sm);
+  font-weight: 600;
   color: var(--shell-warn);
-  font-family: ui-monospace, Consolas, monospace;
   vertical-align: baseline;
 }
 
@@ -1714,7 +1778,6 @@
 
 .shell-right-foot {
   padding: 10px 12px 12px;
-  border-top: 1px solid var(--shell-border);
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
@@ -1722,7 +1785,7 @@
 
 .shell-stat {
   background: var(--shell-surface-2);
-  border: 1px solid var(--shell-border);
+  border: none;
   border-radius: var(--shell-r-md);
   padding: 10px 12px;
   display: flex;
@@ -1734,14 +1797,13 @@
   font-size: 14px;
   font-weight: 500;
   color: var(--shell-fg);
-  font-family: ui-monospace, Consolas, monospace;
   font-variant-numeric: tabular-nums;
 }
 
 .shell-stat-lbl {
-  font-size: 10.5px;
+  font-size: var(--shell-font-caption-sm);
+  font-weight: var(--shell-font-weight-caption);
   color: var(--shell-muted-2);
-  font-family: ui-monospace, Consolas, monospace;
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
@@ -1855,7 +1917,8 @@
   color: inherit;
   border-radius: 6px;
   padding: 4px 8px;
-  font-size: 11px;
+  font-size: var(--shell-font-label);
+  font-weight: var(--shell-font-weight-caption);
   cursor: pointer;
 }
 
@@ -1960,9 +2023,8 @@
 
 .shell-drawer-section h3 {
   margin: 0 0 12px;
-  font-size: 11px;
+  font-size: var(--shell-font-label);
   font-weight: 600;
-  font-family: ui-monospace, Consolas, monospace;
   color: var(--shell-muted-2);
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -1981,9 +2043,9 @@
 }
 
 .shell-drawer-desc code {
-  font-family: ui-monospace, Consolas, monospace;
   color: var(--shell-muted-2);
-  font-size: 11px;
+  font-size: var(--shell-font-label);
+  font-weight: var(--shell-font-weight-caption);
 }
 
 .shell-row-set {
@@ -2005,14 +2067,15 @@
 
 .shell-row-set-sub {
   margin-top: 2px;
-  font-size: 11.5px;
+  font-size: var(--shell-font-label-lg);
+  font-weight: var(--shell-font-weight-caption);
   color: var(--shell-muted-2);
   line-height: 1.45;
 }
 
 .shell-row-set-sub code {
-  font-family: ui-monospace, Consolas, monospace;
-  font-size: 11px;
+  font-size: var(--shell-font-label);
+  font-weight: var(--shell-font-weight-caption);
   color: var(--shell-muted-2);
 }
 
@@ -2132,7 +2195,8 @@
   border-radius: var(--shell-r-md);
   background: transparent;
   color: var(--shell-muted-2);
-  font-size: 11.5px;
+  font-size: var(--shell-font-label-lg);
+  font-weight: var(--shell-font-weight-caption);
   white-space: nowrap;
   cursor: pointer;
   transition:
@@ -2198,8 +2262,8 @@
 
 .shell-input-prefix {
   color: var(--shell-muted-2);
-  font-family: ui-monospace, Consolas, monospace;
-  font-size: 11px;
+  font-size: var(--shell-font-label);
+  font-weight: var(--shell-font-weight-caption);
   flex-shrink: 0;
 }
 
@@ -2403,9 +2467,9 @@
 .shell-field-err {
   margin: 0;
   width: 100%;
-  font-size: 11.5px;
+  font-size: var(--shell-font-label-lg);
+  font-weight: var(--shell-font-weight-caption);
   color: var(--shell-err);
-  font-family: ui-monospace, Consolas, monospace;
 }
 
 .shell-scrim {

@@ -93,7 +93,7 @@ export function Phase0Shell() {
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-3">
-          <p className="font-mono text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             {baseUrl ?? "（等待 get_api_base_url）"}
           </p>
           {error && (
@@ -132,7 +132,7 @@ export function Phase0Shell() {
             </Alert>
           )}
           {settings && (
-            <pre className="overflow-x-auto rounded-md border bg-muted/40 p-3 font-mono text-xs">
+            <pre className="overflow-x-auto rounded-md border bg-muted/40 p-3 text-xs">
               {JSON.stringify(settings, null, 2)}
             </pre>
           )}
@@ -175,7 +175,7 @@ export function Phase0Shell() {
                   </Badge>
                 )}
               </div>
-              <pre className="max-h-64 overflow-auto rounded-md border bg-muted/40 p-3 font-mono text-xs whitespace-pre-wrap">
+              <pre className="max-h-64 overflow-auto rounded-md border bg-muted/40 p-3 text-xs whitespace-pre-wrap">
                 {result.processed}
               </pre>
             </div>

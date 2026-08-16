@@ -360,26 +360,31 @@ export function SidebarPanel({
   return (
     <aside className={`shell-side ${collapsed ? "is-collapsed" : ""}`}>
       <div className="shell-side-head">
-        <div className="shell-brand">
-          <img className="shell-brand-mark" src="/icon.png" alt="SentRealm" />
-          {!collapsed && <span className="shell-brand-name">SentRealm</span>}
-          <button
-            type="button"
-            className="shell-side-toggle"
-            aria-label={collapsed ? "展开侧栏" : "折叠侧栏"}
-            onClick={onToggleCollapsed}
-          >
-            {collapsed ? (
+        {collapsed ? (
+          <div className="shell-side-toolbar">
+            <button
+              type="button"
+              className="shell-side-toggle"
+              aria-label="展开侧栏"
+              onClick={onToggleCollapsed}
+            >
               <PanelLeftOpenIcon />
-            ) : (
+            </button>
+          </div>
+        ) : (
+          <div className="shell-side-head-row">
+            <p className="shell-side-note">
+              文稿保存在本机 Documents/SentRealm，可在项目间切换与恢复。
+            </p>
+            <button
+              type="button"
+              className="shell-side-toggle"
+              aria-label="折叠侧栏"
+              onClick={onToggleCollapsed}
+            >
               <PanelLeftCloseIcon />
-            )}
-          </button>
-        </div>
-        {!collapsed && (
-          <p className="shell-side-note">
-            文稿保存在本机 Documents/SentRealm，可在项目间切换与恢复。
-          </p>
+            </button>
+          </div>
         )}
       </div>
 

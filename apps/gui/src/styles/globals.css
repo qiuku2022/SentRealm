@@ -4,6 +4,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --font-sans: "Microsoft YaHei UI", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "Microsoft YaHei UI", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
   --color-card: hsl(var(--card));
@@ -33,6 +35,7 @@
 
 /* OD Codex-desktop dark tokens → shadcn (docs/ui/foundations.md) */
 :root {
+  --font-ui: "Microsoft YaHei UI", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
   --background: 0 0% 5%;
   --foreground: 0 0% 93%;
   --card: 0 0% 9%;
@@ -60,16 +63,28 @@
 @layer base {
   html {
     color-scheme: dark;
+    font-family: var(--font-ui);
   }
 
   * {
     @apply border-border outline-ring/50;
   }
 
+  /* 表单控件不继承 body 字体，WebView 里 textarea 常会落回系统等宽/系统 UI 字体 */
+  input,
+  textarea,
+  button,
+  select,
+  optgroup,
+  pre,
+  code,
+  kbd {
+    font-family: var(--font-ui);
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: "Microsoft YaHei UI", "Microsoft YaHei", "Segoe UI", system-ui,
-      sans-serif;
+    font-family: var(--font-ui);
     font-size: 13px;
     overflow: hidden;
   }

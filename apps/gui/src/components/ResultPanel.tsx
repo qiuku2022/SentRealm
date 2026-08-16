@@ -13,6 +13,8 @@ type ResultPanelProps = {
   flowState: FlowState;
   streaming?: boolean;
   copied: boolean;
+  activeLineIndex?: number | null;
+  onLineClick?: (index: number) => void;
   onCopy: () => void;
   onExport?: () => void;
   onToggleFold?: () => void;
@@ -24,6 +26,8 @@ export function ResultPanel({
   flowState,
   streaming = false,
   copied,
+  activeLineIndex = null,
+  onLineClick,
   onCopy,
   onExport,
   onToggleFold,
@@ -86,10 +90,43 @@ export function ResultPanel({
           <div className="shell-results-list">
             {lines.map((line, index) => {
               const isLong = flaggedSet.has(index);
+              const isActive = activeLineIndex === index;
+              const clickable = Boolean(onLineClick && line);
               return (
                 <div
                   key={`${index}-${line.slice(0, 12)}`}
-                  className={`shell-result-line ${isLong ? "is-long" : ""}`}
+                  className={[
+                    "shell-result-line",
+                    isLong ? "is-long" : "",
+                    clickable ? "is-clickable" : "",
+                    isActive ? "is-active" : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                  role={clickable ? "button" : undefined}
+                  tabIndex={clickable ? 0 : undefined}
+                  aria-label={
+                    clickable
+                      ? `定位原文第 ${index + 1} 行`
+                      : undefined
+                  }
+                  onClick={
+                    clickable
+                      ? () => {
+                          onLineClick?.(index);
+                        }
+                      : undefined
+                  }
+                  onKeyDown={
+                    clickable
+                      ? (event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            onLineClick?.(index);
+                          }
+                        }
+                      : undefined
+                  }
                 >
                   <span className="shell-result-num">{formatLineNumber(index)}</span>
                   <span className="shell-result-body">

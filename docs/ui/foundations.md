@@ -89,10 +89,11 @@
 
 | Token | 栈 |
 |-------|-----|
-| `--font-ui` / `--font-display` / `--font-zh` | `"Microsoft YaHei UI","Microsoft YaHei","Segoe UI",…,system-ui,sans-serif` |
-| `--font-mono` | `Consolas,"JetBrains Mono","SF Mono","Cascadia Code",ui-monospace,…` |
+| `--font-ui` | `"Microsoft YaHei UI","Microsoft YaHei","Segoe UI",…,system-ui,sans-serif` |
 
-字号锚点（OD `index.html` 规格）：UI 13 / 编辑 15.5 / 文档标题 14–18 / 小标题 mono 12 uppercase / 统计 mono 10.5–11。
+全界面（含统计、行号、快捷键、规则编辑区）统一使用 `--font-ui`；不再单独使用等宽字体栈。
+
+字号锚点（OD `index.html` 规格）：UI 13 / 编辑 15.5 / 文档标题 14–18 / 小标题 12 uppercase / 统计与辅助文字 **12–12.5**（caption 字重 500）。
 
 ## 2. Semantic → shadcn CSS 变量
 

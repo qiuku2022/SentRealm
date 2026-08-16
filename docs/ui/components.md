@@ -12,7 +12,7 @@
 | 导出 .txt | `ExportDialog` | — | 文稿目录内走 workspace HTTP；「另存为」走 Tauri dialog/fs |
 | 预设 pill / FAB chip | 壳 `.pill-chip` / `.chip-toggle` | 或 `ToggleGroup` | 横屏 15 / 竖屏 10 / 自定义 |
 | 处理文稿 `.btn-go` | 壳主按钮 | `Button`（theme primary=白） | 处理中 disabled + spinner；启用 LLM 时先预检 |
-| 结果列表 | 自定义 `.result-line` | + `ScrollArea` | 行号、字数、超长行 `.long`；SSE 中可渐进更新 |
+| 结果列表 | 自定义 `.result-line` | + `ScrollArea` | 行号、字数、超长行 `.long`；SSE 中可渐进更新；点击行可定位中栏原文并脉冲高亮 |
 | 一键复制 `.btn-copy` | 壳或 | `Button` + **sonner** toast | 成功态 `.copied`（绿） |
 | 设置 Drawer | 壳 `.drawer` | — | 窄屏 bottom sheet |
 | 设置内分段控件 `.seg` | 壳或 | `ToggleGroup` | 预设三选一 |

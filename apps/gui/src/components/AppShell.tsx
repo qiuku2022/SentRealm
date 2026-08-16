@@ -58,7 +58,16 @@ import {
   exportFilenameFromTitle,
   isTauriRuntime,
 } from "@/lib/export-file";
-import { DEFAULT_DOCUMENT_TITLES } from "@/lib/settings-defaults";
+import { locateProcessedLines } from "@/lib/locate-processed-line";
+import {
+  DEFAULT_DOCUMENT_TITLES,
+  DEFAULT_PUNCTUATION_KEEP,
+  DEFAULT_PUNCTUATION_REMOVE,
+} from "@/lib/settings-defaults";
+import {
+  pulseTextareaRange,
+  type HighlightHandle,
+} from "@/lib/textarea-range-highlight";
 import {
   parsePunctuationKeep,
   suggestTitleFromText,
@@ -103,7 +112,12 @@ export function AppShell() {
   const [resultStreaming, setResultStreaming] = useState(false);
   const [llmConnectAlert, setLlmConnectAlert] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [activeResultLine, setActiveResultLine] = useState<number | null>(null);
   const [bootError, setBootError] = useState<string | null>(null);
+  const editorRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const highlightHandleRef = useRef<HighlightHandle | null>(null);
+  const activeLineTimerRef = useRef<number | null>(null);
   const [healthBannerDismissed, setHealthBannerDismissed] = useState(false);
   const [processBanner, setProcessBanner] = useState<{
     kind: BannerKind;
@@ -274,6 +288,15 @@ export function AppShell() {
     }
   }, [flowState, isNarrow, result]);
 
+  useEffect(() => {
+    return () => {
+      highlightHandleRef.current?.cancel();
+      if (activeLineTimerRef.current !== null) {
+        window.clearTimeout(activeLineTimerRef.current);
+      }
+    };
+  }, []);
+
   const toggleSettings = useCallback(() => {
     setSettingsOpen((open) => {
       if (open && settings) setDraftSettings(settings);
@@ -386,14 +409,74 @@ export function AppShell() {
     [activeDocumentId, activeProjectId, baseUrl, document],
   );
 
+  const resultLineRanges = useMemo(() => {
+    if (!result?.processed || !result.original) return [];
+    return locateProcessedLines(result.original, result.processed, {
+      punctuation_remove:
+        settings?.punctuation_remove ?? DEFAULT_PUNCTUATION_REMOVE,
+      punctuation_keep: settings?.punctuation_keep ?? DEFAULT_PUNCTUATION_KEEP,
+    });
+  }, [result, settings?.punctuation_keep, settings?.punctuation_remove]);
+
+  const clearSourceHighlight = useCallback(() => {
+    highlightHandleRef.current?.cancel();
+    highlightHandleRef.current = null;
+    if (activeLineTimerRef.current !== null) {
+      window.clearTimeout(activeLineTimerRef.current);
+      activeLineTimerRef.current = null;
+    }
+    setActiveResultLine(null);
+  }, []);
+
+  useEffect(() => {
+    if (!result) clearSourceHighlight();
+  }, [result, clearSourceHighlight]);
+
+  const handleResultLineClick = useCallback(
+    (index: number) => {
+      const range = resultLineRanges[index];
+      const textarea = textareaRef.current;
+      const editor = editorRef.current;
+      if (!range || !textarea || !editor) {
+        if (!range) {
+          console.warn("[SentRealm] 无法定位结果行到原文", index);
+        }
+        return;
+      }
+
+      highlightHandleRef.current?.cancel();
+      if (activeLineTimerRef.current !== null) {
+        window.clearTimeout(activeLineTimerRef.current);
+      }
+
+      setActiveResultLine(null);
+      window.requestAnimationFrame(() => {
+        setActiveResultLine(index);
+      });
+      highlightHandleRef.current = pulseTextareaRange({
+        container: editor,
+        textarea,
+        start: range.start,
+        end: range.end,
+      });
+      activeLineTimerRef.current = window.setTimeout(() => {
+        setActiveResultLine(null);
+        activeLineTimerRef.current = null;
+      }, 520);
+    },
+    [resultLineRanges],
+  );
+
   const handleSourceChange = (text: string) => {
     setSourceText(text);
     if (!text.trim()) {
       setFlowState("new");
       setResult(null);
+      clearSourceHighlight();
     } else if (flowState === "done" || flowState === "new") {
       setFlowState("ready");
       setResult(null);
+      clearSourceHighlight();
     }
     scheduleSaveSource(text);
   };
@@ -885,6 +968,7 @@ export function AppShell() {
           <div className="shell-canvas-body">
             <div className="shell-editor-wrap">
               <div
+                ref={editorRef}
                 className={`shell-editor ${sourceText.trim() ? "" : "is-empty"}`}
               >
                 {!sourceText.trim() && (
@@ -895,6 +979,7 @@ export function AppShell() {
                   </div>
                 )}
                 <textarea
+                  ref={textareaRef}
                   className="shell-editor-input"
                   value={sourceText}
                   onChange={(e) => handleSourceChange(e.target.value)}
@@ -938,6 +1023,8 @@ export function AppShell() {
               flowState={flowState}
               streaming={resultStreaming}
               copied={copied}
+              activeLineIndex={activeResultLine}
+              onLineClick={handleResultLineClick}
               onCopy={() => void handleCopy()}
               onExport={() => setExportOpen(true)}
               showFold={!isNarrow}
