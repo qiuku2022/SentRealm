@@ -59,7 +59,7 @@ pwsh -File scripts/build_sidecar.ps1
 
 ## 注意
 
-- `resources/sentrealm-api/` 与 `packaging/dist/` **不入 git**（见根 `.gitignore`）
+- `resources/sentrealm-api/` 与 `packaging/dist/` **不入 git**（见根 `.gitignore`）。`tauri dev` 不需要真实 sidecar；`src-tauri/build.rs` 会在目录缺失时创建空占位（`tauri build` / release 仍要求已有 `sentrealm-api.exe`）
 - 每次发版前务必重打 sidecar，避免 NSIS 打进旧二进制
 - 代码签名 / SmartScreen 不阻塞内部包；对外分发前再补
 - cli / mcp **不**随桌面安装包分发

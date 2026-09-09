@@ -207,5 +207,5 @@ SentRealm/
 - [数据流与模块边界](./data-flow.md)
 - [ADR-007：多入口模块化](./adr/007-multi-entry-modules.md)
 - [实现对照状态](../dev/implementation-status.md)
-- [ADR 目录](./adr/)
+- [ADR 目录](./adr/README.md)
 - [产品定义与 MVP](../planning/01-product-definition-and-mvp.md)

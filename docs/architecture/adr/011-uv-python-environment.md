@@ -6,7 +6,7 @@
 
 ## 背景
 
-Phase 0–1 曾采用 **Miniconda 提供 Python 解释器 + uv 管理 pip 依赖** 的双工具模型（见历史 [setup.md](../../dev/setup.md) 与 [CHANGELOG.md](../../../CHANGELOG.md)）。实践中出现：
+Phase 0–1 曾采用 **Miniconda 提供 Python 解释器 + uv 管理 pip 依赖** 的双工具模型（见历史 [setup.md](../../dev/setup.md)）。实践中出现：
 
 - IDE F5 与终端 `pnpm dev` 环境不一致（conda 未激活时 uv 会在项目根另建 `.venv`）
 - 开发者需维护 conda 环境名、`conda activate` 与 uv 两套心智

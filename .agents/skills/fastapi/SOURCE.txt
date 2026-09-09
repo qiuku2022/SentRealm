@@ -1,0 +1,6 @@
+Copied from the project-locked FastAPI wheel (not a git clone of fastapi/fastapi):
+
+  fastapi==0.139.2
+  .venv/Lib/site-packages/fastapi/.agents/skills/fastapi/
+
+Re-copy when bumping the locked FastAPI version. SENTREALM.md and the banner in SKILL.md are project overlays.

@@ -1,7 +1,7 @@
 # 产品路线图
 
 > **权威范围**仍以 [产品定义与 MVP](./01-product-definition-and-mvp.md) 为准。本文档回答：**做到哪一步了、下一步做什么、依赖与风险是什么**。  
-> 版本变更明细见根目录 [CHANGELOG.md](../../CHANGELOG.md)。技术待决项见 [架构待定 ADR](../architecture/README.md#待定--后续-adr)。
+> 技术待决项见 [架构待定 ADR](../architecture/README.md#待定--后续-adr)。
 
 **文档日期**：2026-08-09
 
@@ -69,7 +69,6 @@ M1 Phase 0 脚手架 ──► M2 Phase 1 MVP 核心 ──► M3 可分发 MVP 
 | **Windows 安装包** | ✅ 可本地构建（`scripts/build_installer.ps1`）；干净机冒烟与对外分发仍待完成 | ADR-008 实现 |
 | **冒烟验收清单** | 干净机器：安装 → 打开 → 处理样例稿 → 复制 → 剪映粘贴 | 安装包 |
 | **用户手册同步** | [docs/user/](../user/README.md) 与安装后实际 UI 一致 | GUI 定稿 |
-| **CHANGELOG 发版条目** | `Unreleased` → `1.0.0` + 日期 | 发版流程 |
 
 ### 3.2 强烈建议（不阻塞技术发版，但影响体验）
 
@@ -93,7 +92,7 @@ M1 Phase 0 脚手架 ──► M2 Phase 1 MVP 核心 ──► M3 可分发 MVP 
 - [ ] 干净 Windows 10/11 上安装后，无需开发环境即可完成主流程
 - [ ] 关闭应用后无残留 uvicorn（或有文档化的清理方式）
 - [ ] 默认配置下：无 LLM 密钥也能完成去标点 + 规则断句 + 标记
-- [ ] 用户手册与 CHANGELOG `1.0.0` 已更新
+- [ ] 用户手册已更新
 - [ ] `uv run pytest`（默认集）在发版分支通过
 
 ---
@@ -175,7 +174,7 @@ flowchart LR
 2. 打出 **首个内部安装包**，在干净机上跑主流程冒烟
 3. 对照实机 UI **修订用户手册**（安装步骤、按钮文案）
 4. 词表与标记行：收集 3～5 篇真实口播样例做回归
-5. 准备 `1.0.0`：CHANGELOG、版本号、验收勾选 M3 DoD
+5. 准备 `1.0.0`：版本号、验收勾选 M3 DoD
 6. 发版或重大迭代前按 [implementation-status.md](../dev/implementation-status.md) 做实现对照
 ---
 
@@ -184,7 +183,6 @@ flowchart LR
 | 文档 | 用途 |
 |------|------|
 | [产品定义与 MVP](./01-product-definition-and-mvp.md) | 范围与成功标准 |
-| [CHANGELOG](../../CHANGELOG.md) | 已发生变更 |
 | [用户使用手册](../user/README.md) | 终端用户怎么用 |
 | [架构索引](../architecture/README.md) | ADR 与待定项 |
 | [开发指南](../dev/README.md) | 开发者如何构建与测试 |

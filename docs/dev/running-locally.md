@@ -122,6 +122,7 @@ stdio 传输；MVP 暴露 `preprocess_text` tool。
 | UI 显示「后端未就绪」 | spawn 失败或 health 超时 | 确认 `uv` 在 PATH 且已 `uv sync` |
 | 关闭应用后仍有 uvicorn | 子进程树未正确终止（多见于 Windows） | 重启应用后应已自动清理；若仍占用 17300，PowerShell：`Get-NetTCPConnection -LocalPort 17300` 查 PID 后结束进程 |
 | `pnpm dev` 找不到命令 | 未在仓库根执行或未 `pnpm install` | 在根目录 `pnpm install` 后重试 |
+| `resource path resources\sentrealm-api doesn't exist` | 生产 sidecar 目录未构建；`tauri dev` 仍校验 `bundle.resources` | 无需先打 sidecar；`src-tauri/build.rs` 会自动建空占位目录。若仍失败，确认已拉到含该修复的代码 |
 | `pnpm` 报 `v11.12.0 is a broken release` | 官方将该版本标为损坏（`@pnpm/exe` 无二进制） | 使用仓库锁定的 `pnpm@11.15.0`：`pnpm self-update 11.15.0` 或按 [setup.md](./setup.md) 重装 pnpm |
 | LLM 断句不生效 | 未配置密钥或 endpoint/model | 设置 `SENTREALM_LLM_API_KEY` 与 SQLite 中的 `llm_endpoint` / `llm_model` |
 

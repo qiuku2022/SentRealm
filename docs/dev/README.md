@@ -27,9 +27,9 @@
 
 | 目录 | 回答的问题 |
 |------|------------|
-| [docs/planning/](../planning/) | 产品范围与 MVP 边界、路线图 |
-| [docs/architecture/](../architecture/) | 架构、模块边界、ADR |
-| [docs/api/](../api/) | HTTP 端点与 OpenAPI |
+| [docs/planning/](../planning/README.md) | 产品范围与 MVP 边界、路线图 |
+| [docs/architecture/](../architecture/README.md) | 架构、模块边界、ADR |
+| [docs/api/](../api/README.md) | HTTP 端点与 OpenAPI |
 | [docs/cli-mcp.md](../cli-mcp.md) | CLI 命令与 MCP tool 契约 |
-| [docs/user/](../user/) | 终端用户使用说明 |
+| [docs/user/](../user/README.md) | 终端用户使用说明 |
 | **docs/dev/**（本目录） | 开发者如何搭建、运行、测试 |

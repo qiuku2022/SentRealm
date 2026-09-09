@@ -5,7 +5,7 @@
 | 项 | 说明 |
 |----|------|
 | 产品定位 | 见 [产品定义与 MVP](../planning/01-product-definition-and-mvp.md) |
-| 当前版本阶段 | M3 内部构建（见 [CHANGELOG](../../CHANGELOG.md) `0.5.2`） |
+| 当前版本阶段 | M3 内部构建（桌面壳 `0.5.2`，见 [路线图](../planning/03-roadmap.md)） |
 | 分发状态 | **正式公开发布尚未完成**（路线图 M3）。团队可用 [packaging.md](../dev/packaging.md) 打出内部 NSIS 安装包；终端用户也可由团队提供该构建 |
 | 主平台 | Windows 10 / 11 |
 
@@ -309,7 +309,6 @@ cli / mcp 与桌面端**共用同一配置库**；文稿工作区仅桌面端（
 |------|------|
 | 产品范围与规则细节 | [产品定义与 MVP](../planning/01-product-definition-and-mvp.md) |
 | 下一步做什么 | [路线图](../planning/03-roadmap.md) |
-| 版本变更 | [CHANGELOG](../../CHANGELOG.md) |
 | 开发者运行与测试 | [docs/dev/](../dev/README.md) |
 | HTTP / CLI / MCP 契约 | [api](../api/README.md)、[cli-mcp](../cli-mcp.md) |
 
@@ -318,5 +317,4 @@ cli / mcp 与桌面端**共用同一配置库**；文稿工作区仅桌面端（
 ## 维护说明
 
 - UI 文案、按钮名称、工作区行为变更时，**同步改本文**对应小节。  
-- 安装包发布（M3）后，在文首「分发状态」改为安装步骤，并去掉「仅开发构建」表述。  
-- 用户可见行为变更请同时写入 [CHANGELOG](../../CHANGELOG.md)。
+- 安装包发布（M3）后，在文首「分发状态」改为安装步骤，并去掉「仅开发构建」表述。

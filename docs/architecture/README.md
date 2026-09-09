@@ -1,6 +1,6 @@
 # 架构文档
 
-> 技术架构与 ADR（Architecture Decision Records）索引。产品范围与 MVP 边界见 [docs/planning/](../planning/)。
+> 技术架构与 ADR（Architecture Decision Records）索引。产品范围与 MVP 边界见 [docs/planning/](../planning/README.md)。
 
 ## 推荐阅读顺序
 
@@ -41,13 +41,13 @@
 
 | 目录 | 回答的问题 |
 |------|------------|
-| [docs/planning/](../planning/) | **做什么** — 产品定义与路线图 |
+| [docs/planning/](../planning/README.md) | **做什么** — 产品定义与路线图 |
 | **docs/architecture/**（本目录） | **怎么做** — 技术架构、模块边界、技术决策 |
-| [docs/api/](../api/) | **接口契约** — HTTP 路由、OpenAPI、Apifox 对齐 |
+| [docs/api/](../api/README.md) | **接口契约** — HTTP 路由、OpenAPI、Apifox 对齐 |
 | [docs/cli-mcp.md](../cli-mcp.md) | cli / mcp 命令与 tool 契约 |
-| [docs/user/](../user/) | **怎么用** — 终端用户手册 |
+| [docs/user/](../user/README.md) | **怎么用** — 终端用户手册 |
 | [docs/ui/](../ui/README.md) | **长什么样** — GUI tokens、壳层、组件映射与状态（实现契约） |
-| [docs/dev/](../dev/) | **如何跑起来** — 环境搭建、本地运行、测试 |
+| [docs/dev/](../dev/README.md) | **如何跑起来** — 环境搭建、本地运行、测试 |
 
 ## 待定 / 后续 ADR
 

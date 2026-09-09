@@ -246,4 +246,4 @@ LLM 集成、发送池与隐私边界详见 [ADR-005](./adr/005-llm-integration-
 - [多入口模块化架构](./modules.md)
 - [架构概览](./overview.md)
 - [产品定义与 MVP](../planning/01-product-definition-and-mvp.md)
-- [ADR 目录](./adr/)
+- [ADR 目录](./adr/README.md)

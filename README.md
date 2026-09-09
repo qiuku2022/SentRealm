@@ -12,13 +12,12 @@
 |------|------|
 | [AGENTS.md](./AGENTS.md) | AI / 自动化协作约定 |
 | [docs/user/](./docs/user/README.md) | **用户使用手册**（写稿 → 处理 → 剪映） |
-| [docs/planning/](./docs/planning/) | 产品规划与路线图（从 [README](./docs/planning/README.md) 进入） |
-| [docs/architecture/](./docs/architecture/) | 架构与技术决策（从 [README](./docs/architecture/README.md) 进入） |
-| [docs/api/](./docs/api/) | HTTP API 与 OpenAPI |
+| [docs/planning/](./docs/planning/README.md) | 产品规划与路线图 |
+| [docs/architecture/](./docs/architecture/README.md) | 架构与技术决策 |
+| [docs/api/](./docs/api/README.md) | HTTP API 与 OpenAPI |
 | [docs/cli-mcp.md](./docs/cli-mcp.md) | CLI 与 MCP 契约 |
-| [docs/dev/](./docs/dev/) | 开发指南（从 [README](./docs/dev/README.md) 进入） |
+| [docs/dev/](./docs/dev/README.md) | 开发指南 |
 | [docs/ui/](./docs/ui/README.md) | GUI 设计→实现契约（tokens、三栏壳、组件映射、状态） |
-| [CHANGELOG.md](./CHANGELOG.md) | 版本变更记录 |
 
 ## 开发者快速开始
 
@@ -31,7 +30,7 @@ pnpm dev
 ```
 
 - 一键启动后 Tauri 自动拉起 FastAPI（`127.0.0.1:17300`），无需第二个终端
-- IDE 断点调试（F5）：见 [running-locally.md § IDE 调试](./docs/dev/running-locally.md#ide-调试cursor--vs-code)
+- IDE 断点调试（F5）：见 [docs/dev/running-locally.md](./docs/dev/running-locally.md) 的「IDE 调试」一节
 - 仅调试 API：`uv run uvicorn apps.gui.api.main:app --host 127.0.0.1 --port 17300`
 - 测试：`uv run pytest`
 

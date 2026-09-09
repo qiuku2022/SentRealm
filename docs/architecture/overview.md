@@ -125,7 +125,7 @@ flowchart TB
 - [架构文档索引](./README.md)
 - [多入口模块化架构](./modules.md)
 - [数据流与模块边界](./data-flow.md)
-- [ADR 目录](./adr/)
+- [ADR 目录](./adr/README.md)
 - [ADR-010：文稿与项目本地持久化](./adr/010-workspace-document-persistence.md)
 - [产品定义与 MVP](../planning/01-product-definition-and-mvp.md)
 - [API 文档](../api/README.md)

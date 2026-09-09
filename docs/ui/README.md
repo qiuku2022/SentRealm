@@ -16,11 +16,11 @@
 
 | 目录 / 文档 | 回答的问题 |
 |-------------|------------|
-| [docs/planning/](../planning/) | **做什么** — 产品规则与用户故事 |
-| [docs/architecture/](../architecture/) | **怎么做** — 进程、模块、ADR（含 [ADR-002](../architecture/adr/002-shadcn-ui.md)） |
+| [docs/planning/](../planning/README.md) | **做什么** — 产品规则与用户故事 |
+| [docs/architecture/](../architecture/README.md) | **怎么做** — 进程、模块、ADR（含 [ADR-002](../architecture/adr/002-shadcn-ui.md)） |
 | **docs/ui/**（本目录） | **长什么样、怎么落地组件** — 视觉与交互契约 |
-| [docs/user/](../user/) | **终端用户怎么用** — 文案与操作步骤 |
-| [docs/dev/](../dev/) | **如何跑起来** — 环境与测试 |
+| [docs/user/](../user/README.md) | **终端用户怎么用** — 文案与操作步骤 |
+| [docs/dev/](../dev/README.md) | **如何跑起来** — 环境与测试 |
 
 冲突时：**产品规则**以规划文档为准；**组件库选型**以 ADR-002 为准；**色值与壳层布局**以本目录（源自 OD `assets/app.css`）为准。
 
@@ -48,5 +48,5 @@
 ## 维护
 
 - 改配色 / 布局 / 组件映射 → 先改 OD 或本目录，再同步实现。  
-- 改产品能力或文案 → 同步 [用户手册](../user/README.md) 与 [CHANGELOG](../../CHANGELOG.md)。  
+- 改产品能力或文案 → 同步 [用户手册](../user/README.md)。  
 - 改组件库选型 → 更新 ADR-002，再回写本目录。
