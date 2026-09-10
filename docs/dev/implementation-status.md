@@ -4,13 +4,13 @@
 
 **核对日期**：2026-09-09  
 **工作区根**：`d:\Work\Dev\SentRealm`  
-**当前版本**：桌面壳 `0.5.2`（`apps/gui/src-tauri/tauri.conf.json`）；工作区另含未发版的 GUI 打磨（结果行定位原文、侧栏/线条/字体等）
+**当前版本**：桌面壳 `0.5.3`（`apps/gui/src-tauri/tauri.conf.json`）；含 LLM 长度不合规祖先第二波返工等 M3 内部迭代
 
 ## 结论
 
 **M1 / M2 已完成。** 当前为 **M3 内部构建**：Windows 安装包可本地打出（PyInstaller onedir sidecar + Tauri NSIS，见 [packaging.md](./packaging.md)）。仍阻塞 1.0：干净机冒烟、代码签名、正式公开发布；[用户手册](../user/README.md) 安装节仍写「安装包就绪前」。ADR-009 物理拆包仍延后。
 
-**流水线已对齐文档**：标点分级（硬边界 / 超长候选 / 仅删除）→ 空格 → 自然边界规则断句（全局选点、短行回并、出厂词表 v3，ADR-012）→ LLM 发送池（可选）→ 标记。发送池：规则后仍超长行入池 → 每批 ≤10 调用 `break_lines` → `llm_quality_ok`（守恒 + 有效切分 + 有进展 + `min_chars`）→ 不合格回池最多 3 次 → 放弃保留原文并由 `flag_overlength_lines` 标记。见 [产品定义](../planning/01-product-definition-and-mvp.md#llm-发送池与质检返工) 与 [ADR-005](../architecture/adr/005-llm-integration-privacy.md)。
+**流水线已对齐文档**：标点分级（硬边界 / 超长候选 / 仅删除）→ 空格 → 自然边界规则断句（全局选点、短行回并、出厂词表 v3，ADR-012）→ LLM 发送池（可选）→ 标记。发送池：规则后仍超长行入池 → 每批 ≤10 调用 `break_lines` → 硬质检（守恒 + 有效切分 + 有进展）+ 超长/过短软返工 → 合格写回并短行回并；写回后仍长度不合规则祖先整句第二波（最多 2 次，失败保留第一波）；满 3 次硬失败则保留原文并由 `flag_overlength_lines` 标记。见 [产品定义](../planning/01-product-definition-and-mvp.md#llm-发送池与质检返工) 与 [ADR-005](../architecture/adr/005-llm-integration-privacy.md)。
 
 目录 `packages/{core,cli,mcp}`、`apps/gui/{src,src-tauri,api}` **已落地**。默认 `uv run pytest` **164 passed**（本核对日）。
 
@@ -46,7 +46,7 @@
 | 路径 | 说明 |
 |------|------|
 | `pipeline/punctuation.py` 等 8 步 | 编排在 `pipeline/preprocess.py` |
-| `pipeline/llm_quality.py` | `min_chars_for` / `quality_ok` / `llm_quality_ok`（含 `min_chars`） |
+| `pipeline/llm_quality.py` | `min_chars_for` / `quality_ok` / `llm_quality_ok` / 软码 `still_overlength`·`too_short` |
 | `pipeline/llm_break.py` | 发送池编排、批 ≤10、终态进度 |
 | `llm.py` | `LlmClient.break_lines`；Mock / OpenAI 批解析；`is_llm_configured` |
 | `store/workspace_store.py` | 工作区 JSON（`Documents/SentRealm/`） |
@@ -84,7 +84,7 @@
 
 1. **stub 语义已移除**：完整 8 步；三入口一致测试通过
 2. **无密钥规则路径**：`llm_enabled=false` 时去标点 + 规则 + 标记可用
-3. **LLM 发送池**：`is_llm_configured` + 批 ≤10 + 质检（含 `min_chars`）+ 最多 3 次返工；Mock 注入；integration 默认不跑
+3. **LLM 发送池**：`is_llm_configured` + 批 ≤10 + 硬质检（守恒 / 有效切分 / 有进展）+ 超长/过短软返工 + 写回短行回并 + 长度不合规祖先第二波；第一波最多 3 次、第二波最多 2 次；Mock 注入；integration 默认不跑
 4. **模块边界**：core 无 FastAPI/cli/mcp 依赖；React 仅 HTTP
 5. **Settings 共用**：SQLite @ `%APPDATA%/SentRealm/settings.db`
 6. **工作区**：`Documents/SentRealm/`；cli/mcp 不接入

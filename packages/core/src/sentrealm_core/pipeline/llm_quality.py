@@ -30,9 +30,27 @@ def normalize_for_conservation(text: str) -> str:
 
 
 def conservation_ok(original: str, parts: list[str]) -> bool:
-    """True when joined trimmed parts equal trimmed original (no rewrite)."""
-    joined = "".join(part.strip() for part in parts)
-    return joined == normalize_for_conservation(original)
+    """True when trimmed parts align in order to the trimmed original.
+
+    Between consecutive parts, ordinary ASCII spaces in the original may be
+    consumed (newline substitutes a retained word-boundary space). In-part
+    spaces and all other characters must match exactly; no rewrite, reorder,
+    or leftover text.
+    """
+    text = normalize_for_conservation(original)
+    cleaned = [part.strip() for part in parts if part.strip()]
+    if not cleaned:
+        return not text
+
+    pos = 0
+    for index, part in enumerate(cleaned):
+        if index > 0:
+            while pos < len(text) and text[pos] == " ":
+                pos += 1
+        if not text.startswith(part, pos):
+            return False
+        pos += len(part)
+    return pos == len(text)
 
 
 def length_ok(
@@ -71,24 +89,72 @@ def quality_ok(
     )
 
 
+_SOFT_CODES = frozenset({"still_overlength", "too_short"})
+
+
+def llm_quality_diagnose(
+    original: str,
+    parts: list[str],
+    *,
+    max_chars: int | None = None,
+    min_chars: int | None = None,
+) -> str | None:
+    """Return None when LLM quality passes; else a fixed failure code.
+
+    Hard codes: empty | not_split | conservation | no_progress
+    Soft codes (only when max_chars / min_chars provided): still_overlength | too_short
+    Soft codes are for retry hints; they are not hard write-back gates.
+    """
+    cleaned = [part.strip() for part in parts if part.strip()]
+    if not cleaned:
+        return "empty"
+    if len(cleaned) < 2:
+        return "not_split"
+    if not conservation_ok(original, cleaned):
+        return "conservation"
+    original_count = count_line_chars(original)
+    if original_count <= 0:
+        return "no_progress"
+    longest = max(count_line_chars(part) for part in cleaned)
+    if longest >= original_count:
+        return "no_progress"
+
+    if max_chars is not None:
+        if max_chars < 1:
+            raise ValueError("max_chars must be >= 1")
+        for part in cleaned:
+            if count_line_chars(part) > max_chars:
+                return "still_overlength"
+
+    if min_chars is not None:
+        floor = resolve_min_chars(max_chars if max_chars is not None else min_chars, min_chars)
+        for part in cleaned:
+            if count_line_chars(part) < floor:
+                return "too_short"
+
+    return None
+
+
 def llm_quality_ok(
     original: str,
     parts: list[str],
     *,
-    min_chars: int,
+    max_chars: int | None = None,
+    min_chars: int | None = None,
 ) -> bool:
-    """LLM gate: minimum length, conservation, real split, and progress."""
-    if min_chars < 1:
-        raise ValueError("min_chars must be >= 1")
-    cleaned = [part.strip() for part in parts if part.strip()]
-    if len(cleaned) < 2:
-        return False
-    if not conservation_ok(original, cleaned):
-        return False
-    if any(count_line_chars(part) < min_chars for part in cleaned):
-        return False
-    original_count = count_line_chars(original)
-    if original_count <= 0:
-        return False
-    longest = max(count_line_chars(part) for part in cleaned)
-    return longest < original_count
+    """LLM gate: conservation, real split (>=2 parts), and progress.
+
+    Does not hard-reject on min_chars / max_chars. When those are passed,
+    soft length codes still fail this helper — callers that need the hard-only
+    gate should omit them (or use diagnose and ignore soft codes).
+    """
+    return (
+        llm_quality_diagnose(
+            original, parts, max_chars=max_chars, min_chars=min_chars
+        )
+        is None
+    )
+
+
+def is_soft_quality_code(code: str | None) -> bool:
+    return code in _SOFT_CODES
