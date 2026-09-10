@@ -273,7 +273,7 @@ API 密钥**不在**响应中返回（仅存于环境变量，见 ADR-004/005）
 
 | `type` | 说明 |
 |--------|------|
-| `progress` | 中间快照：`processed`、`line_count`、`flagged_lines`、`phase`（`rules` \| `llm`），LLM 阶段含 `llm_current` / `llm_total`（推荐口径：入池条数的终态进度，见 ADR-005） |
+| `progress` | 中间快照：`processed`、`line_count`、`flagged_lines`、`phase`（`rules` \| `llm`），LLM 阶段含 `llm_current` / `llm_total`（终态进度；`llm_total` 含首次入池，长度第二波入池时可能追加，见 ADR-005） |
 | `done` | 最终 `PreprocessResult`（字段同 JSON 接口） |
 | `error` | `{ "detail": "…" }` |
 

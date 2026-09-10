@@ -35,7 +35,7 @@ pnpm lint
 | 无全局 mock 开关 | 不使用 `SENTREALM_LLM_MOCK=1` 类环境变量静默 mock |
 | 未启用 / 未配置 LLM | `llm_enabled=false` 或缺少 endpoint/model/密钥时，跳过流水线步骤 6，超长行进入标记（与生产行为一致） |
 | HTTP API | MVP 不提供 API 层 mock 模式；mock 在 `core` 层完成 |
-| 发送池 / 质检 | 单测须覆盖：批量 ≤10、内容守恒、有效切分、有进展、不合格回池、满 3 次放弃标记；LLM 结果不以 `min_chars` / `max_chars` 作硬门禁；`llm_quality_ok` 与 `MockLlmClient.break_lines` |
+| 发送池 / 质检 | 单测须覆盖：批量 ≤10、内容守恒（顺序对齐；行间边界可消费 ASCII 空格）、有效切分、有进展、不合格回池、满 3 次放弃标记；失败分类（空输出 ≠ 未切分）、单行隔离、`retry_hints`、配置错误立即终态；超长/过短为软返工（满次可接受）；写回后长度不合规则祖先第二波（入池/成功替换/失败保留第一波/进度 total 可追加）；不以 `min_chars` / `max_chars` 作最终硬放弃；`llm_quality_diagnose` / `llm_quality_ok` 与 `MockLlmClient.break_lines`（`LineBreakResult`） |
 
 `MockLlmClient` 应返回**确定性**切分结果，便于断言 `flagged_lines` 与行内容。
 

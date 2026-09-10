@@ -91,7 +91,7 @@ flowchart TD
 | 3. 检测字数 | `pipeline/line_count.py` | 无 | 中文/英文/数字各计 1 字；合并空行 |
 | 4. 规则断句与短行修复 | `pipeline/rule_break.py` + `pipeline/short_line_repair.py` | 无 | 仅超长自然句；候选标点、英文词界、字词表全局选点；局部难切段可保留超长 |
 | 5. 检测字数 | `pipeline/line_count.py` | 无 | 同上 |
-| 6. LLM 发送池 | `pipeline/llm_break.py` | LLM API | 入池 → 批量 ≤10 → 质检返工；未配置则跳过 |
+| 6. LLM 发送池 | `pipeline/llm_break.py` | LLM API | 入池 → 批量 ≤10 → 质检返工；写回后长度不合规则祖先第二波；未配置则跳过 |
 | 7. 检测字数 | `pipeline/line_count.py` | 无 | 同上 |
 | 8. 标记超长行 | `pipeline/` + 前端 | 无 | 返回 `flagged_lines` 索引，UI 高亮 |
 
@@ -103,7 +103,7 @@ flowchart TD
 
 ### 流水线语义（当前 vs 历史）
 
-当前（Phase 1 / M2 起）`preprocess()` 执行完整 8 步流水线；步骤 6 为 **发送池批量 + 质检返工**（见产品定义）。`flagged_lines` 为规则 + LLM（若启用，含返工耗尽）后仍不合格的行号（**0-based**）。
+当前（Phase 1 / M2 起）`preprocess()` 执行完整 8 步流水线；步骤 6 为 **发送池批量 + 质检返工 + 长度不合规祖先第二波**（见产品定义）。`flagged_lines` 为规则 + LLM（若启用，含返工耗尽）后仍不合格的行号（**0-based**）。
 
 | 阶段 | `preprocess()` 行为 | `flagged_lines` | 说明 |
 |------|---------------------|-----------------|------|
@@ -220,7 +220,7 @@ apps/gui/api/
 | 数据 | 流向 |
 |------|------|
 | 文稿全文 | gui 持久化至 `Documents/SentRealm/.../source.txt`；cli/mcp 仍仅内存处理 |
-| LLM 请求 | 仅发送规则断句后仍超长的行（发送池，每批最多 **10** 行）+ `max_chars` 参考上限 |
+| LLM 请求 | 仅发送规则断句后仍超长的行（发送池，每批最多 **10** 行；长度第二波再发祖先整句）+ `max_chars` 硬性切分目标 |
 | LLM 响应 | 仅用于断句切分，**不改写文稿用词**；须过语义质检（`llm_quality_ok`）后写回 |
 | 用户配置 | 写入本地 SQLite（`%APPDATA%/SentRealm/settings.db`）；含 `break_lexicon` 字词表 |
 | 处理结果 | gui 缓存至 `result.json`；经 API 返回前端展示 |
