@@ -57,6 +57,13 @@ pwsh -File scripts/build_sidecar.ps1
 4. 端口 17300 未被占用时可再次启动
 5. 启动后 `%TEMP%` **不应**再出现新的 `_MEI*` 目录（onedir 不再每次解压）
 
+**验收分层**：
+
+| 档位 | 口径 | 状态（2026-09-15） |
+|------|------|-------------------|
+| 内部（档位 1） | 作者/团队以 NSIS 日常完成主流程（粘贴 → 处理 → 复制 → 剪映） | ✅ 作者工作环境约 1 个月 |
+| 正式 `1.0.0` | 干净 Win10/11 上完整跑上表 1–5（含无残留、无新增 `_MEI*`） | 未做 |
+
 ## 注意
 
 - `resources/sentrealm-api/` 与 `packaging/dist/` **不入 git**（见根 `.gitignore`）。`tauri dev` 不需要真实 sidecar；`src-tauri/build.rs` 会在目录缺失时创建空占位（`tauri build` / release 仍要求已有 `sentrealm-api.exe`）
