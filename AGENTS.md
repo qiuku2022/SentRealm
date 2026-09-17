@@ -67,7 +67,7 @@ AI Agent **协作约定**（行为与边界）。产品范围、架构、API、�
 - 改 HTTP：同步 [openapi.yaml](./docs/api/openapi.yaml) 与 [docs/api/README.md](./docs/api/README.md)。
 - 改 CLI / MCP 行为：同步 [docs/cli-mcp.md](./docs/cli-mcp.md)。
 - 改产品规则 / 范围：同步 [产品定义](./docs/planning/01-product-definition-and-mvp.md)；用户可见用法同步 [用户手册](./docs/user/README.md)。
-- 架构或选型变更：更新对应主文档与 ADR（见 [架构维护约定](./docs/architecture/README.md#维护约定)）。
+- 架构或选型变更：更新对应主文档与 ADR（见 [架构维护约定](./docs/architecture/README.md)）。
 
 ### LLM 与密钥
 
