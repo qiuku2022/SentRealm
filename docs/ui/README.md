@@ -1,6 +1,7 @@
 # SentRealm UI 文档
 
-> **设计源**：Open Design 项目「SentRealm · Codex 高保真 UI」（`5560a61d-6179-4db6-b6c9-9b19ee004fa1`）。  
+> **设计源**：Open Design 项目「SentRealm · Codex 高保真 UI」（`sentrealm-codex-ui`）。  
+> **还原约定**：`assets/app.css` = 生产 `apps/gui/src/styles/app-shell.css`（加独立预览用的字体/盒模型 reset）；boards 的 DOM / `shell-*` class 对齐 `AppShell` 与侧栏 / FAB / 结果栏 / 设置 Drawer（静态态，非可运行 React）。  
 > **实现栈**：Tauri 2 WebView + React + TypeScript + shadcn/ui + Tailwind CSS（[ADR-002](../architecture/adr/002-shadcn-ui.md)）。  
 > **本目录角色**：GUI **设计 → 实现契约**（tokens、布局、组件映射、屏幕与状态）。产品规则、架构、用户操作说明不以本文为准。
 
