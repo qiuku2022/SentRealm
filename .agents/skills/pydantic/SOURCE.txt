@@ -1,0 +1,6 @@
+Installed via: npx skills add pydantic/skills --skill pydantic -y --agent cursor --copy
+
+  Source: https://github.com/pydantic/skills (Pydantic official)
+  Path:   skills/pydantic/
+
+SENTREALM.md is a project overlay. Re-install / update with `npx skills update pydantic` then re-check the overlay.

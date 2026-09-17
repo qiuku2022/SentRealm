@@ -1,0 +1,6 @@
+Installed via: npx skills add astral-sh/claude-code-plugins --skill uv -y --agent cursor --copy
+
+  Source: https://github.com/astral-sh/claude-code-plugins (Astral official)
+  Path:   plugins/astral/skills/uv/
+
+SENTREALM.md is a project overlay. Re-install / update with `npx skills update uv` then re-check the overlay.

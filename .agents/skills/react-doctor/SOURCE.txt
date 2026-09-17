@@ -1,0 +1,8 @@
+Installed via: npx skills add aidenybai/react-doctor --skill react-doctor -y --agent cursor --copy
+
+  Source: https://github.com/aidenybai/react-doctor (Cursor Marketplace / React Doctor)
+  Path:   skills/react-doctor/
+
+Also listed at: https://cursor.com/marketplace/skills/react-doctor
+
+Update with: npx skills update react-doctor

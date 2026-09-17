@@ -1,0 +1,6 @@
+Installed via: npx skills add anthropics/skills --skill mcp-builder -y --agent cursor --copy
+
+  Source: https://github.com/anthropics/skills
+  Path:   skills/mcp-builder/
+
+SENTREALM.md is a project overlay. Re-install / update with `npx skills update mcp-builder` then re-check the overlay.

@@ -97,4 +97,4 @@ AI Agent **协作约定**（行为与边界）。产品范围、架构、API、�
 
 - **改 Agent 行为 / 本约定** → 改本文件。
 - **改产品 / 架构 / API / 命令 / 用户说明 / 开发流程** → 改对应 docs，细节不抄进 AGENTS.md。
-- 仓库内 Agent 技能在 `.agents/skills/`。栈相关：`fastapi`（官方 skill 拷贝 + `SENTREALM.md` 覆盖）、`sentrealm-packaging`（M3 安装包）。若新增面向特定文件的 Cursor 规则，放 `.cursor/rules/*.mdc` 并在此提及（当前仍以本文件 + docs 为主）。
+- 仓库内 Agent 技能在 `.agents/skills/`。栈相关（带 `SENTREALM.md` 覆盖的先读覆盖）：`fastapi`、`pydantic`、`uv`、`desktop-framework-tauri`、`mcp-builder`；安装包用 `sentrealm-packaging`；React 诊断用 `react-doctor`。来源锁见根目录 `skills-lock.json`。若新增面向特定文件的 Cursor 规则，放 `.cursor/rules/*.mdc` 并在此提及（当前仍以本文件 + docs 为主）。

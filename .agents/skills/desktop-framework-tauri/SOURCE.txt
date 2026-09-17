@@ -1,0 +1,6 @@
+Installed via: npx skills add agents-inc/skills --skill desktop-framework-tauri -y --agent cursor --copy
+
+  Source: https://github.com/agents-inc/skills (community; not Tauri Labs official)
+  Path:   src/skills/desktop-framework-tauri/
+
+SENTREALM.md is a project overlay. Re-install / update with `npx skills update desktop-framework-tauri` then re-check the overlay.
