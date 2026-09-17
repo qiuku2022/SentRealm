@@ -50,7 +50,7 @@
 
 | 场景 | 行为 |
 |------|------|
-| `.cols.no-right` | 桌面宽屏：grid 两列，`.shell-right` **`display: none`**（无滑出动画）；中卡占满剩余；gutter 不变；窄屏 media 恢复抽屉 |
+| `.cols.no-right` | 桌面：保留三列，末列 `0` + inner `translateX` 滑出；负 margin 吸收 trailing gap；窄屏 media 仍用抽屉 |
 | `.cols.collapsed` | 左卡变窄（约 56px），仍为同一张卡（圆角/描边/阴影不变） |
 | `≤1024px` 右栏抽屉 | 右栏继续用现有绝对定位 + scrim；壳层卡片样式作用于仍嵌入网格的面板 |
 | FAB / Drawer | 层级与阴影保持现状，不被壳层卡片盖过 |
