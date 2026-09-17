@@ -59,6 +59,8 @@ Desktop.ini
 
 # --- Local working notes（本机执行清单 / 进度，不入库）---
 .local/
+# Agent SDD 会话草稿（brief / review pkg / ledger）；正式 spec/plan 在 docs/superpowers/
+.superpowers/
 
 # --- Packaging (PyInstaller) ---
 packaging/build/

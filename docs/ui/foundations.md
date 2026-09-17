@@ -11,7 +11,7 @@
 | 状态色 | 成功绿 / 警告陶土橙（超长行）/ 错误红 |
 | 密度 | 桌面工具偏紧：正文 UI **13px**，编辑区 **15.5px** |
 | 网格 | 8pt（`--s-1`…`--s-9`） |
-| 阴影 | 壳层默认几乎无阴影；**FAB / Drawer / 窄屏右栏**允许克制阴影 |
+| 阴影 | 壳层主面板（顶栏 + 三栏卡片）使用克制阴影 `0 4px 16px …0.28`；**FAB / Drawer / 窄屏右栏抽屉**可用更强阴影以保持叠层 |
 | 焦点 | 3px `--accent-soft` 软环，不用彩色 ring |
 
 ## 1. Primitive（OD 原始值）
@@ -138,6 +138,7 @@
 
 | 组件 | 关键 token / class |
 |------|-------------------|
+| 壳层主面板 `.shell-appbar` / `.shell-side` / `.shell-canvas` / `.shell-right` | `bg: var(--surface)`；`border`；`shadow: var(--shell-card-shadow)`；`radius: --r-lg` |
 | 主按钮 `.btn-go` / `.btn-new` | `bg: var(--fg)`；`color: var(--on-accent)` |
 | 超长行 `.result-line.long` | `background: var(--warn-soft)`；左边线 `var(--warn-line)` |
 | 健康点 `.health .dot` | `--ok` / `.err`→`--err` / `.warn`→`--warn` |

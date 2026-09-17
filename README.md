@@ -4,7 +4,7 @@
 
 **产品形态**：Tauri 2 桌面应用 + React 前端 + Python（FastAPI）后端；文稿本地处理，LLM 断句为可选能力。
 
-> **当前状态**：**Phase 1 MVP 核心已完成**（M2）。下一优先：可分发安装包（见 [路线图](./docs/planning/03-roadmap.md)）。
+> **当前状态**：**Phase 1 MVP 核心已完成**（M2）。M3 **内部可用（NSIS）**（作者侧日常约 1 个月已验证主流程）。下一优先：严格干净机冒烟、代码签名与正式公开发布（见 [路线图](./docs/planning/03-roadmap.md)）。
 
 ## 文档索引
 
