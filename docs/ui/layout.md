@@ -35,13 +35,23 @@ flowchart TB
 | 右栏 | `.right` | 处理结果列表、统计、一键复制 |
 | 设置 | `.drawer` + `.scrim` | 右侧滑出设置；≤960px 变底栏 sheet |
 
+### 分区方式
+
+壳层不再靠左右栏之间的 `1px` 竖线分割三栏，而是用 **gutter + 卡片** 区分区域：
+
+- 页面底：`--shell-bg`（对应 OD `--bg`）；顶栏 `.shell-appbar`、左 `.shell-side`、中 `.shell-canvas`、右 `.shell-right` 均为 `--shell-surface` 卡片（圆角、`border`、`box-shadow: var(--shell-card-shadow)`）。
+- 统一 **`--shell-gutter: 12px`**：`.shell-app` 的 `padding` 与顶栏/三栏之间的 `gap`、`.shell-cols` 的 `gap` 均用同一变量（窗边距与卡间距一致）。
+- 三栏之间用 grid **`gap`** 露出底色的 gutter，**不再**在左右栏上写 `border-right` / `border-left` 作为分栏线。
+- **`.shell-cols.no-right`（Option A；OD 原型为 `.cols.no-right`）**：桌面宽屏下 grid 为两列（侧栏 + 画布），`.shell-right` **`display: none`**（非滑出）；窄屏 `max-width: 1024px` 时仍可通过 media 恢复右栏抽屉行为（见下表）。
+
 ## 网格与断点
 
 | 视口 | 行为 |
 |------|------|
+| 壳层 gutter | **12px** 全站统一（`--shell-gutter`） |
 | 默认（设计宽约 1440） | `248 \| 1fr \| 360` |
-| `.cols.no-right` | 隐藏右栏（空态可无结果列） |
-| `.cols.collapsed` | 左栏收至 56px |
+| `.shell-cols.no-right` | 桌面：两列网格 + 右卡隐藏；空态可无结果列 |
+| `.shell-cols.collapsed` | 左栏收至 56px |
 | `max-width: 1024px` | 左栏 mini；右栏改为绝对定位抽屉（`.shell-right.is-open` + scrim） |
 | `max-width: 960px` | 设置 `.drawer` → 底部 sheet（高约 80vh） |
 | `max-width: 800px` 或 `max-height: 600px` | FAB 全宽化；画布内边距缩小 |

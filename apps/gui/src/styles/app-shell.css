@@ -25,6 +25,8 @@
   --shell-r-md: 8px;
   --shell-r-lg: 12px;
   --shell-r-xl: 14px;
+  --shell-gutter: 12px;
+  --shell-card-shadow: 0 4px 16px hsl(0 0% 0% / 0.28);
   --shell-scrollbar-size: 8px;
   --shell-scrollbar-thumb: hsl(0 0% 23%);
   --shell-scrollbar-thumb-hover: hsl(0 0% 32%);
@@ -77,6 +79,9 @@
   color: var(--shell-fg);
   color-scheme: dark;
   font-family: var(--font-ui);
+  padding: var(--shell-gutter);
+  gap: var(--shell-gutter);
+  box-sizing: border-box;
 }
 
 /* Unified scrollbars — editor textarea, results, settings, sidebar */
@@ -127,13 +132,23 @@
   background: transparent;
 }
 
+.shell-appbar,
+.shell-side,
+.shell-canvas,
+.shell-right {
+  background: var(--shell-surface);
+  border: 1px solid var(--shell-border);
+  border-radius: var(--shell-r-lg);
+  box-shadow: var(--shell-card-shadow);
+  min-height: 0;
+}
+
 .shell-appbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   height: var(--shell-topbar-h);
   padding: 0 16px;
-  background: var(--shell-bg);
   flex-shrink: 0;
 }
 
@@ -148,59 +163,44 @@
   grid-template-columns: var(--shell-sidebar-w) minmax(0, 1fr) var(--shell-right-w);
   flex: 1;
   min-height: 0;
+  gap: var(--shell-gutter);
   transition:
     grid-template-columns 0.22s cubic-bezier(0.2, 0.7, 0.2, 1),
     filter 0.18s ease;
 }
 
 .shell-cols.no-right {
-  grid-template-columns: var(--shell-sidebar-w) minmax(0, 1fr) 0px;
+  grid-template-columns: var(--shell-sidebar-w) minmax(0, 1fr);
+}
+
+/* Option A: hide right column in grid (no slide-out); narrow screen restores drawer via media query */
+.shell-cols.no-right .shell-right {
+  display: none;
 }
 
 .shell-side,
 .shell-canvas,
 .shell-right {
-  min-height: 0;
   display: flex;
   flex-direction: column;
 }
 
-.shell-side {
-  border-right: 1px solid var(--shell-border);
-  background: var(--shell-bg);
-}
-
 .shell-canvas {
-  background: var(--shell-bg);
   position: relative;
 }
 
 .shell-right {
-  border-left: 1px solid var(--shell-border);
-  background: var(--shell-bg);
   overflow: hidden;
   min-width: 0;
-  transition: border-color 0.22s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
 .shell-right-inner {
-  width: var(--shell-right-w);
-  min-width: var(--shell-right-w);
+  width: 100%;
+  min-width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
   min-height: 0;
-  transform: translateX(0);
-  transition: transform 0.22s cubic-bezier(0.2, 0.7, 0.2, 1);
-}
-
-.shell-cols.no-right .shell-right {
-  border-left-color: transparent;
-  pointer-events: none;
-}
-
-.shell-cols.no-right .shell-right-inner {
-  transform: translateX(100%);
 }
 
 .shell-side-head {
@@ -774,7 +774,7 @@
 .shell-right-scrim {
   position: fixed;
   inset: 0;
-  top: var(--shell-topbar-h);
+  top: calc(var(--shell-gutter) + var(--shell-topbar-h));
   background: hsl(0 0% 0% / 0.45);
   z-index: 25;
   animation: shell-scrim-in 0.18s ease both;
@@ -795,7 +795,7 @@
 }
 
 .shell-cols.is-collapsed.no-right {
-  grid-template-columns: var(--shell-sidebar-collapsed-w) minmax(0, 1fr) 0px;
+  grid-template-columns: var(--shell-sidebar-collapsed-w) minmax(0, 1fr);
 }
 
 .shell-side.is-collapsed {
@@ -1863,20 +1863,23 @@
   gap: 12px;
   margin: 0;
   padding: 10px 16px;
-  border-bottom: 1px solid hsl(0 91% 71% / 0.25);
+  border: 1px solid var(--shell-border);
+  border-radius: var(--shell-r-lg);
+  box-shadow: var(--shell-card-shadow);
   font-size: 12px;
+  flex-shrink: 0;
 }
 
 .shell-banner.is-err {
   background: hsl(0 91% 71% / 0.12);
   color: var(--shell-err);
-  border-bottom-color: hsl(0 91% 71% / 0.25);
+  border-color: hsl(0 91% 71% / 0.25);
 }
 
 .shell-banner.is-warn {
   background: hsl(35 90% 55% / 0.12);
   color: hsl(35 90% 65%);
-  border-bottom-color: hsl(35 90% 55% / 0.25);
+  border-color: hsl(35 90% 55% / 0.25);
 }
 
 .shell-banner-main {
@@ -2516,15 +2519,20 @@
     grid-template-columns: var(--shell-sidebar-collapsed-w) 1fr;
   }
 
+  .shell-cols.no-right .shell-right {
+    display: flex; /* override desktop display:none; visibility via .is-open / transform */
+  }
+
   .shell-right {
+    display: flex;
     position: fixed;
-    top: var(--shell-topbar-h);
-    right: 0;
-    bottom: 0;
-    width: min(360px, 92vw);
+    top: calc(var(--shell-gutter) + var(--shell-topbar-h) + var(--shell-gutter));
+    right: var(--shell-gutter);
+    bottom: var(--shell-gutter);
+    width: min(360px, calc(92vw - var(--shell-gutter)));
     z-index: 30;
     overflow: visible;
-    transform: translateX(100%);
+    transform: translateX(calc(100% + var(--shell-gutter)));
     transition: transform 0.22s cubic-bezier(0.2, 0.7, 0.2, 1);
     box-shadow: -16px 0 40px hsl(0 0% 0% / 0.55);
   }
