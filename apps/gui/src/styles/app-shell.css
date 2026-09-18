@@ -41,18 +41,24 @@
   --shell-sidebar-w: 248px;
   --shell-sidebar-collapsed-w: 56px;
   --shell-right-w: 320px;
-  --shell-fab-h: 56px;
+  /* Win11 Fluent geometry: 8px top-level / 4px in-page
+   * https://learn.microsoft.com/windows/apps/design/signature-experiences/geometry
+   * Standard control height 32px keeps 4px radius looking like Win11 relative curvature. */
+  --shell-control-h: 32px;
+  /* Extra chrome so overlay 8px on a short bar doesn't read as a capsule */
+  --shell-fab-h: calc(var(--shell-control-h) + 24px);
   --shell-canvas-pad: 20px;
   --shell-editor-min-h: 480px;
-  /* Win11 Fluent geometry: 8px top-level / 4px in-page
-   * https://learn.microsoft.com/windows/apps/design/signature-experiences/geometry */
   --shell-r-md: 4px;
   --shell-r-lg: 8px;
-  --shell-r-xl: 8px;
   --shell-gutter: 12px;
   /* Light-theme floating cards (was flat panes during Modern token port) */
   --shell-card-shadow: 0 4px 16px rgba(17, 24, 39, 0.08);
-  /* FAB / 浮层：比 Modern --elev-raised 更重，浅底上仍可读 */
+  /* FAB：介于 card 与 elev-raised，配合 border 避免宽条读成胶囊 */
+  --shell-fab-shadow:
+    0 2px 6px rgba(17, 24, 39, 0.08),
+    0 8px 20px rgba(17, 24, 39, 0.12);
+  /* 菜单 / Drawer 等浮层：比 Modern --elev-raised 更重，浅底上仍可读 */
   --shell-elev-raised:
     0 2px 6px rgba(17, 24, 39, 0.1),
     0 10px 28px rgba(17, 24, 39, 0.18);
@@ -111,7 +117,7 @@
 .shell-side-body::-webkit-scrollbar-thumb {
   background-color: var(--shell-scrollbar-thumb);
   border: 2px solid transparent;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background-clip: padding-box;
 }
 
@@ -278,8 +284,8 @@
 }
 
 .shell-side-toggle {
-  width: 36px;
-  height: 36px;
+  width: var(--shell-control-h);
+  height: var(--shell-control-h);
   display: grid;
   place-items: center;
   border: none;
@@ -307,10 +313,12 @@
 .shell-side-search-box {
   display: flex;
   align-items: center;
+  box-sizing: border-box;
   gap: 8px;
-  padding: 6px 10px;
+  height: var(--shell-control-h);
+  padding: 0 10px;
   border-radius: var(--shell-r-md);
-  border: none;
+  border: 1px solid var(--shell-border);
   background: var(--shell-surface-2);
   color: var(--shell-muted);
 }
@@ -349,7 +357,7 @@
   font-weight: var(--shell-font-weight-caption);
   color: var(--shell-muted-2);
   border: 1px solid var(--shell-border);
-  border-radius: 4px;
+  border-radius: var(--shell-r-md);
   padding: 1px 4px;
   flex-shrink: 0;
   background: var(--shell-bg);
@@ -506,7 +514,7 @@
   right: 4px;
   min-width: 120px;
   padding: 4px;
-  border-radius: var(--shell-r-md);
+  border-radius: var(--shell-r-lg);
   border: 1px solid color-mix(in oklab, var(--shell-accent), white 55%);
   background: var(--shell-surface-2);
   box-shadow: var(--shell-elev-raised);
@@ -535,7 +543,7 @@
   text-align: left;
   padding: 8px 10px;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--shell-r-md);
   background: transparent;
   color: var(--shell-fg-2);
   font-size: 12px;
@@ -572,7 +580,7 @@
   min-width: 0;
   width: 100%;
   padding: 0;
-  height: 36px;
+  height: var(--shell-control-h);
   display: grid;
   place-items: center;
 }
@@ -637,9 +645,10 @@
 }
 
 .shell-btn-danger {
-  height: 36px;
+  height: var(--shell-control-h);
   padding: 0 14px;
-  border: none;
+  box-sizing: border-box;
+  border: 1px solid transparent;
   border-radius: var(--shell-r-md);
   background: hsl(0 91% 71% / 0.18);
   color: var(--shell-err);
@@ -657,7 +666,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 36px;
+  box-sizing: border-box;
+  height: var(--shell-control-h);
   padding: 0 14px;
   margin-right: 6px;
   border: 1px solid var(--shell-border);
@@ -893,9 +903,9 @@
 }
 
 .shell-side.is-collapsed .shell-doc-item.is-compact {
-  width: 36px;
-  height: 36px;
-  min-width: 36px;
+  width: var(--shell-control-h);
+  height: var(--shell-control-h);
+  min-width: var(--shell-control-h);
   padding: 0;
   margin: 0 auto;
   flex-shrink: 0;
@@ -908,10 +918,10 @@
 }
 
 .shell-side.is-collapsed .shell-btn-go.shell-btn-new.is-icon {
-  width: 36px;
+  width: var(--shell-control-h);
   min-width: 0;
   max-width: 100%;
-  height: 36px;
+  height: var(--shell-control-h);
   padding: 0;
   margin: 0 auto;
   flex-shrink: 0;
@@ -996,7 +1006,7 @@
 .shell-health .dot {
   width: 8px;
   height: 8px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--shell-muted);
   flex-shrink: 0;
 }
@@ -1128,10 +1138,14 @@
 }
 
 .shell-pill {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: var(--shell-control-h);
   font-size: var(--shell-font-label);
   font-weight: var(--shell-font-weight-caption);
-  padding: 4px 10px;
-  border-radius: 999px;
+  padding: 0 10px;
+  border-radius: var(--radius-pill);
   border: 1px solid var(--shell-border);
   color: var(--shell-muted-2);
   background: var(--shell-surface-2);
@@ -1146,11 +1160,13 @@
 .shell-pill-chip {
   display: inline-flex;
   align-items: center;
+  box-sizing: border-box;
+  height: var(--shell-control-h);
   gap: 6px;
   font-size: 12px;
   line-height: 1.2;
-  padding: 4px 10px;
-  border-radius: 999px;
+  padding: 0 10px;
+  border-radius: var(--radius-pill);
   border: 1px solid var(--shell-border);
   color: var(--shell-fg-2);
   background: var(--shell-surface-2);
@@ -1175,8 +1191,9 @@
 .shell-import-btn {
   display: inline-flex;
   align-items: center;
+  box-sizing: border-box;
   gap: 6px;
-  height: 32px;
+  height: var(--shell-control-h);
   padding: 0 10px;
   border-radius: var(--shell-r-md);
   border: 1px solid var(--shell-border);
@@ -1218,6 +1235,7 @@
   display: flex;
   flex-direction: column;
   position: relative;
+  overflow: hidden;
   background: var(--shell-bg);
   border: 1px solid var(--shell-border);
   border-radius: var(--shell-r-lg);
@@ -1234,7 +1252,7 @@
 
 .shell-editor-pulse-mark {
   position: absolute;
-  border-radius: 4px;
+  border-radius: var(--shell-r-md);
   background: hsl(142 69% 58% / 0.28);
   box-shadow: 0 0 0 1px hsl(142 69% 58% / 0.35);
   animation: shell-source-pulse 0.45s ease-in-out 2;
@@ -1313,8 +1331,9 @@
   flex-shrink: 0;
   padding: 10px 16px;
   background: var(--shell-surface-2);
-  border-bottom-left-radius: var(--shell-r-lg);
-  border-bottom-right-radius: var(--shell-r-lg);
+  /* 贴边嵌套：底角由 .shell-editor overflow 裁切，避免双半径叠缝 */
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
   font-size: var(--shell-font-label);
   font-weight: var(--shell-font-weight-caption);
   color: var(--shell-muted);
@@ -1347,7 +1366,7 @@
 .shell-llm-hint .dot {
   width: 6px;
   height: 6px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--shell-warn);
 }
 
@@ -1360,14 +1379,15 @@
   align-items: center;
   gap: 0;
   height: var(--shell-fab-h);
-  padding: 6px;
+  padding: 12px;
   min-width: 480px;
   max-width: calc(100% - 48px);
-  border-radius: var(--shell-r-xl);
+  border-radius: var(--shell-r-lg);
   background: var(--shell-surface);
-  border: none;
-  box-shadow: var(--shell-elev-raised);
+  border: 1px solid var(--shell-border);
+  box-shadow: var(--shell-fab-shadow);
   z-index: 2;
+  box-sizing: border-box;
 }
 
 .shell-fab-side {
@@ -1380,8 +1400,8 @@
 }
 
 .shell-fab-ic {
-  width: 36px;
-  height: 36px;
+  width: var(--shell-control-h);
+  height: var(--shell-control-h);
   display: grid;
   place-items: center;
   border: none;
@@ -1400,8 +1420,9 @@
 .shell-chip-toggle {
   display: inline-flex;
   align-items: center;
+  box-sizing: border-box;
   gap: 6px;
-  height: 36px;
+  height: var(--shell-control-h);
   min-width: 124px;
   width: 100%;
   padding: 0 12px;
@@ -1486,7 +1507,7 @@
   right: 0;
   bottom: calc(100% + 6px);
   padding: 4px;
-  border-radius: var(--shell-r-md);
+  border-radius: var(--shell-r-lg);
   border: 1px solid color-mix(in oklab, var(--shell-accent), white 55%);
   background: var(--shell-surface-2);
   box-shadow: 0 8px 24px rgba(17, 24, 39, 0.45);
@@ -1520,7 +1541,7 @@
   text-align: left;
   padding: 6px 10px;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--shell-r-md);
   background: transparent;
   color: var(--shell-fg-2);
   font-size: 12px;
@@ -1570,10 +1591,12 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  height: 36px;
+  height: var(--shell-control-h);
   min-width: 108px;
   padding: 0 20px;
-  border: none;
+  box-sizing: border-box;
+  /* Same 1px border box as outline buttons — avoids solid fills looking rounder */
+  border: 1px solid var(--shell-accent);
   border-radius: var(--shell-r-md);
   background: var(--shell-accent);
   color: var(--shell-accent-on);
@@ -1585,11 +1608,13 @@
 
 .shell-btn-go:hover:not(:disabled) {
   background: var(--shell-accent-hover);
+  border-color: var(--shell-accent-hover);
   color: var(--shell-accent-on);
 }
 
 .shell-btn-go:active:not(:disabled) {
   background: var(--shell-accent-active);
+  border-color: var(--shell-accent-active);
   color: var(--shell-accent-on);
 }
 
@@ -1629,7 +1654,7 @@
   text-transform: none;
   color: var(--shell-ok);
   padding: 2px 7px;
-  border-radius: 999px;
+  border-radius: var(--shell-r-md);
   background: var(--shell-ok-soft);
   animation: shell-live-pulse 1.2s ease-in-out infinite;
 }
@@ -1653,8 +1678,8 @@
 }
 
 .shell-right-head-actions .shell-icon-btn {
-  width: 36px;
-  height: 36px;
+  width: var(--shell-control-h);
+  height: var(--shell-control-h);
   border-radius: var(--shell-r-md);
   border: none;
 }
@@ -1665,8 +1690,8 @@
 }
 
 .shell-icon-btn {
-  width: 30px;
-  height: 30px;
+  width: var(--shell-control-h);
+  height: var(--shell-control-h);
   display: grid;
   place-items: center;
   border-radius: var(--shell-r-md);
@@ -1837,7 +1862,7 @@
   content: "";
   width: 4px;
   height: 4px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--shell-warn);
   flex-shrink: 0;
 }
@@ -1884,10 +1909,11 @@
 
 .shell-btn-copy {
   width: 100%;
-  height: 32px;
+  height: var(--shell-control-h);
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
   gap: 6px;
   padding: 0 14px;
   border-radius: var(--shell-r-md);
@@ -1901,6 +1927,7 @@
 
 .shell-btn-copy:hover:not(:disabled) {
   background: var(--shell-accent-hover);
+  border-color: var(--shell-accent-hover);
 }
 
 .shell-btn-copy svg {
@@ -1984,7 +2011,7 @@
   border: none;
   background: var(--shell-surface-warm);
   color: inherit;
-  border-radius: 6px;
+  border-radius: var(--shell-r-md);
   padding: 4px 8px;
   font-size: var(--shell-font-label);
   font-weight: var(--shell-font-weight-caption);
@@ -2063,7 +2090,7 @@
   display: grid;
   place-items: center;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--shell-r-md);
   background: transparent;
   color: var(--shell-muted);
   cursor: pointer;
@@ -2163,7 +2190,7 @@
   top: 2px;
   bottom: 2px;
   left: 0;
-  border-radius: 6px;
+  border-radius: var(--shell-r-md);
   background: var(--shell-bg);
   border: 1px solid var(--shell-scrollbar-thumb);
   box-sizing: border-box;
@@ -2179,7 +2206,7 @@
   z-index: 1;
   padding: 5px 12px;
   border: 1px solid transparent;
-  border-radius: 6px;
+  border-radius: var(--shell-r-md);
   background: transparent;
   color: var(--shell-muted);
   font-size: 12px;
@@ -2342,7 +2369,7 @@
   height: 18px;
   padding: 0;
   border: 1px solid var(--shell-border);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--shell-surface-2);
   position: relative;
   flex-shrink: 0;
@@ -2359,7 +2386,7 @@
   left: 1px;
   width: 14px;
   height: 14px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--shell-muted);
   transition:
     transform 0.15s ease,
@@ -2379,9 +2406,11 @@
 .shell-drawer-key-pill {
   display: inline-flex;
   align-items: center;
+  box-sizing: border-box;
+  height: var(--shell-control-h);
   gap: 6px;
-  padding: 4px 10px;
-  border-radius: 999px;
+  padding: 0 10px;
+  border-radius: var(--shell-r-md);
   border: 1px solid var(--shell-border);
   background: var(--shell-surface-2);
   color: var(--shell-muted-2);
@@ -2392,7 +2421,7 @@
 .shell-drawer-key-pill .dot {
   width: 6px;
   height: 6px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--shell-muted-2);
   flex-shrink: 0;
 }
@@ -2422,7 +2451,7 @@
 .shell-llm-status .dot {
   width: 8px;
   height: 8px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   margin-top: 6px;
   flex-shrink: 0;
   background: var(--shell-muted-2);
@@ -2456,7 +2485,7 @@
 .shell-privacy-tip-icon {
   width: 22px;
   height: 22px;
-  border-radius: 6px;
+  border-radius: var(--shell-r-md);
   background: var(--shell-bg);
   border: 1px solid var(--shell-border);
   display: grid;
@@ -2488,8 +2517,9 @@
 }
 
 .shell-drawer-btn-secondary {
-  height: 32px;
+  height: var(--shell-control-h);
   padding: 0 12px;
+  box-sizing: border-box;
   border-radius: var(--shell-r-md);
   border: 1px solid var(--shell-border);
   background: transparent;
@@ -2506,8 +2536,9 @@
 }
 
 .shell-drawer-btn-primary {
-  height: 32px;
+  height: var(--shell-control-h);
   padding: 0 14px;
+  box-sizing: border-box;
   border-radius: var(--shell-r-md);
   border: 1px solid var(--shell-accent);
   background: var(--shell-accent);
@@ -2552,7 +2583,7 @@
 }
 
 .shell-btn-secondary {
-  height: 36px;
+  height: var(--shell-control-h);
   padding: 0 14px;
   border-radius: var(--shell-r-md);
   border: 1px solid var(--shell-border);
@@ -2686,7 +2717,7 @@
     height: min(80vh, 640px);
     border-left: none;
     border-top: 1px solid var(--shell-border);
-    border-radius: var(--shell-r-xl) var(--shell-r-xl) 0 0;
+    border-radius: var(--shell-r-lg) var(--shell-r-lg) 0 0;
     box-shadow: 0 -24px 56px rgba(17, 24, 39, 0.55);
     transform: translateY(100%);
   }
