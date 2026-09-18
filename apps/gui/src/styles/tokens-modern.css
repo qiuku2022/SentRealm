@@ -21,9 +21,9 @@
   --success: #10b981;
   --warn: #f59e0b;
   --danger: #ef4444;
-  --font-display: Inter, "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
-  --font-body: Inter, "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
-  --font-mono: "Geist Mono", ui-monospace, Menlo, "Microsoft YaHei UI", monospace;
+  --font-display: "Segoe UI Variable Display", "Segoe UI", -apple-system, BlinkMacSystemFont, "PingFang SC", "Source Han Sans SC", "Source Han Sans CN", "Noto Sans SC", "HarmonyOS Sans SC", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+  --font-body: "Segoe UI Variable Text", "Segoe UI", -apple-system, BlinkMacSystemFont, "PingFang SC", "Source Han Sans SC", "Source Han Sans CN", "Noto Sans SC", "HarmonyOS Sans SC", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+  --font-mono: "Geist Mono", "Cascadia Code", "Segoe UI Mono", Menlo, Monaco, Consolas, "Microsoft YaHei UI", monospace;
   --text-xs: 12px;
   --text-sm: 14px;
   --text-base: 16px;

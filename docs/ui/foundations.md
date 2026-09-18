@@ -83,10 +83,14 @@
 
 ### 字体
 
-| Token | 栈 |
-|-------|-----|
-| `--font-ui` / `--font-body` | `Inter, "Microsoft YaHei UI", …, system-ui, sans-serif` |
-| `--font-mono` | `"Geist Mono", ui-monospace, Menlo, …` |
+| Token | 栈 | 说明 |
+|-------|-----|------|
+| `--font-ui` / `--font-body` | `"Segoe UI Variable Text", "Segoe UI", -apple-system, BlinkMacSystemFont, "PingFang SC", "Source Han Sans SC", "Source Han Sans CN", "Noto Sans SC", "HarmonyOS Sans SC", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif` | 优先现代 Fluent / 苹方 / 思源黑体 / 鸿蒙黑体，回退微软雅黑；基础字重设为 `500`（Medium）确保笔画扎实清晰 |
+| `--font-mono` | `"Geist Mono", "Cascadia Code", "Segoe UI Mono", Menlo, Monaco, Consolas, "Microsoft YaHei UI", monospace` | 优先现代等宽字体，回退系统等宽 |
+
+**渲染与字重约定**：
+- 全局基础字重为 `500`（正文、编辑区输入、分行结果），标题与主要动作保持 `600`，辅助说明/标签为 `550`。
+- Windows WebView2 下使用 `subpixel-antialiased` 与 `-webkit-font-smoothing: auto`，保留 ClearType 亚像素渲染，避免强制灰度平滑导致中文字体发灰过细。
 
 ## 2. Semantic → shadcn / Tailwind
 

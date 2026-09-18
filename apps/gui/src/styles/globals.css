@@ -10,8 +10,8 @@
  * Note: Tailwind --color-accent is the hover surface (surface-warm), NOT brand --accent.
  */
 @theme inline {
-  --font-sans: Inter, "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
-  --font-mono: "Geist Mono", ui-monospace, Menlo, "Microsoft YaHei UI", monospace;
+  --font-sans: "Segoe UI Variable Text", "Segoe UI", -apple-system, BlinkMacSystemFont, "PingFang SC", "Source Han Sans SC", "Source Han Sans CN", "Noto Sans SC", "HarmonyOS Sans SC", "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
+  --font-mono: "Geist Mono", "Cascadia Code", "Segoe UI Mono", Menlo, Monaco, Consolas, "Microsoft YaHei UI", monospace;
   --color-background: var(--bg);
   --color-foreground: var(--fg);
   --color-card: var(--surface);
@@ -66,12 +66,17 @@
   code,
   kbd {
     font-family: var(--font-ui);
+    font-weight: inherit;
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background text-foreground subpixel-antialiased;
     font-family: var(--font-ui);
     font-size: 13px;
+    font-weight: 500;
     overflow: hidden;
+    -webkit-font-smoothing: auto;
+    -moz-osx-font-smoothing: auto;
+    text-rendering: optimizeLegibility;
   }
 }
