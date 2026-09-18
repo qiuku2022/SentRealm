@@ -6,7 +6,7 @@
 |----|------|
 | 产品定位 | 见 [产品定义与 MVP](../planning/01-product-definition-and-mvp.md) |
 | 当前版本阶段 | 正式版 `1.0.0`（见 [路线图](../planning/03-roadmap.md)） |
-| 分发状态 | **NSIS 安装包**（版本 `1.0.0`）。代码签名尚未完成时，Windows SmartScreen 可能提示 |
+| 分发状态 | 从 [GitHub Releases](https://github.com/qiuku2022/SentRealm/releases/latest) 下载 Windows NSIS 安装包（`1.0.0`）。安装包尚未代码签名，Windows SmartScreen 可能提示「无法验证发布者」 |
 | 主平台 | Windows 10 / 11 |
 
 开发者请改读 [开发指南](../dev/README.md)，不要用本文当环境搭建手册。
@@ -32,7 +32,7 @@ SentRealm 在**粘贴进剪映之前**完成本地预处理：去标点、识别
 |------|------|
 | 定稿文稿 | 口播/解说/采访类**已确认**的文字；非实时转写为主场景 |
 | 剪映 | 本机已安装；使用「文本 → 智能字幕 → 文稿匹配」（菜单以你的剪映版本为准） |
-| SentRealm | 由团队提供 NSIS 安装包（`.exe`）→ 安装 → 启动即可。开发者调试见 [开发指南](../dev/README.md)（`pnpm dev`） |
+| SentRealm | 从 [GitHub Releases](https://github.com/qiuku2022/SentRealm/releases/latest) 下载 NSIS 安装包（`.exe`）→ 安装 → 启动即可。开发者调试见 [开发指南](../dev/README.md)（`pnpm dev`） |
 | （可选）LLM | 仅当希望「规则断不干净的超长行」再语义切分时需要；**不配置也能用**核心去标点与规则断句 |
 
 ---
@@ -317,4 +317,4 @@ cli / mcp 与桌面端**共用同一配置库**；文稿工作区仅桌面端（
 ## 维护说明
 
 - UI 文案、按钮名称、工作区行为变更时，**同步改本文**对应小节。  
-- 内部 NSIS 包已可用；正式公开发布后再改文首「分发状态」为对外下载说明，并补充签名/分发渠道。
+- 对外下载渠道为 [GitHub Releases](https://github.com/qiuku2022/SentRealm/releases/latest)；安装包未签名时须在文首保留 SmartScreen 说明。签名完成后改写该提示。

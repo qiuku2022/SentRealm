@@ -10,7 +10,8 @@
 </p>
 
 <p align="center">
-  Windows 10 / 11 · 文稿本地处理 · 桌面壳 <code>1.0.0</code>
+  Windows 10 / 11 · 文稿本地处理 · 桌面壳 <code>1.0.0</code><br>
+  <a href="https://github.com/qiuku2022/SentRealm/releases/latest">下载 Windows 安装包</a>
 </p>
 
 <p align="center">
@@ -47,7 +48,7 @@
 
 ## 当前状态
 
-M1–M3 已完成；桌面壳 **`1.0.0`**。Windows NSIS 安装包可本地构建；代码签名、干净机冒烟与公开发布仍待完成——未签名安装包可能被 SmartScreen 提示。
+M1–M3 已完成；桌面壳 **`1.0.0`**，安装包见 [GitHub Releases](https://github.com/qiuku2022/SentRealm/releases/latest)。安装包尚未代码签名，Windows SmartScreen 可能提示。干净机冒烟与签名仍待补。
 
 下一优先见 [路线图](./docs/planning/03-roadmap.md)。
 
