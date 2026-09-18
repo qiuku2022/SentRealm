@@ -5,7 +5,7 @@
 | 项 | 说明 |
 |----|------|
 | 产品定位 | 见 [产品定义与 MVP](../planning/01-product-definition-and-mvp.md) |
-| 当前版本阶段 | M3 内部可用（桌面壳 `0.5.3`，见 [路线图](../planning/03-roadmap.md)） |
+| 当前版本阶段 | M3 内部可用（桌面壳 `0.5.4`，见 [路线图](../planning/03-roadmap.md)） |
 | 分发状态 | **内部可用（NSIS）**：由团队提供或按 [packaging.md](../dev/packaging.md) 打出安装包即可使用。**正式公开发布与代码签名尚未完成** |
 | 主平台 | Windows 10 / 11 |
 

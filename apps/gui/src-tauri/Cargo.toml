@@ -1,6 +1,6 @@
 [package]
 name = "sentrealm-gui"
-version = "0.5.3"
+version = "0.5.4"
 description = "SentRealm desktop shell"
 authors = ["SentRealm"]
 edition = "2021"

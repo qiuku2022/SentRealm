@@ -2,9 +2,9 @@
 
 > 对照 docs 与仓库**实际代码树**的快照说明。不替代 ADR / 产品定义。进度与下一优先以 [路线图](../planning/03-roadmap.md) 为准。
 
-**核对日期**：2026-09-15  
+**核对日期**：2026-09-18  
 **工作区根**：`d:\Work\Dev\SentRealm`  
-**当前版本**：桌面壳 `0.5.3`（`apps/gui/src-tauri/tauri.conf.json`）；含 LLM 长度不合规祖先第二波返工等 M3 内部迭代
+**当前版本**：桌面壳 `0.5.4`（`apps/gui/src-tauri/tauri.conf.json`）；含 Modern 浅色壳层与 Win11 曲率对齐等 M3 内部迭代
 
 ## 结论
 
