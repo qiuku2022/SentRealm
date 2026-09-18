@@ -1,21 +1,22 @@
 # Layout — 应用壳与 Tauri WebView
 
-> 壳层来源：OD `assets/app.css`（`.win` / `.app` / `.cols` / `.drawer`）。  
-> 落地文件：`apps/gui/src/styles/app-shell.css`（架构文档称 `app-shell.css`）。
+> 壳层来源：OD `sentrealm-modern-ui` → `assets/app.css`（boards 信息架构）。  
+> 落地：`apps/gui/src/styles/app-shell.css` — **gutter + 悬浮卡片**（非平铺分割线）+ Drawer / Modal。  
+> 布局尺寸：顶栏 40px · 侧栏 248px · 右栏 320px · FAB 56px（见 [foundations.md](./foundations.md)）。
 
 ## 结构总览
 
 ```mermaid
 flowchart TB
-  win[win_titlebar_optional]
-  app[app]
-  appbar[appbar_48px]
-  cols[cols_three_columns]
-  side[side_248px]
-  canvas[canvas_flex]
-  right[right_360px]
-  fab[fab_floating]
-  drawer[drawer_settings_overlay]
+  win[shell_appbar_custom_titlebar]
+  app[shell_app]
+  appbar[shell_appbar_40px]
+  cols[shell_cols_three_cards]
+  side[shell_side_248px]
+  canvas[shell_canvas_flex]
+  right[shell_right_320px]
+  fab[shell_fab_floating]
+  drawer[shell_drawer_settings]
   win --> app
   app --> appbar
   app --> cols
@@ -28,7 +29,7 @@ flowchart TB
 
 | 区域 | OD class | 职责 |
 |------|----------|------|
-| 窗口装饰 | `.win` / `.win-titlebar` | 原型用自定义标题栏；**Tauri 可用系统装饰**，实现时可省略 `.win` 或仅保留拖拽区 |
+| 窗口装饰 | `.win` / `.win-titlebar` | 原型自定义标题栏；**产品实现已采用** `decorations: false` + `.shell-appbar` 拖拽区与窗控（见下方 Tauri 注意点） |
 | 顶栏 | `.appbar` | 面包屑、快捷键提示、设置入口 |
 | 左栏 | `.side` | 品牌、搜索、新建、文稿列表、健康状态、设置 |
 | 中栏 | `.canvas` | 文稿标题、导入/预设 pill、编辑器、底部 FAB |
@@ -49,7 +50,7 @@ flowchart TB
 | 视口 | 行为 |
 |------|------|
 | 壳层 gutter | **12px** 全站统一（`--shell-gutter`） |
-| 默认（设计宽约 1440） | `248 \| 1fr \| 360` |
+| 默认（设计宽约 1440） | `248 \| 1fr \| 320` |
 | `.shell-cols.no-right` | 桌面：三列末轨 `0` + inner 滑出；窄屏见抽屉行 |
 | `.shell-cols.collapsed` | 左栏收至 56px |
 | `max-width: 1024px` | 左栏 mini；右栏改为绝对定位抽屉（`.shell-right.is-open` + scrim） |
@@ -82,7 +83,7 @@ flowchart TB
 
 | 主题 | 约定 |
 |------|------|
-| 装饰 | 系统标题栏时去掉原型 `.win-titlebar`；保留应用内 `.appbar` |
+| 装饰 | **无系统标题栏**（`decorations: false`）；应用内 `.shell-appbar` 作自定义标题栏，底色 `var(--shell-bg)` 与软件底色一致；含拖拽区与最小化/最大化/关闭 |
 | WebView | 标准 DOM + CSS；避免依赖浏览器扩展 API |
 | 滚动 | `body { overflow: hidden }`；滚动落在 `.side-history` / `.canvas-body` / `.right-body` |
 | 剪贴板 | 一键复制走 Tauri / Web Clipboard API（产品 US-06） |

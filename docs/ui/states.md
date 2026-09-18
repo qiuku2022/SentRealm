@@ -67,8 +67,8 @@ stateDiagram-v2
 
 | 态 | UI |
 |----|-----|
-| 默认 | `.btn-copy` 白底主按钮风格 |
-| 成功 | `.copied` → `--ok-soft` 底 + `--ok` 字；可叠加 sonner toast |
+| 默认 | `.btn-copy` 主按钮风格（indigo / `--shell-accent`） |
+| 成功 | `.copied` → `--shell-ok-soft` 底 + `--shell-ok` 字；可叠加 sonner toast |
 | 禁用 | 无结果时 disabled |
 
 ## LLM 设置态

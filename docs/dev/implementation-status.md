@@ -36,7 +36,7 @@
 | ADR-008 安装包链路 | ✅ `scripts/build_installer.ps1`：onedir sidecar → `resources/sentrealm-api/` → NSIS |
 | 开发构建 | ✅ `src-tauri/build.rs` 为 `bundle.resources` 自动建空占位目录；`pnpm dev` 走 `uv run uvicorn` |
 | 生产启动 / 退出 | ✅ 窗口首帧不阻塞 `/health`（前端 `waitForHealth`）；onedir 单进程退出；sidecar 无控制台；CORS 允许 `https://tauri.localhost` |
-| 桌面壳 | ✅ 默认窗口 `1440×900`；启动动画 `StartupSplash`；品牌图标（含 0.5.1/0.5.2 圆角） |
+| 桌面壳 | ✅ 默认窗口 `1440×900`；品牌图标（含 0.5.1/0.5.2 圆角）；无启动动画 |
 | 作者侧 NSIS 日常验收 | ✅ 约 1 个月工作环境使用；主流程与断句质量作者侧满意（内部档位 1） |
 | 干净机冒烟 | 未做（清单见 [packaging.md](./packaging.md)；阻塞正式 1.0） |
 | 代码签名 / 正式公开发布 | 未做 |
@@ -68,7 +68,7 @@
 | 断句词表编辑 | `Settings.break_lexicon` + `RulesEditorModal` |
 | 结果栏 | 行号、字数、分栏统计；SSE 渐进刷新；导出 `.txt`；点击行定位原文并脉冲高亮 |
 | LLM | 启用时处理前预检失败不进入 running；meta-bar「LLM 未配置」提示 |
-| 启动与外观 | `StartupSplash`；`waitForHealth`；微软雅黑；侧栏无顶栏品牌块（应用名在窗口标题） |
+| 启动与外观 | `waitForHealth`；微软雅黑；侧栏无顶栏品牌块（应用名在窗口标题） |
 | 用户可见说明 | [用户手册](../user/README.md)；HTTP 契约见 [api/README](../api/README.md) |
 
 ## 仍缺失 / 延后

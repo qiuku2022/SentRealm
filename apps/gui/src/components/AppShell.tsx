@@ -26,6 +26,7 @@ import { ResultPanel } from "@/components/ResultPanel";
 import { RulesEditorModal } from "@/components/RulesEditorModal";
 import { SidebarPanel } from "@/components/SidebarPanel";
 import { SettingsDrawer } from "@/components/SettingsDrawer";
+import { TitleBarControls } from "@/components/TitleBarControls";
 import { useAppHotkeys } from "@/hooks/useAppHotkeys";
 import { useBackend } from "@/hooks/useBackend";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -891,8 +892,11 @@ export function AppShell() {
         />
       )}
 
-      <header className="shell-appbar">
-        <div className="shell-appbar-title">SentRealm · 文稿预处理</div>
+      <header className="shell-appbar" data-tauri-drag-region>
+        <div className="shell-appbar-title" data-tauri-drag-region>
+          SentRealm · 文稿预处理
+        </div>
+        <TitleBarControls />
       </header>
 
       <div className={colsClass}>

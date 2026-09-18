@@ -1,160 +1,128 @@
 # Foundations — 设计 token 与 shadcn 映射
 
-> **视觉 SSOT**：Open Design `assets/app.css` 的 `:root`（Codex-desktop dark、8pt 网格）。  
-> **实现**：Tauri WebView 内 React；主题以 **dark-only** 落地（MVP 不做 light 切换，除非产品另行要求）。
+> **配色 SSOT**：`.local/od-modern-colors/`（Open Design `sentrealm-modern-colors` 配色文档）+ 仓库生产副本 [`apps/gui/src/styles/tokens-modern.css`](../../apps/gui/src/styles/tokens-modern.css)。  
+> **布局原型**：Open Design `sentrealm-modern-ui`（boards / 壳层结构）。  
+> **实现**：Tauri WebView 内 React；主题 **light-only**（Modern 冷中性浅底 + indigo accent）。
+
+改色流程：先改 `.local/od-modern-colors/assets/colors.css`（及文档页），再 sync `tokens-modern.css`；[`globals.css`](../../apps/gui/src/styles/globals.css) / [`app-shell.css`](../../apps/gui/src/styles/app-shell.css) **只做别名映射**，禁止再各自硬编码第二套 hex。
 
 ## 设计语言摘要
 
 | 维度 | 约定 |
 |------|------|
-| 主题 | 近黑底、中性灰层级、**白色主操作**（非彩色品牌色） |
-| 状态色 | 成功绿 / 警告陶土橙（超长行）/ 错误红 |
-| 密度 | 桌面工具偏紧：正文 UI **13px**，编辑区 **15.5px** |
-| 网格 | 8pt（`--s-1`…`--s-9`） |
-| 阴影 | 壳层主面板（顶栏 + 三栏卡片）使用克制阴影 `0 4px 16px …0.28`；**FAB / Drawer / 窄屏右栏抽屉**可用更强阴影以保持叠层 |
-| 焦点 | 3px `--accent-soft` 软环，不用彩色 ring |
+| 主题 | 浅灰底 `#f7f8fc`、白表面、**indigo 主操作** `#4f46e5` |
+| 状态色 | 成功绿 / 警告琥珀（超长行）/ 错误红 |
+| 密度 | 桌面工具偏紧：正文 UI **14px**，控件高 30–36px，FAB 主按钮约 40px |
+| 网格 | Modern spacing（4 / 8 / 12 / 16 / 20 / 24 / 32 / 48） |
+| 阴影 | 三栏/顶栏用 `--shell-card-shadow`；**FAB / 菜单 / Drawer** 用更重的 `--shell-elev-raised`（双层；强于 Modern 目录 `--elev-raised`） |
+| 焦点 | indigo soft ring `0 0 0 4px rgba(79,70,229,0.24)` |
 
-## 1. Primitive（OD 原始值）
+## 1. Primitive（`tokens-modern.css`）
 
 ### 表面与线
 
-| Token | Hex / 值 | HSL（约） | 用途 |
-|-------|----------|-----------|------|
-| `--bg` | `#0d0d0d` | `0 0% 5%` | 应用底 |
-| `--surface` | `#171717` | `0 0% 9%` | FAB、浮层底 |
-| `--surface-2` | `#1c1c1c` | `0 0% 11%` | 次级块、搜索框底 |
-| `--hover` / `--field` / `--pop` | `#1f1f1f` | `0 0% 12%` | 悬停 / 字段 / 弹出 |
-| `--input` | `#262626` | `0 0% 15%` | 输入表面（与 border 同级） |
-| `--shade` | `rgba(0,0,0,0.55)` | — | scrim |
-| `--border` | `#262626` | `0 0% 15%` | 默认分割线 |
-| `--border-strong` | `#3a3a3a` | `0 0% 23%` | hover / focus 边框 |
-| `--border-soft` | `#1f1f1f` | `0 0% 12%` | 更弱分割 |
-| `--win-bg` | `#0a0a0a` | `0 0% 4%` | 标题栏（可略深于 app） |
-| `--win-close-hover` | `#c42b1c` | `5 75% 44%` | 关闭按钮悬停 |
+| Token | Hex / 值 | 用途 |
+|-------|----------|------|
+| `--bg` / `--shell-bg` | `#f7f8fc` | 应用底 / gutter 露出面 |
+| `--surface` / `--shell-surface` | `#ffffff` | 侧栏、右栏、FAB、浮层 |
+| `--surface-warm` / `--shell-surface-warm` | `#eef1ff` | 选中项、accent 浅底 |
+| `--border` / `--shell-border` | `#dfe3ed` | 默认分割线 |
+| `--border-soft` / `--shell-border-soft` | `#eef1f7` | 更弱分割 |
+| `--accent` / `--shell-accent` | `#4f46e5` | 主操作、焦点 |
+| `--accent-on` / `--shell-accent-on` | `#ffffff` | accent 上的字 |
 
-### 文字
+### Soft 填充（文档公式）
 
-| Token | Hex | HSL（约） | 用途 |
-|-------|-----|-----------|------|
-| `--fg` | `#ececec` | `0 0% 93%` | 主文字 |
-| `--fg-2` | `#d4d4d4` | `0 0% 83%` | 次主文字、当前 crumb |
-| `--muted` | `#a3a3a3` | `0 0% 64%` | 图标、辅助 |
-| `--muted-2` | `#737373` | `0 0% 45%` | placeholder、mono 副文 |
-| `--muted-3` | `#525252` | `0 0% 32%` | 分隔符、最弱文 |
-| `--on-accent` | `#0d0d0d` | `0 0% 5%` | 白底按钮上的字 |
-| `--fg-hover` | `#f5f5f5` | — | 主按钮 hover |
-| `--fg-active` | `#e8e8e8` | — | 主按钮 active |
+| Token | 公式 |
+|-------|------|
+| `--success-soft` / `--shell-ok-soft` | `color-mix(in oklab, var(--success) 14%, var(--surface))` |
+| `--warn-soft` / `--shell-warn-soft` | `color-mix(in oklab, var(--warn) 16%, var(--surface))` |
+| `--danger-soft` / `--shell-err-soft` | `color-mix(in oklab, var(--danger) 12%, var(--surface))` |
+| `--accent-soft` / `--shell-accent-soft` | `color-mix(in oklab, var(--accent) 10%, var(--surface))` |
+| `--accent-hover` | `color-mix(in oklab, var(--accent), black 8%)` |
 
-### 强调与状态
+### 文字与状态
+
+| Token | Hex | 用途 |
+|-------|-----|------|
+| `--fg` / `--shell-fg` | `#111827` | 主文字 |
+| `--fg-2` / `--shell-fg-2` | `#374151` | 次主文字 |
+| `--muted` / `--shell-muted` | `#6b7280` | 辅助 |
+| `--success` / `--shell-ok` / `--shell-success` | `#10b981` | 健康就绪、复制成功 |
+| `--warn` / `--shell-warn` | `#f59e0b` | **超长标记行** |
+| `--danger` / `--shell-err` / `--shell-danger` | `#ef4444` | 错误、危险 |
+
+文档映射表额外别名（与旧名并存）：`--shell-fg-muted`、`--shell-fg-secondary`、`--shell-accent-fg`、`--shell-surface-muted`、`--shell-border-subtle`。
+
+### 圆角与布局
+
+壳层圆角对齐 **Windows 11 Fluent**（[Geometry](https://learn.microsoft.com/windows/apps/design/signature-experiences/geometry)），不再跟 Modern 文档页的 10/16/24。
 
 | Token | 值 | 用途 |
 |-------|-----|------|
-| `--accent` | `#ffffff` | 主操作「白」 |
-| `--accent-soft` | `rgba(255,255,255,0.06)` | 悬停底、选中底、焦点环 |
-| `--accent-2` | `rgba(255,255,255,0.10)` | 稍强白叠 |
-| `--accent-line` | `rgba(255,255,255,0.16)` | 白描边 |
-| `--ok` | `#4ade80` | 健康就绪、复制成功 |
-| `--ok-soft` | `rgba(74,222,128,0.14)` | 成功底 |
-| `--warn` | `#d97757` | **超长标记行** |
-| `--warn-soft` / `--warn-line` | 见 app.css | 标记行底 / 左边线 |
-| `--err` | `#f87171` | 后端错误、危险 |
-| `--err-soft` | `rgba(248,113,113,0.12)` | 错误底 |
-
-### 圆角
-
-| Token | 值 | 典型用途 |
-|-------|-----|----------|
-| `--r-xs` | 4px | kbd、微标 |
-| `--r-sm` | 6px | 小按钮、图标钮 |
-| `--r-md` | 8px | 输入、chip、列表项 |
-| `--r-lg` | 12px | 编辑器卡片 |
-| `--r-xl` | 14px | FAB |
-| `--r-pill` | 999px | pill chip |
-
-### 间距（8pt）
-
-`--s-1` 4 → `--s-2` 8 → `--s-3` 12 → `--s-4` 16 → `--s-5` 20 → `--s-6` 24 → `--s-7` 32 → `--s-8` 40 → `--s-9` 48。
-
-### 布局尺寸
-
-| Token | 值 |
-|-------|-----|
-| `--topbar-h` | 48px |
-| `--sidebar-w` | 248px |
-| `--right-w` | 360px |
-| `--canvas-pad` | 32px |
-| `--fab-h` | 48px |
+| `--shell-r-md` | **4px** | 页内控件（按钮、输入、列表项） |
+| `--shell-r-lg` / `--shell-r-xl` | **8px** | 顶层容器（悬浮卡片、FAB、Drawer）；与 Win11 窗口默认曲率一致 |
+| shadcn `--radius` | `0.5rem`（8px） | `rounded-md` 等基准；`rounded-sm` ≈ 4px |
+| `--shell-sidebar-w` | 248px | |
+| `--shell-right-w` | 320px | |
+| `--shell-fab-h` | 56px | |
+| `--shell-topbar-h` | 40px | |
+| `--shell-gutter` | 12px | 窗边距与卡间距 |
 
 ### 字体
 
 | Token | 栈 |
 |-------|-----|
-| `--font-ui` | `"Microsoft YaHei UI","Microsoft YaHei","Segoe UI",…,system-ui,sans-serif` |
+| `--font-ui` / `--font-body` | `Inter, "Microsoft YaHei UI", …, system-ui, sans-serif` |
+| `--font-mono` | `"Geist Mono", ui-monospace, Menlo, …` |
 
-全界面（含统计、行号、快捷键、规则编辑区）统一使用 `--font-ui`；不再单独使用等宽字体栈。
+## 2. Semantic → shadcn / Tailwind
 
-字号锚点（OD `index.html` 规格）：UI 13 / 编辑 15.5 / 文档标题 14–18 / 小标题 12 uppercase / 统计与辅助文字 **12–12.5**（caption 字重 500）。
+[`globals.css`](../../apps/gui/src/styles/globals.css) 的 `@theme` **直接绑定 Primitive**（`--color-primary: var(--accent)` 等），不再维护第二套 HSL hex。
 
-## 2. Semantic → shadcn CSS 变量
+| Tailwind / shadcn | 绑定 | 对应 Primitive |
+|-------------------|------|----------------|
+| `bg-background` | `--color-background` | `--bg` |
+| `text-foreground` | `--color-foreground` | `--fg` |
+| `bg-card` / popover | `--color-card` | `--surface` |
+| `bg-primary` | `--color-primary` | `--accent` |
+| `text-primary-foreground` | `--color-primary-foreground` | `--accent-on` |
+| `bg-muted` | `--color-muted` | `--border-soft`（面） |
+| `text-muted-foreground` | `--color-muted-foreground` | `--muted`（字） |
+| `bg-accent`（hover 面） | `--color-accent` | `--surface-warm`（**勿**与品牌 `--accent` 混淆） |
+| `bg-destructive` | `--color-destructive` | `--danger` |
+| `text-success` / `text-warning` | success / warn | `--success` / `--warn` |
+| `--radius` | `0.5rem`（8px） | Win11 顶层容器 |
 
-落地到 `apps/gui` 的 `globals.css`（或等价）时，**仅维护 `.dark`（或把 dark 值写在 `:root`）**。通道用 **HSL 空格分隔**（兼容 Tailwind `hsl(var(--x) / <alpha>)`）；若 CLI 生成 OKLCH，可改写为下列等价色相。
-
-| shadcn 变量 | 建议 HSL 通道 | 对应 OD | Tailwind 示例 |
-|-------------|---------------|---------|----------------|
-| `--background` | `0 0% 5%` | `--bg` | `bg-background` |
-| `--foreground` | `0 0% 93%` | `--fg` | `text-foreground` |
-| `--card` | `0 0% 9%` | `--surface` | `bg-card` |
-| `--card-foreground` | `0 0% 93%` | `--fg` | `text-card-foreground` |
-| `--popover` | `0 0% 12%` | `--pop` | `bg-popover` |
-| `--popover-foreground` | `0 0% 93%` | `--fg` | |
-| `--primary` | `0 0% 100%` | `--accent` | `bg-primary`（白底主按钮） |
-| `--primary-foreground` | `0 0% 5%` | `--on-accent` | `text-primary-foreground` |
-| `--secondary` | `0 0% 11%` | `--surface-2` | `bg-secondary` |
-| `--secondary-foreground` | `0 0% 83%` | `--fg-2` | |
-| `--muted` | `0 0% 11%` | `--surface-2` | `bg-muted` |
-| `--muted-foreground` | `0 0% 45%` | `--muted-2` | `text-muted-foreground` |
-| `--accent` | `0 0% 12%` | `--hover` / soft 白叠 | hover 面（**勿**与 OD `--accent` 白混淆） |
-| `--accent-foreground` | `0 0% 93%` | `--fg` | |
-| `--destructive` | `0 91% 71%` | `--err` | `text-destructive` / `bg-destructive` |
-| `--destructive-foreground` | `0 0% 5%` | 深底上的对比 | |
-| `--border` | `0 0% 15%` | `--border` | `border-border` |
-| `--input` | `0 0% 15%` | `--input` | `border-input` |
-| `--ring` | `0 0% 100%` / 低透明度 | `--accent-line` | focus；实现可用 soft 白环 |
-| `--radius` | `0.5rem`（8px） | `--r-md` | `rounded-md` 基准 |
-
-### 产品扩展色（非 shadcn 默认，需写入 theme）
-
-| 扩展变量 | HSL / 值 | Tailwind 建议 | 用途 |
-|----------|----------|---------------|------|
-| `--success` | `142 69% 58%` | `text-success` / `bg-success/14` | 后端就绪、复制成功 |
-| `--warning` | `15 63% 60%` | `text-warning` / `bg-warning/12` | **超长行**（US-08） |
-| `--sidebar` / `--sidebar-*` | 对齐 `--bg` / `--border` | `bg-sidebar` | 左栏（可选 shadcn sidebar 预设） |
-
-在 Tailwind `theme.extend.colors` 中注册 `success` / `warning`；**禁止**在业务组件里写死 `#d97757` 等 hex。
+主按钮为 **indigo 底白字**。
 
 ## 3. Component token（壳层专用）
 
-壳层继续用 OD 名，不必全部塞进 shadcn：
-
 | 组件 | 关键 token / class |
 |------|-------------------|
-| 壳层主面板 `.shell-appbar` / `.shell-side` / `.shell-canvas` / `.shell-right` | `bg: var(--surface)`；`border`；`shadow: var(--shell-card-shadow)`；`radius: --r-lg` |
-| 主按钮 `.btn-go` / `.btn-new` | `bg: var(--fg)`；`color: var(--on-accent)` |
-| 超长行 `.result-line.long` | `background: var(--warn-soft)`；左边线 `var(--warn-line)` |
-| 健康点 `.health .dot` | `--ok` / `.err`→`--err` / `.warn`→`--warn` |
-| FAB | `--surface` + 阴影 `0 12px 32px rgba(0,0,0,0.45)` |
+| 三栏 `.shell-side` / `.shell-canvas` / `.shell-right` | 悬浮卡片：`border` + `border-radius: var(--shell-r-lg)` + `box-shadow: var(--shell-card-shadow)`；壳层 `--shell-gutter: 12px` |
+| 主按钮 `.shell-btn-go` / `.shell-drawer-btn-primary` | `bg: var(--shell-accent)`；hover → `--shell-accent-hover`；字 `--shell-accent-on` |
+| 超长行 `.shell-result-line.is-long` | `background: var(--shell-warn-soft)`；**禁止** danger |
+| FAB | `--shell-surface` + `var(--shell-elev-raised)` |
+| Toast（Sonner） | light theme；变量绑 Primitive（见 `app-shell.css` 末尾） |
 
-## 4. 实现核对清单
+## 4. 禁令
 
-- [ ] `globals.css` 语义色与上表一致；主按钮为白底深字  
-- [ ] `app-shell.css` 自 OD `assets/app.css` 移植，保留 layout 尺寸变量  
-- [ ] 超长行仅用 `--warning` / `.result-line.long`，不用 destructive 红  
-- [ ] 无第二套 UI 库色板；无随意 `bg-blue-500`  
-- [ ] 需要时对照 OD board 截图做视觉 diff  
+- 勿引入第二套品牌色；强调只加深/减淡 `--accent` 或用 semantic。
+- 超长行只用 `--warn` / warn-soft，不用 `--danger` / destructive。
+- 组件层禁止写死 hex。
+- 主按钮 hover：加深底色并保持 `--accent-on`。
 
+## 5. 实现核对清单
+
+- [x] `tokens-modern.css` 与 `.local` colors.css 对齐  
+- [x] `app-shell.css` / `globals.css` 仅别名，无第二 hex 源  
+- [x] 主按钮 indigo；超长行 warn  
+- [x] Sonner 去掉 `richColors`  
+- [ ] 需要时对照 OD board / 配色文档 swatch 做视觉 diff  
 
 ## 相关
 
 - [layout.md](./layout.md) · [components.md](./components.md)  
 - [ADR-002](../architecture/adr/002-shadcn-ui.md)  
-- OD：`assets/app.css`、`index.html`（token 规格页）
+- 配色文档：`.local/od-modern-colors/` · 布局原型：`sentrealm-modern-ui`

@@ -1,0 +1,72 @@
+/* SentRealm Modern Primitive tokens — production copy of
+ * .local/od-modern-colors/assets/colors.css
+ * SSOT for docs: .local/od-modern-colors/; sync this file when palette changes.
+ * Do not invent a second brand hue.
+ */
+
+:root {
+  --bg: #f7f8fc;
+  --surface: #ffffff;
+  --surface-warm: #eef1ff;
+  --fg: #111827;
+  --fg-2: #374151;
+  --muted: #6b7280;
+  --meta: #4f46e5;
+  --border: #dfe3ed;
+  --border-soft: #eef1f7;
+  --accent: #4f46e5;
+  --accent-on: #ffffff;
+  --accent-hover: color-mix(in oklab, var(--accent), black 8%);
+  --accent-active: color-mix(in oklab, var(--accent), black 14%);
+  --success: #10b981;
+  --warn: #f59e0b;
+  --danger: #ef4444;
+  --font-display: Inter, "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
+  --font-body: Inter, "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, Menlo, "Microsoft YaHei UI", monospace;
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 18px;
+  --text-xl: 24px;
+  --text-2xl: 36px;
+  --text-3xl: 54px;
+  --text-4xl: 76px;
+  --leading-body: 1.52;
+  --leading-tight: 1.04;
+  --tracking-display: -0.025em;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --section-y-desktop: 104px;
+  --section-y-tablet: 72px;
+  --section-y-phone: 52px;
+  /* Modern catalog radii (docs / OD). App chrome uses Win11 Fluent via
+   * app-shell.css: --shell-r-md 4px, --shell-r-lg/--shell-r-xl 8px. */
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-pill: 9999px;
+  --elev-flat: none;
+  --elev-ring: 0 0 0 1px var(--border);
+  --elev-raised: 0 22px 58px rgba(17, 24, 39, 0.11);
+  --focus-ring: 0 0 0 4px rgba(79, 70, 229, 0.24);
+  --motion-fast: 150ms;
+  --motion-base: 240ms;
+  --ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
+  --container-max: 1180px;
+  --container-gutter-desktop: 36px;
+  --container-gutter-tablet: 24px;
+  --container-gutter-phone: 16px;
+
+  /* Soft fills — derived via color-mix, not new brand hues */
+  --success-soft: color-mix(in oklab, var(--success) 14%, var(--surface));
+  --warn-soft: color-mix(in oklab, var(--warn) 16%, var(--surface));
+  --danger-soft: color-mix(in oklab, var(--danger) 12%, var(--surface));
+  --accent-soft: color-mix(in oklab, var(--accent) 10%, var(--surface));
+}

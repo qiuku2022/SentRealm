@@ -1,73 +1,70 @@
-/* OD three-column shell — see docs/ui/layout.md & foundations.md */
+/* OD Modern three-column shell — aliases onto tokens-modern.css Primitive
+ * Visual SSOT: .local/od-modern-colors (+ production copy tokens-modern.css)
+ * Class names remain AppShell shell-* for React mapping (see docs/ui).
+ */
 
 :root {
-  --shell-bg: hsl(0 0% 5%);
-  --shell-surface: hsl(0 0% 9%);
-  --shell-surface-2: hsl(0 0% 11%);
-  --shell-border: hsl(0 0% 15%);
-  --shell-muted: hsl(0 0% 45%);
-  --shell-muted-2: hsl(0 0% 64%);
-  --shell-fg: hsl(0 0% 93%);
-  --shell-fg-2: hsl(0 0% 83%);
-  --shell-ok: hsl(142 69% 58%);
-  --shell-ok-soft: hsl(142 69% 58% / 0.14);
-  --shell-warn: hsl(15 63% 60%);
-  --shell-warn-soft: hsl(15 63% 60% / 0.12);
-  --shell-warn-line: hsl(15 63% 60% / 0.45);
-  --shell-err: hsl(0 91% 71%);
-  --shell-topbar-h: 48px;
+  /* —— Primitive aliases (no second hex source) —— */
+  --shell-bg: var(--bg);
+  --shell-surface: var(--surface);
+  --shell-surface-2: var(--border-soft);
+  --shell-surface-warm: var(--surface-warm);
+  --shell-surface-muted: var(--surface-warm);
+  --shell-border: var(--border);
+  --shell-border-soft: var(--border-soft);
+  --shell-border-subtle: var(--border-soft);
+  --shell-muted: var(--muted);
+  --shell-muted-2: var(--muted);
+  --shell-fg: var(--fg);
+  --shell-fg-2: var(--fg-2);
+  --shell-fg-secondary: var(--fg-2);
+  --shell-fg-muted: var(--muted);
+  --shell-accent: var(--accent);
+  --shell-accent-on: var(--accent-on);
+  --shell-accent-fg: var(--accent-on);
+  --shell-accent-hover: var(--accent-hover);
+  --shell-accent-active: var(--accent-active);
+  --shell-accent-soft: var(--accent-soft);
+  --shell-ok: var(--success);
+  --shell-success: var(--success);
+  --shell-ok-soft: var(--success-soft);
+  --shell-warn: var(--warn);
+  --shell-warn-soft: var(--warn-soft);
+  --shell-warn-line: color-mix(in oklab, var(--warn) 45%, var(--surface));
+  --shell-err: var(--danger);
+  --shell-danger: var(--danger);
+  --shell-err-soft: var(--danger-soft);
+  --shell-hover: color-mix(in oklab, var(--bg), black 3%);
+  --shell-hover-strong: color-mix(in oklab, var(--bg), black 5%);
+  --shell-focus-ring: var(--focus-ring);
+  --shell-topbar-h: 40px;
   --shell-sidebar-w: 248px;
   --shell-sidebar-collapsed-w: 56px;
-  --shell-right-w: 360px;
-  --shell-fab-h: 48px;
-  --shell-canvas-pad: 32px;
+  --shell-right-w: 320px;
+  --shell-fab-h: 56px;
+  --shell-canvas-pad: 20px;
   --shell-editor-min-h: 480px;
-  --shell-r-md: 8px;
-  --shell-r-lg: 12px;
-  --shell-r-xl: 14px;
+  /* Win11 Fluent geometry: 8px top-level / 4px in-page
+   * https://learn.microsoft.com/windows/apps/design/signature-experiences/geometry */
+  --shell-r-md: 4px;
+  --shell-r-lg: 8px;
+  --shell-r-xl: 8px;
   --shell-gutter: 12px;
-  --shell-card-shadow: 0 4px 16px hsl(0 0% 0% / 0.28);
+  /* Light-theme floating cards (was flat panes during Modern token port) */
+  --shell-card-shadow: 0 4px 16px rgba(17, 24, 39, 0.08);
+  /* FAB / 浮层：比 Modern --elev-raised 更重，浅底上仍可读 */
+  --shell-elev-raised:
+    0 2px 6px rgba(17, 24, 39, 0.1),
+    0 10px 28px rgba(17, 24, 39, 0.18);
   --shell-scrollbar-size: 8px;
-  --shell-scrollbar-thumb: hsl(0 0% 23%);
-  --shell-scrollbar-thumb-hover: hsl(0 0% 32%);
-  /* Caption / label scale — bumped for readability (was 10–11.5px) */
+  --shell-scrollbar-thumb: color-mix(in oklab, var(--border), var(--fg) 28%);
+  --shell-scrollbar-thumb-hover: color-mix(in oklab, var(--border), var(--fg) 45%);
   --shell-font-caption: 12px;
   --shell-font-caption-sm: 12px;
   --shell-font-label: 12px;
   --shell-font-label-lg: 12.5px;
-  --shell-font-weight-caption: 500;
-  --shell-font-weight-label: 500;
-}
-
-.shell-startup-splash {
-  position: fixed;
-  inset: 0;
-  z-index: 10000;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  background: #000;
-  opacity: 1;
-  transition: opacity 0.18s ease-out;
-}
-
-.shell-startup-splash.is-leaving {
-  pointer-events: none;
-  opacity: 0;
-}
-
-.shell-startup-video {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  background: #000;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .shell-startup-splash {
-    display: none;
-  }
+  --shell-font-weight-caption: 550;
+  --shell-font-weight-label: 550;
 }
 
 .shell-app {
@@ -77,7 +74,7 @@
   overflow: hidden;
   background: var(--shell-bg);
   color: var(--shell-fg);
-  color-scheme: dark;
+  color-scheme: light;
   font-family: var(--font-ui);
   padding: var(--shell-gutter);
   gap: var(--shell-gutter);
@@ -148,14 +145,57 @@
   align-items: center;
   justify-content: space-between;
   height: var(--shell-topbar-h);
-  padding: 0 16px;
+  padding: 0 0 0 16px;
   flex-shrink: 0;
+  user-select: none;
+  -webkit-app-region: drag;
+  app-region: drag;
+  overflow: hidden;
 }
 
 .shell-appbar-title {
   font-size: 13px;
   font-weight: 600;
   color: var(--shell-fg-2);
+  pointer-events: none;
+}
+
+.shell-win-controls {
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+  margin-left: auto;
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
+}
+
+.shell-win-btn {
+  width: 46px;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--shell-fg-2);
+  cursor: pointer;
+  padding: 0;
+}
+
+.shell-win-btn svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 1.75;
+}
+
+.shell-win-btn:hover {
+  background: var(--shell-hover-strong);
+  color: var(--shell-fg);
+}
+
+.shell-win-btn.is-close:hover {
+  background: var(--shell-danger);
+  color: var(--shell-accent-on);
 }
 
 .shell-cols {
@@ -252,7 +292,7 @@
 
 .shell-side-toggle:hover {
   color: var(--shell-fg);
-  background: hsl(0 0% 100% / 0.06);
+  background: var(--shell-hover-strong);
 }
 
 .shell-side-toggle svg {
@@ -276,7 +316,7 @@
 }
 
 .shell-side-search-box:focus-within {
-  box-shadow: 0 0 0 1px hsl(0 0% 23%);
+  box-shadow: 0 0 0 1px var(--shell-scrollbar-thumb);
 }
 
 .shell-side-search-icon {
@@ -401,11 +441,11 @@
 }
 
 .shell-doc-row:hover {
-  background: hsl(0 0% 100% / 0.04);
+  background: var(--shell-hover);
 }
 
 .shell-doc-row.is-active {
-  background: hsl(0 0% 100% / 0.06);
+  background: var(--shell-surface-warm);
 }
 
 .shell-doc-row .shell-doc-item-main {
@@ -451,12 +491,12 @@
 
 .shell-doc-menu-btn:hover,
 .shell-doc-menu-btn.is-open {
-  background: hsl(0 0% 100% / 0.06);
+  background: var(--shell-hover-strong);
   color: var(--shell-fg);
 }
 
 .shell-doc-menu-btn:focus-visible {
-  outline: 2px solid hsl(0 0% 100% / 0.16);
+  outline: 2px solid color-mix(in oklab, var(--shell-accent), white 55%);
   outline-offset: 0;
 }
 
@@ -467,9 +507,9 @@
   min-width: 120px;
   padding: 4px;
   border-radius: var(--shell-r-md);
-  border: 1px solid hsl(0 0% 100% / 0.16);
+  border: 1px solid color-mix(in oklab, var(--shell-accent), white 55%);
   background: var(--shell-surface-2);
-  box-shadow: 0 12px 32px hsl(0 0% 0% / 0.45);
+  box-shadow: var(--shell-elev-raised);
   z-index: 6;
   opacity: 0;
   visibility: hidden;
@@ -503,7 +543,7 @@
 }
 
 .shell-doc-menu button:hover {
-  background: hsl(0 0% 100% / 0.06);
+  background: var(--shell-hover-strong);
 }
 
 .shell-doc-menu button.is-danger {
@@ -631,7 +671,7 @@
 }
 
 .shell-fab-action:hover:not(:disabled) {
-  border-color: hsl(0 0% 100% / 0.16);
+  border-color: color-mix(in oklab, var(--shell-accent), white 55%);
   color: var(--shell-fg);
 }
 
@@ -702,12 +742,12 @@
 }
 
 .shell-rules-nav-item:hover {
-  background: hsl(0 0% 100% / 0.05);
+  background: var(--shell-hover);
   color: var(--shell-fg);
 }
 
 .shell-rules-nav-item.is-active {
-  background: hsl(0 0% 100% / 0.08);
+  background: var(--shell-surface-warm);
   color: var(--shell-fg);
 }
 
@@ -757,7 +797,7 @@
 
 .shell-rules-textarea:focus {
   outline: none;
-  border-color: hsl(0 0% 100% / 0.18);
+  border-color: color-mix(in oklab, var(--shell-border), black 12%);
 }
 
 .shell-rules-meta {
@@ -791,7 +831,7 @@
   position: fixed;
   inset: 0;
   top: calc(var(--shell-gutter) + var(--shell-topbar-h));
-  background: hsl(0 0% 0% / 0.45);
+  background: rgba(17, 24, 39, 0.45);
   z-index: 25;
   animation: shell-scrim-in 0.18s ease both;
 }
@@ -916,11 +956,11 @@
 }
 
 .shell-doc-item:hover {
-  background: hsl(0 0% 100% / 0.04);
+  background: var(--shell-hover);
 }
 
 .shell-doc-item.is-active {
-  background: hsl(0 0% 100% / 0.06);
+  background: var(--shell-surface-warm);
 }
 
 .shell-doc-title {
@@ -1005,7 +1045,7 @@
 }
 
 .shell-side-set-btn:hover {
-  background: hsl(0 0% 100% / 0.06);
+  background: var(--shell-hover-strong);
 }
 
 .shell-side-set-btn svg {
@@ -1072,8 +1112,8 @@
 }
 
 .shell-doc-name-input:focus {
-  background: hsl(0 0% 100% / 0.04);
-  box-shadow: 0 0 0 2px hsl(0 0% 100% / 0.08);
+  background: var(--shell-hover);
+  box-shadow: 0 0 0 2px var(--shell-surface-warm);
 }
 
 .shell-doc-name-input:disabled {
@@ -1099,8 +1139,8 @@
 
 .shell-pill.is-active {
   color: var(--shell-fg);
-  border-color: hsl(0 0% 100% / 0.16);
-  background: hsl(0 0% 100% / 0.06);
+  border-color: color-mix(in oklab, var(--shell-accent), white 55%);
+  background: var(--shell-surface-warm);
 }
 
 .shell-pill-chip {
@@ -1128,8 +1168,8 @@
 
 .shell-pill-chip.is-active {
   color: var(--shell-fg);
-  border-color: hsl(0 0% 23%);
-  background: hsl(0 0% 100% / 0.06);
+  border-color: var(--shell-scrollbar-thumb);
+  background: var(--shell-hover-strong);
 }
 
 .shell-import-btn {
@@ -1148,7 +1188,7 @@
 
 .shell-import-btn:hover {
   color: var(--shell-fg);
-  background: hsl(0 0% 100% / 0.06);
+  background: var(--shell-hover-strong);
 }
 
 .shell-result-toggle {
@@ -1326,7 +1366,7 @@
   border-radius: var(--shell-r-xl);
   background: var(--shell-surface);
   border: none;
-  box-shadow: 0 12px 32px hsl(0 0% 0% / 0.45);
+  box-shadow: var(--shell-elev-raised);
   z-index: 2;
 }
 
@@ -1353,7 +1393,7 @@
 }
 
 .shell-fab-ic:hover {
-  background: hsl(0 0% 100% / 0.06);
+  background: var(--shell-hover-strong);
   color: var(--shell-fg);
 }
 
@@ -1379,13 +1419,13 @@
 }
 
 .shell-chip-toggle.is-open {
-  border-color: hsl(0 0% 100% / 0.16);
+  border-color: color-mix(in oklab, var(--shell-accent), white 55%);
   color: var(--shell-fg);
-  background: hsl(0 0% 100% / 0.04);
+  background: var(--shell-hover);
 }
 
 .shell-chip-toggle:hover:not(:disabled) {
-  border-color: hsl(0 0% 100% / 0.16);
+  border-color: color-mix(in oklab, var(--shell-accent), white 55%);
   color: var(--shell-fg);
 }
 
@@ -1447,9 +1487,9 @@
   bottom: calc(100% + 6px);
   padding: 4px;
   border-radius: var(--shell-r-md);
-  border: 1px solid hsl(0 0% 100% / 0.16);
+  border: 1px solid color-mix(in oklab, var(--shell-accent), white 55%);
   background: var(--shell-surface-2);
-  box-shadow: 0 8px 24px hsl(0 0% 0% / 0.45);
+  box-shadow: 0 8px 24px rgba(17, 24, 39, 0.45);
   z-index: 5;
   display: flex;
   flex-direction: column;
@@ -1491,12 +1531,12 @@
 }
 
 .shell-preset-pop button:hover {
-  background: hsl(0 0% 100% / 0.06);
+  background: var(--shell-hover-strong);
 }
 
 .shell-preset-pop button.is-active {
   color: var(--shell-fg);
-  background: hsl(0 0% 100% / 0.08);
+  background: var(--shell-surface-warm);
 }
 
 .shell-fab-status {
@@ -1535,12 +1575,22 @@
   padding: 0 20px;
   border: none;
   border-radius: var(--shell-r-md);
-  background: hsl(0 0% 100%);
-  color: hsl(0 0% 5%);
+  background: var(--shell-accent);
+  color: var(--shell-accent-on);
   font-size: 13px;
   font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
+}
+
+.shell-btn-go:hover:not(:disabled) {
+  background: var(--shell-accent-hover);
+  color: var(--shell-accent-on);
+}
+
+.shell-btn-go:active:not(:disabled) {
+  background: var(--shell-accent-active);
+  color: var(--shell-accent-on);
 }
 
 .shell-btn-go:disabled {
@@ -1627,7 +1677,7 @@
 }
 
 .shell-icon-btn:hover:not(:disabled) {
-  background: hsl(0 0% 100% / 0.06);
+  background: var(--shell-hover-strong);
   color: var(--shell-fg);
 }
 
@@ -1688,12 +1738,12 @@
 }
 
 .shell-result-line.is-clickable:focus-visible {
-  outline: 1px solid hsl(0 0% 100% / 0.28);
+  outline: 1px solid color-mix(in oklab, var(--shell-accent), white 70%);
   outline-offset: 1px;
 }
 
 .shell-result-line:hover {
-  background: hsl(0 0% 100% / 0.06);
+  background: var(--shell-hover-strong);
 }
 
 .shell-result-line.is-active {
@@ -1707,25 +1757,25 @@
 
 @keyframes shell-result-focus-pulse {
   0% {
-    box-shadow: inset 0 0 0 1px hsl(0 0% 100% / 0);
+    box-shadow: inset 0 0 0 1px transparent;
   }
   35% {
-    box-shadow: inset 0 0 0 1px hsl(0 0% 100% / 0.28);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--shell-accent), white 70%);
   }
   100% {
-    box-shadow: inset 0 0 0 1px hsl(0 0% 100% / 0);
+    box-shadow: inset 0 0 0 1px transparent;
   }
 }
 
 @keyframes shell-result-focus-pulse-long {
   0% {
-    box-shadow: inset 0 0 0 1px hsl(0 0% 100% / 0);
+    box-shadow: inset 0 0 0 1px transparent;
   }
   35% {
-    box-shadow: inset 0 0 0 1px hsl(0 0% 100% / 0.32);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--shell-accent), white 65%);
   }
   100% {
-    box-shadow: inset 0 0 0 1px hsl(0 0% 100% / 0);
+    box-shadow: inset 0 0 0 1px transparent;
   }
 }
 
@@ -1733,7 +1783,7 @@
   .shell-result-line.is-active,
   .shell-result-line.is-long.is-active {
     animation: none;
-    box-shadow: inset 0 0 0 1px hsl(0 0% 100% / 0.2);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--shell-border), black 14%);
   }
 }
 
@@ -1841,16 +1891,16 @@
   gap: 6px;
   padding: 0 14px;
   border-radius: var(--shell-r-md);
-  border: 1px solid hsl(0 0% 100%);
-  background: hsl(0 0% 100%);
-  color: hsl(0 0% 5%);
+  border: 1px solid var(--shell-accent);
+  background: var(--shell-accent);
+  color: var(--shell-accent-on);
   font-size: 12.5px;
   font-weight: 600;
   cursor: pointer;
 }
 
 .shell-btn-copy:hover:not(:disabled) {
-  background: hsl(0 0% 96%);
+  background: var(--shell-accent-hover);
 }
 
 .shell-btn-copy svg {
@@ -1932,7 +1982,7 @@
 
 .shell-banner-btn {
   border: none;
-  background: hsl(0 0% 100% / 0.08);
+  background: var(--shell-surface-warm);
   color: inherit;
   border-radius: 6px;
   padding: 4px 8px;
@@ -1952,7 +2002,7 @@
 .shell-drawer-scrim {
   position: fixed;
   inset: 0;
-  background: hsl(0 0% 0% / 0.55);
+  background: rgba(17, 24, 39, 0.55);
   z-index: 40;
   opacity: 0;
   pointer-events: none;
@@ -1976,7 +2026,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: -24px 0 56px hsl(0 0% 0% / 0.55);
+  box-shadow: -24px 0 56px rgba(17, 24, 39, 0.55);
   transform: translateX(100%);
   opacity: 0.98;
   transition: transform 0.22s cubic-bezier(0.2, 0.7, 0.2, 1);
@@ -2020,7 +2070,7 @@
 }
 
 .shell-drawer-act-btn:hover {
-  background: hsl(0 0% 100% / 0.06);
+  background: var(--shell-hover-strong);
   color: var(--shell-fg);
 }
 
@@ -2076,7 +2126,7 @@
 }
 
 .shell-row-set + .shell-row-set {
-  border-top: 1px solid hsl(0 0% 12%);
+  border-top: 1px solid var(--shell-border-soft);
 }
 
 .shell-row-set-lbl {
@@ -2115,7 +2165,7 @@
   left: 0;
   border-radius: 6px;
   background: var(--shell-bg);
-  border: 1px solid hsl(0 0% 23%);
+  border: 1px solid var(--shell-scrollbar-thumb);
   box-sizing: border-box;
   pointer-events: none;
   z-index: 0;
@@ -2161,7 +2211,7 @@
 }
 
 .shell-drawer-custom-inner .shell-row-set {
-  border-top: 1px solid hsl(0 0% 12%);
+  border-top: 1px solid var(--shell-border-soft);
   opacity: 0;
   transform: translateY(-4px);
   transition:
@@ -2179,7 +2229,7 @@
 }
 
 .shell-drawer-custom-wrap + .shell-row-set {
-  border-top: 1px solid hsl(0 0% 12%);
+  border-top: 1px solid var(--shell-border-soft);
 }
 
 .shell-input-row {
@@ -2226,12 +2276,12 @@
 
 .shell-inline-reset-btn:hover:not(:disabled) {
   border-color: var(--shell-border);
-  background: hsl(0 0% 100% / 0.04);
+  background: var(--shell-hover);
   color: var(--shell-fg);
 }
 
 .shell-inline-reset-btn:focus-visible {
-  outline: 2px solid hsl(0 0% 100% / 0.16);
+  outline: 2px solid color-mix(in oklab, var(--shell-accent), white 55%);
   outline-offset: 1px;
 }
 
@@ -2257,7 +2307,7 @@
   flex: 1;
   min-width: 0;
   height: auto;
-  background: hsl(0 0% 15%);
+  background: var(--shell-bg);
   border: 1px solid var(--shell-border);
   border-radius: var(--shell-r-md);
   padding: 8px 12px;
@@ -2267,7 +2317,8 @@
 }
 
 .shell-input-x:focus {
-  border-color: hsl(0 0% 23%);
+  border-color: var(--shell-accent);
+  box-shadow: var(--shell-focus-ring);
 }
 
 .shell-input-x:disabled {
@@ -2292,7 +2343,7 @@
   padding: 0;
   border: 1px solid var(--shell-border);
   border-radius: 999px;
-  background: hsl(0 0% 15%);
+  background: var(--shell-surface-2);
   position: relative;
   flex-shrink: 0;
   cursor: pointer;
@@ -2309,20 +2360,20 @@
   width: 14px;
   height: 14px;
   border-radius: 999px;
-  background: var(--shell-fg-2);
+  background: var(--shell-muted);
   transition:
     transform 0.15s ease,
     background 0.15s ease;
 }
 
 .shell-toggle-switch.is-on {
-  background: var(--shell-fg);
-  border-color: var(--shell-fg);
+  background: var(--shell-accent);
+  border-color: var(--shell-accent);
 }
 
 .shell-toggle-switch.is-on::after {
   transform: translateX(14px);
-  background: hsl(0 0% 5%);
+  background: var(--shell-accent-on);
 }
 
 .shell-drawer-key-pill {
@@ -2451,16 +2502,16 @@
 }
 
 .shell-drawer-btn-secondary:hover {
-  border-color: hsl(0 0% 23%);
+  border-color: var(--shell-scrollbar-thumb);
 }
 
 .shell-drawer-btn-primary {
   height: 32px;
   padding: 0 14px;
   border-radius: var(--shell-r-md);
-  border: 1px solid hsl(0 0% 100%);
-  background: hsl(0 0% 100%);
-  color: hsl(0 0% 5%);
+  border: 1px solid var(--shell-accent);
+  background: var(--shell-accent);
+  color: var(--shell-accent-on);
   font-size: 12.5px;
   font-weight: 600;
   cursor: pointer;
@@ -2470,7 +2521,9 @@
 }
 
 .shell-drawer-btn-primary:hover:not(:disabled) {
-  background: hsl(0 0% 96%);
+  background: var(--shell-accent-hover);
+  border-color: var(--shell-accent-hover);
+  color: var(--shell-accent-on);
 }
 
 .shell-drawer-btn-primary:disabled {
@@ -2494,7 +2547,7 @@
 .shell-scrim {
   position: fixed;
   inset: 0;
-  background: hsl(0 0% 0% / 0.55);
+  background: rgba(17, 24, 39, 0.55);
   z-index: 40;
 }
 
@@ -2511,7 +2564,7 @@
 
 .shell-btn-secondary:hover {
   color: var(--shell-fg);
-  background: hsl(0 0% 100% / 0.04);
+  background: var(--shell-hover);
 }
 
 .shell-btn-new {
@@ -2550,7 +2603,7 @@
     background-color: var(--shell-surface);
     transform: translateX(calc(100% + var(--shell-gutter)));
     transition: transform 0.22s cubic-bezier(0.2, 0.7, 0.2, 1);
-    box-shadow: -16px 0 40px hsl(0 0% 0% / 0.55);
+    box-shadow: -16px 0 40px rgba(17, 24, 39, 0.55);
   }
 
   .shell-right-inner {
@@ -2634,11 +2687,24 @@
     border-left: none;
     border-top: 1px solid var(--shell-border);
     border-radius: var(--shell-r-xl) var(--shell-r-xl) 0 0;
-    box-shadow: 0 -24px 56px hsl(0 0% 0% / 0.55);
+    box-shadow: 0 -24px 56px rgba(17, 24, 39, 0.55);
     transform: translateY(100%);
   }
 
   .shell-drawer.is-open {
     transform: translateY(0);
   }
+}
+
+/* Sonner toasts — bind to Modern Primitive (no richColors second palette) */
+[data-sonner-toaster][data-sonner-theme="light"] {
+  --normal-bg: var(--surface);
+  --normal-border: var(--border);
+  --normal-text: var(--fg);
+  --success-bg: var(--success-soft);
+  --success-border: color-mix(in oklab, var(--success) 35%, var(--border));
+  --success-text: var(--fg);
+  --error-bg: var(--danger-soft);
+  --error-border: color-mix(in oklab, var(--danger) 35%, var(--border));
+  --error-text: var(--fg);
 }

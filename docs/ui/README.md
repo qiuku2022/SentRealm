@@ -1,7 +1,9 @@
 # SentRealm UI 文档
 
-> **设计源**：Open Design 项目「SentRealm · Codex 高保真 UI」（`sentrealm-codex-ui`）。  
-> **还原约定**：`assets/app.css` = 生产 `apps/gui/src/styles/app-shell.css`（加独立预览用的字体/盒模型 reset）；boards 的 DOM / `shell-*` class 对齐 `AppShell` 与侧栏 / FAB / 结果栏 / 设置 Drawer（静态态，非可运行 React）。  
+> **设计源**：
+> - **配色**：`.local/od-modern-colors/`（OD `sentrealm-modern-colors`）→ 生产 [`tokens-modern.css`](../../apps/gui/src/styles/tokens-modern.css)  
+> - **布局原型**：Open Design「SentRealm · Modern UI」（`sentrealm-modern-ui`）  
+> **还原约定**：Primitive 单源；`app-shell.css` / `globals.css` 只做别名；boards 信息架构对齐 `AppShell`（class 仍用既有 `shell-*`）。  
 > **实现栈**：Tauri 2 WebView + React + TypeScript + shadcn/ui + Tailwind CSS（[ADR-002](../architecture/adr/002-shadcn-ui.md)）。  
 > **本目录角色**：GUI **设计 → 实现契约**（tokens、布局、组件映射、屏幕与状态）。产品规则、架构、用户操作说明不以本文为准。
 
@@ -23,15 +25,16 @@
 | [docs/user/](../user/README.md) | **终端用户怎么用** — 文案与操作步骤 |
 | [docs/dev/](../dev/README.md) | **如何跑起来** — 环境与测试 |
 
-冲突时：**产品规则**以规划文档为准；**组件库选型**以 ADR-002 为准；**色值与壳层布局**以本目录（源自 OD `assets/app.css`）为准。
+冲突时：**产品规则**以规划文档为准；**组件库选型**以 ADR-002 为准；**色值**以 [foundations.md](./foundations.md) / `.local/od-modern-colors` 为准；**壳层布局**以本目录 + `sentrealm-modern-ui` boards 为准。
 
 ## 设计源与落地路径
 
 | 项 | 约定 |
 |----|------|
-| OD 共享壳 CSS | `assets/app.css`（六块 board 共用） |
-| 仓库落地文件名 | `apps/gui/src/styles/app-shell.css`（与架构文档中的 `app-shell.css` 对齐） |
-| OD boards | `01-new` … `06-settings` → 见 [screens.md](./screens.md) / [states.md](./states.md) |
+| 配色 SSOT | `.local/od-modern-colors/assets/colors.css` |
+| 生产 Primitive | `apps/gui/src/styles/tokens-modern.css` |
+| 壳层 / shadcn 别名 | `app-shell.css` + `globals.css` |
+| OD 布局 boards | `sentrealm-modern-ui`：`01-new` … `06-settings` → [screens.md](./screens.md) / [states.md](./states.md) |
 | shadcn 组件目录 | `apps/gui/src/components/ui/` |
 
 ## 工作区状态
@@ -44,7 +47,7 @@
 |----|---------|------------------|-------------|
 | 会话持久化 | 侧栏提示「仅本机会话，退出清除」 | [ADR-010](../architecture/adr/010-workspace-document-persistence.md)：`Documents/SentRealm/` | **跟 ADR-010**；侧栏文案勿照抄 ephemeral 提示 |
 | 设置面板 | 自定义 `.drawer` | ADR-002：主界面 OD Drawer；基础控件与遗留调试页用 shadcn | 保持 OD Drawer + `app-shell.css` |
-| 主按钮色 | 白底深字（`--accent: #fff`） | — | 映射到 shadcn `--primary`（见 foundations） |
+| 主按钮色 | indigo `#4f46e5` 白字 | — | 映射到 shadcn `--primary`（见 foundations） |
 
 ## 维护
 
