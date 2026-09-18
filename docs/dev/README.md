@@ -15,7 +15,7 @@
 
 ## 实现阶段说明
 
-**Phase 0 脚手架已验收**（M1）；**Phase 1 MVP 核心已完成**（M2）。`apps/` / `packages/` 已落地；按 [setup.md](./setup.md) → [running-locally.md](./running-locally.md) 即可 `pnpm dev`。实现与文档对照见 [implementation-status.md](./implementation-status.md)。
+**Phase 0 脚手架已验收**（M1）；**Phase 1 MVP 核心已完成**（M2）；**可分发 MVP 已完成**（M3）。当前桌面壳 **`1.0.0`**。`apps/` / `packages/` 已落地；按 [setup.md](./setup.md) → [running-locally.md](./running-locally.md) 即可 `pnpm dev`。实现与文档对照见 [implementation-status.md](./implementation-status.md)。下一优先见 [路线图](../planning/03-roadmap.md)（干净机 / 签名 / 公开发布）。
 
 ## 推荐阅读顺序
 

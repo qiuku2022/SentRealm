@@ -9,7 +9,7 @@
 |------|------|
 | [01-product-definition-and-mvp.md](./01-product-definition-and-mvp.md) | 产品定位、处理规则、断句流程、MVP 范围与非目标 |
 | [02-user-stories.md](./02-user-stories.md) | 用户故事（主流程、断句、工作区、异常、多入口、非目标） |
-| [03-roadmap.md](./03-roadmap.md) | 里程碑、下一优先（可分发 MVP）、依赖与风险 |
+| [03-roadmap.md](./03-roadmap.md) | 里程碑、下一优先（正式 `1.0.0`）、依赖与风险 |
 
 ## 推荐阅读顺序
 

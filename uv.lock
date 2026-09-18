@@ -656,7 +656,7 @@ wheels = [
 
 [[package]]
 name = "sentrealm"
-version = "0.5.4"
+version = "1.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "fastapi" },

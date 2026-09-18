@@ -100,7 +100,8 @@ Rust 侧应用启动/退出钩子在开发与生产共用生命周期语义；**
 ### 后续工作
 
 - ✅ 实现：`.spec`（onedir）、resources 构建脚本、Rust 生产分支、`tauri.conf.json` `bundle.resources`（见 [packaging.md](../../dev/packaging.md)）
-- ✅ 文档（内部档位 1，2026-09-15）：[用户手册](../../user/README.md) 分发状态与安装表述；[路线图](../../planning/03-roadmap.md) M3 DoD 部分勾选
+- ✅ 文档（内部档位 1，2026-09-15）：[用户手册](../../user/README.md) 分发状态与安装表述
+- ✅ M3 于 2026-09-18 以作者工作环境多次验证关闭（见 [路线图](../../planning/03-roadmap.md)）
 - 仍待正式 `1.0.0`：严格干净机冒烟、代码签名 / SmartScreen、正式公开发布
 - 修订 [ADR-006](./006-tauri-spawn-fastapi.md)「生产打包待定」指向本文（若仍有过时措辞）
 

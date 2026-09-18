@@ -5,8 +5,8 @@
 | 项 | 说明 |
 |----|------|
 | 产品定位 | 见 [产品定义与 MVP](../planning/01-product-definition-and-mvp.md) |
-| 当前版本阶段 | M3 内部可用（桌面壳 `0.5.4`，见 [路线图](../planning/03-roadmap.md)） |
-| 分发状态 | **内部可用（NSIS）**：由团队提供或按 [packaging.md](../dev/packaging.md) 打出安装包即可使用。**正式公开发布与代码签名尚未完成** |
+| 当前版本阶段 | 正式版 `1.0.0`（见 [路线图](../planning/03-roadmap.md)） |
+| 分发状态 | **NSIS 安装包**（版本 `1.0.0`）。代码签名尚未完成时，Windows SmartScreen 可能提示 |
 | 主平台 | Windows 10 / 11 |
 
 开发者请改读 [开发指南](../dev/README.md)，不要用本文当环境搭建手册。
