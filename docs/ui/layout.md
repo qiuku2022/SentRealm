@@ -2,7 +2,7 @@
 
 > 壳层来源：OD `sentrealm-modern-ui` → `assets/app.css`（boards 信息架构）。  
 > 落地：`apps/gui/src/styles/app-shell.css` — **gutter + 悬浮卡片**（非平铺分割线）+ Drawer / Modal。  
-> 布局尺寸：顶栏 40px · 侧栏 248px · 右栏 320px · FAB 56px（见 [foundations.md](./foundations.md)）。
+> 布局尺寸：顶栏 40px · 侧栏 248px · 右栏 320px · FAB `calc(控件高 32px + 24px)`（见 [foundations.md](./foundations.md)）。
 
 ## 结构总览
 

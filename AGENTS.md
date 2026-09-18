@@ -4,7 +4,7 @@ AI Agent **协作约定**（行为与边界）。产品范围、架构、API、�
 
 **优先级**：用户指令优先。若出现嵌套 `AGENTS.md`，以更靠近改动目录的为准。
 
-**项目一句话**：面向视频创作者的本地文稿预处理桌面工具（剪映「文稿匹配」前去标点、断句分行）；形态为 Tauri 2 + React + FastAPI，另有 cli / mcp 入口。M1/M2 已完成，下一优先为 M3；进度见 [路线图](./docs/planning/03-roadmap.md)。
+**项目一句话**：面向视频创作者的本地文稿预处理桌面工具（剪映「文稿匹配」前去标点、断句分行）；形态为 Tauri 2 + React + FastAPI，另有 cli / mcp 入口。进度见 [路线图](./docs/planning/03-roadmap.md)。
 
 ---
 
@@ -34,17 +34,24 @@ AI Agent **协作约定**（行为与边界）。产品范围、架构、API、�
 
 ## 行为准则
 
-**严谨** — 不猜不编；不确定说清缺什么；结论先行，论证跟上。
+**严谨** — 不猜不编；不确定说清缺什么；结论先行，论证跟上；复杂问题先拆解思路再动手。
 
 **先搜后答** — 先查本地（代码 / docs / 命令输出）；需要外部版本或资料时再用当前环境可用的网页检索。搜到的命令能跑就验证。
-
-**思考** — 拆解问题，先思路后答案；复杂时说清推理。
 
 **沟通** — 简体中文（注释、commit message、项目文档）；标识符 / 命令 / 路径用英文；少废话，长文结构化。
 
 **边界** — 能查的不问；读文件 / 搜索 / 本地验证大胆做；**commit / push / 部署**仅在用户明确要求时做。
 
 **判断** — 有偏好说理由；用户定稿后执行。
+
+### 编码纪律
+
+偏向谨慎而非速度；琐碎任务可酌情判断。
+
+- **先想清楚** — 实现前写出假设；多种理解并列，不要默默选一个；有更简单做法就直说，该反对时反对；不清楚就先提问。
+- **简单优先** — 用最少代码满足当前需求；不为一次性用法做抽象；不加未要求的「灵活性 / 可配置性」；不为不可能发生的场景堆错误处理。
+- **外科手术式改动** — 只动与请求直接相关的行；不顺手改相邻代码、注释或格式；不重构没坏的东西；只清理**因本次改动**产生的孤儿（无用 import / 变量 / 函数）；发现无关死代码只提一下，不要删。
+- **目标驱动** — 动手前把成功标准说清楚（测什么、哪份 docs 需同步）；多步任务用「步骤 → 验证」简短列出，对照下方「完成前」收尾。
 
 ---
 
@@ -63,7 +70,7 @@ AI Agent **协作约定**（行为与边界）。产品范围、架构、API、�
 
 ### 模块与契约（摘要，细则见 docs）
 
-- 业务断句逻辑只在 **`packages/core`**；`gui/api` 为薄 HTTP 层；cli / mcp **直连 core**，不经 gui HTTP（细则见 [modules.md](./docs/architecture/modules.md)；目录已落地，「Phase 0 落地步骤」仅为历史对照）。
+- 业务断句逻辑只在 **`packages/core`**；`gui/api` 为薄 HTTP 层；cli / mcp **直连 core**，不经 gui HTTP（细则见 [modules.md](./docs/architecture/modules.md)）。
 - 改 HTTP：同步 [openapi.yaml](./docs/api/openapi.yaml) 与 [docs/api/README.md](./docs/api/README.md)。
 - 改 CLI / MCP 行为：同步 [docs/cli-mcp.md](./docs/cli-mcp.md)。
 - 改产品规则 / 范围：同步 [产品定义](./docs/planning/01-product-definition-and-mvp.md)；用户可见用法同步 [用户手册](./docs/user/README.md)。
@@ -85,9 +92,9 @@ AI Agent **协作约定**（行为与边界）。产品范围、架构、API、�
 
 ## 完成前
 
-按任务触及面核对（详见 [testing.md](./docs/dev/testing.md)）：
+动手前已明确成功标准的前提下，按任务触及面核对（详见 [testing.md](./docs/dev/testing.md)）：
 
-1. 相关测试通过；至少默认集 **`uv run pytest`**（勿把未配置密钥的 integration 当成必过项）。
+1. 相关测试通过；至少默认集 **`uv run pytest`**（勿把未配置密钥的 integration 当成必过项）。触及前端时按仓库惯例做必要的 typecheck / lint。
 2. 若改了 API / CLI / MCP / 产品规则 / 用户流程：对应 **docs** 已同步。
 3. 无 secrets、无临时调试残留（硬编码密钥、丢弃用的 print/日志开关等）。
 
@@ -97,4 +104,4 @@ AI Agent **协作约定**（行为与边界）。产品范围、架构、API、�
 
 - **改 Agent 行为 / 本约定** → 改本文件。
 - **改产品 / 架构 / API / 命令 / 用户说明 / 开发流程** → 改对应 docs，细节不抄进 AGENTS.md。
-- 仓库内 Agent 技能在 `.agents/skills/`。栈相关（带 `SENTREALM.md` 覆盖的先读覆盖）：`fastapi`、`pydantic`、`uv`、`desktop-framework-tauri`、`mcp-builder`；安装包用 `sentrealm-packaging`；React 诊断用 `react-doctor`。来源锁见根目录 `skills-lock.json`。若新增面向特定文件的 Cursor 规则，放 `.cursor/rules/*.mdc` 并在此提及（当前仍以本文件 + docs 为主）。
+- 仓库内 Agent 技能见 [`.agents/skills/`](./.agents/skills/) 与根目录 [`skills-lock.json`](./skills-lock.json)；带 `SENTREALM.md` 覆盖的先读覆盖。若新增面向特定文件的 Cursor 规则，放 `.cursor/rules/*.mdc` 并在此提及（当前仍以本文件 + docs 为主）。

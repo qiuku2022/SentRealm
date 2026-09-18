@@ -12,9 +12,9 @@
 |------|------|
 | 主题 | 浅灰底 `#f7f8fc`、白表面、**indigo 主操作** `#4f46e5` |
 | 状态色 | 成功绿 / 警告琥珀（超长行）/ 错误红 |
-| 密度 | 桌面工具偏紧：正文 UI **14px**，控件高 30–36px，FAB 主按钮约 40px |
+| 密度 | 桌面工具偏紧：正文 UI **14px**；标准控件高 **`--shell-control-h` = 32px**（与 Win11 常用控件高对齐，保证 4px 半径相对曲率一致）；FAB 条高 = 控件高 + 24px（避免矮条 + 8px 读成胶囊） |
 | 网格 | Modern spacing（4 / 8 / 12 / 16 / 20 / 24 / 32 / 48） |
-| 阴影 | 三栏/顶栏用 `--shell-card-shadow`；**FAB / 菜单 / Drawer** 用更重的 `--shell-elev-raised`（双层；强于 Modern 目录 `--elev-raised`） |
+| 阴影 | 三栏/顶栏用 `--shell-card-shadow`；**FAB** 用 `--shell-fab-shadow`（介于 card 与 elev）；**菜单 / Drawer** 用更重的 `--shell-elev-raised` |
 | 焦点 | indigo soft ring `0 0 0 4px rgba(79,70,229,0.24)` |
 
 ## 1. Primitive（`tokens-modern.css`）
@@ -60,14 +60,26 @@
 
 | Token | 值 | 用途 |
 |-------|-----|------|
-| `--shell-r-md` | **4px** | 页内控件（按钮、输入、列表项） |
+| `--shell-r-md` | **4px** | 页内控件（按钮、输入、列表项、菜单项）；可点击 chip / 信息状态条（含 `.shell-pill*`、`.shell-right-live`、`.shell-drawer-key-pill`——类名可含 pill，曲率仍按 4px，不再做胶囊造型）；页内嵌套面（如 `.shell-editor`） |
+| `--shell-control-h` | **32px** | 标准控件高度；文字按钮 / chip / 主路径图标按钮统一此高度，避免「同 4px、不同高 → 相对曲率不一」 |
+| 实心主按钮描边 | `1px solid` 同色边 | `.shell-btn-go` / `.shell-btn-copy` / `.shell-drawer-btn-primary` 等与描边按钮共用同一 border-box，避免实心填色看起来更圆 |
 | `--shell-r-lg` / `--shell-r-xl` | **8px** | 顶层容器（悬浮卡片、FAB、Drawer）；与 Win11 窗口默认曲率一致 |
-| shadcn `--radius` | `0.5rem`（8px） | `rounded-md` 等基准；`rounded-sm` ≈ 4px |
+| shadcn `--radius` | `0.5rem`（8px） | 容器基准：`rounded-lg` / `rounded-xl` → 8px |
+| shadcn `--radius-sm` / `--radius-md` | `0.25rem`（4px） | 控件：`rounded-sm` / `rounded-md` → 4px（与 `--shell-r-md` 一致） |
+| 允许 `999px` / 全圆 | 仅几何圆 | 状态圆点（`.dot`）、Toggle 开关轨道/拇指、滚动条拇指 |
+| 禁止 | **6px / 10 / 16 / 24**；营销式胶囊按钮 | 中间档与 OD 大圆角不用于生产 GUI；chip 不得用 `999px` |
+| 嵌套圆角 | 见下 | **不靠改 radius token 对齐观感**；用相对曲率（同高）、border-box、边框与阴影 |
 | `--shell-sidebar-w` | 248px | |
 | `--shell-right-w` | 320px | |
-| `--shell-fab-h` | 56px | |
+| `--shell-fab-h` | `calc(32px + 24px)` = **56px** | 悬浮条；内边距 12px + `1px` border + `--shell-fab-shadow`，使 8px 顶层圆角读成矮卡片而非胶囊 |
+| `--shell-fab-shadow` | 双层，轻于 elev | 仅 FAB；菜单 / Drawer 仍用 `--shell-elev-raised` |
 | `--shell-topbar-h` | 40px | |
 | `--shell-gutter` | 12px | 窗边距与卡间距 |
+
+**嵌套圆角**：
+
+- **有 ≥8px gutter**（如 `.shell-editor` 在 canvas `padding: 20px` 内）：内面用 `--shell-r-md`；不要套 `outer − padding`（会为负）。
+- **贴边嵌套**（如 `.shell-meta-bar` 贴编辑区底）：父级 `overflow: hidden`，子底角 `0`，由父圆角裁切，避免双半径叠缝。
 
 ### 字体
 
@@ -92,7 +104,7 @@
 | `bg-accent`（hover 面） | `--color-accent` | `--surface-warm`（**勿**与品牌 `--accent` 混淆） |
 | `bg-destructive` | `--color-destructive` | `--danger` |
 | `text-success` / `text-warning` | success / warn | `--success` / `--warn` |
-| `--radius` | `0.5rem`（8px） | Win11 顶层容器 |
+| `--radius` | `0.5rem`（8px） | Win11 顶层容器；`rounded-md`/`rounded-sm` → 4px |
 
 主按钮为 **indigo 底白字**。
 
@@ -101,9 +113,9 @@
 | 组件 | 关键 token / class |
 |------|-------------------|
 | 三栏 `.shell-side` / `.shell-canvas` / `.shell-right` | 悬浮卡片：`border` + `border-radius: var(--shell-r-lg)` + `box-shadow: var(--shell-card-shadow)`；壳层 `--shell-gutter: 12px` |
-| 主按钮 `.shell-btn-go` / `.shell-drawer-btn-primary` | `bg: var(--shell-accent)`；hover → `--shell-accent-hover`；字 `--shell-accent-on` |
+| 主按钮 `.shell-btn-go` / `.shell-drawer-btn-primary` | `bg: var(--shell-accent)`；hover → `--shell-accent-hover`；字 `--shell-accent-on`；`1px` 同色边 + `box-sizing: border-box` |
 | 超长行 `.shell-result-line.is-long` | `background: var(--shell-warn-soft)`；**禁止** danger |
-| FAB | `--shell-surface` + `var(--shell-elev-raised)` |
+| FAB | `--shell-surface` + `1px` border + `var(--shell-fab-shadow)`；半径仍 `--shell-r-xl` |
 | Toast（Sonner） | light theme；变量绑 Primitive（见 `app-shell.css` 末尾） |
 
 ## 4. 禁令

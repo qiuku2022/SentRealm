@@ -46,11 +46,12 @@
   --section-y-desktop: 104px;
   --section-y-tablet: 72px;
   --section-y-phone: 52px;
-  /* Modern catalog radii (docs / OD). App chrome uses Win11 Fluent via
-   * app-shell.css: --shell-r-md 4px, --shell-r-lg/--shell-r-xl 8px. */
-  --radius-sm: 10px;
-  --radius-md: 16px;
-  --radius-lg: 24px;
+  /* Production GUI: Win11 Fluent (controls 4 / containers 8).
+   * OD marketing catalog historically used 10/16/24 — do not restore for app chrome.
+   * Shell aliases: --shell-r-md 4px, --shell-r-lg/--shell-r-xl 8px. */
+  --radius-sm: 4px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
   --radius-pill: 9999px;
   --elev-flat: none;
   --elev-ring: 0 0 0 1px var(--border);

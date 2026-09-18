@@ -1,6 +1,9 @@
 use std::path::Path;
 
 fn main() {
+    // Windows 任务栏 / exe 图标由 resource.rc 嵌入 icons/icon.ico。
+    // tauri-build 默认只跟踪 tauri.conf.json，改 ico 不会触发重编，故显式声明。
+    println!("cargo:rerun-if-changed=icons/icon.ico");
     ensure_sidecar_resource_dir();
     tauri_build::build()
 }

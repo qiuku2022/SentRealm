@@ -33,15 +33,16 @@
   --color-ring: var(--accent);
   --color-success: var(--success);
   --color-warning: var(--warn);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  /* Win11 Fluent: controls 4px, containers 8px (match window curvature) */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.25rem;
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-xl: var(--radius);
 }
 
 :root {
   --font-ui: var(--font-body);
-  /* Win11 top-level container radius (8px); --radius-sm → 4px in-page */
+  /* Win11 top-level / overlay radius (8px); controls use --radius-md = 4px */
   --radius: 0.5rem;
 }
 

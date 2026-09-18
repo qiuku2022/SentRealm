@@ -89,7 +89,7 @@ CREATE TABLE app_settings (
 | `llm_enabled` | boolean | 是否启用 LLM 断句；关闭时即使已配置 endpoint/model 与密钥也跳过 |
 | `llm_endpoint` | string | LLM API 端点 URL |
 | `llm_model` | string | 模型名称 |
-| `break_lexicon` | object | 规则断句字词表（四类 string[]；见 [产品定义](../planning/01-product-definition-and-mvp.md#允许断点字词表)） |
+| `break_lexicon` | object | 规则断句字词表（四类 string[]；见 [产品定义](../../planning/01-product-definition-and-mvp.md#允许断点字词表)） |
 
 默认值与 [产品定义：去标点规则与单行最大字数](../../planning/01-product-definition-and-mvp.md) 对齐：
 

@@ -1,7 +1,7 @@
 # 产品路线图
 
 > **权威范围**仍以 [产品定义与 MVP](./01-product-definition-and-mvp.md) 为准。本文档回答：**做到哪一步了、下一步做什么、依赖与风险是什么**。  
-> 技术待决项见 [架构待定 ADR](../architecture/README.md#待定--后续-adr)。
+> 技术待决项见 [架构文档 · 待定与后续 ADR](../architecture/README.md)（打开后定位同名一节）。
 
 **文档日期**：2026-09-18
 
