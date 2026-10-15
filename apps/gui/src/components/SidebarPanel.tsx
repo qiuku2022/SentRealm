@@ -409,7 +409,7 @@ export function SidebarPanel({
         <button
           type="button"
           className={`shell-btn-go shell-btn-new ${collapsed ? "is-icon" : ""}`}
-          title="新建文稿"
+          title="新建文稿 (Ctrl+N)"
           onClick={onCreateDocument}
         >
           <PlusIcon className="size-4 inline" />

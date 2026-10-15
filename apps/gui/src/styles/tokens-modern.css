@@ -70,4 +70,10 @@
   --warn-soft: color-mix(in oklab, var(--warn) 16%, var(--surface));
   --danger-soft: color-mix(in oklab, var(--danger) 12%, var(--surface));
   --accent-soft: color-mix(in oklab, var(--accent) 10%, var(--surface));
+
+  /* High-contrast text colors — WCAG AA compliance (≥ 4.5:1 on light backgrounds) */
+  --warn-fg: #b45309;
+  --success-fg: #047857;
+  --muted-fg: #4b5563;
 }
+

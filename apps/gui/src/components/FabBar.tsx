@@ -206,6 +206,7 @@ export function FabBar({
         type="button"
         className={`shell-btn-go ${processing ? "is-running" : ""}`}
         disabled={!canProcess}
+        title={canProcess ? `${processLabel} (Ctrl+Enter)` : undefined}
         onClick={onProcess}
       >
         {processing ? (

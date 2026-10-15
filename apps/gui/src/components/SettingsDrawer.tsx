@@ -16,10 +16,12 @@ import {
   formatPunctuationKeep,
   parsePunctuationKeep,
 } from "@/lib/text-utils";
+import { testLlmConnection } from "@/lib/api";
 import type { FlowState, LlmKeyStatus, Settings } from "@/lib/types";
 
 type SettingsDrawerProps = {
   open: boolean;
+  baseUrl?: string;
   settings: Settings;
   llmKeyStatus: LlmKeyStatus;
   saving: boolean;
@@ -174,6 +176,7 @@ function DrawerCustomMaxCharsRow({
 
 export function SettingsDrawer({
   open,
+  baseUrl,
   settings,
   llmKeyStatus,
   saving,
@@ -184,10 +187,40 @@ export function SettingsDrawer({
 }: SettingsDrawerProps) {
   const [present, setPresent] = useState(open);
   const [active, setActive] = useState(false);
+  const [testingLlm, setTestingLlm] = useState(false);
+  const [testResult, setTestResult] = useState<{
+    ok: boolean;
+    message: string;
+  } | null>(null);
 
   useEffect(() => {
     onPresentChange?.(present);
   }, [onPresentChange, present]);
+
+  useEffect(() => {
+    setTestResult(null);
+  }, [settings.llm_endpoint, settings.llm_model]);
+
+  const handleTestLlm = async () => {
+    if (!baseUrl) return;
+    setTestingLlm(true);
+    setTestResult(null);
+    const start = performance.now();
+    try {
+      const res = await testLlmConnection(baseUrl);
+      const duration = Math.round(performance.now() - start);
+      if (res.ok) {
+        setTestResult({ ok: true, message: `连接成功 · ${duration}ms` });
+      } else {
+        setTestResult({ ok: false, message: res.message || "连接测试未通过" });
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setTestResult({ ok: false, message: msg || "网络或服务异常" });
+    } finally {
+      setTestingLlm(false);
+    }
+  };
 
   useEffect(() => {
     if (open) {
@@ -495,6 +528,47 @@ export function SettingsDrawer({
                 <span className="dot" />
                 {llmKeyStatus.configured ? "环境变量已配置" : "环境变量未配置"}
               </span>
+            </div>
+
+            <div className="shell-row-set">
+              <div>
+                <div className="shell-row-set-lbl">连接测试</div>
+                <div className="shell-row-set-sub">
+                  发送轻量探针测试接口连通性。
+                </div>
+              </div>
+              <div className="shell-drawer-test-wrap">
+                <button
+                  type="button"
+                  className="shell-inline-reset-btn"
+                  disabled={
+                    !baseUrl ||
+                    testingLlm ||
+                    !settings.llm_endpoint.trim() ||
+                    !settings.llm_model.trim()
+                  }
+                  onClick={() => void handleTestLlm()}
+                >
+                  {testingLlm ? (
+                    <>
+                      <LoaderCircleIcon className="size-3.5 animate-spin" />
+                      测试中…
+                    </>
+                  ) : (
+                    "测试连接"
+                  )}
+                </button>
+                {testResult && (
+                  <span
+                    className={`shell-drawer-test-feedback ${
+                      testResult.ok ? "is-ok" : "is-err"
+                    }`}
+                  >
+                    <span className="dot" />
+                    {testResult.message}
+                  </span>
+                )}
+              </div>
             </div>
           </section>
 

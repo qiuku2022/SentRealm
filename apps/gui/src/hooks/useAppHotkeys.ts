@@ -11,6 +11,10 @@ type UseAppHotkeysOptions = {
   onToggleSettings: () => void;
   onFocusSearch: () => void;
   onEscape: () => void;
+  onProcess?: () => void;
+  onCopyResult?: () => void;
+  onCreateDocument?: () => void;
+  onImportTxt?: () => void;
   enabled?: boolean;
 };
 
@@ -18,6 +22,10 @@ export function useAppHotkeys({
   onToggleSettings,
   onFocusSearch,
   onEscape,
+  onProcess,
+  onCopyResult,
+  onCreateDocument,
+  onImportTxt,
   enabled = true,
 }: UseAppHotkeysOptions) {
   useEffect(() => {
@@ -27,6 +35,50 @@ export function useAppHotkeys({
       if (event.key === "Escape") {
         onEscape();
         return;
+      }
+
+      if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+        if (onProcess) {
+          event.preventDefault();
+          onProcess();
+          return;
+        }
+      }
+
+      if (
+        (event.ctrlKey || event.metaKey) &&
+        event.shiftKey &&
+        (event.key === "c" || event.key === "C")
+      ) {
+        if (onCopyResult) {
+          event.preventDefault();
+          onCopyResult();
+          return;
+        }
+      }
+
+      if (
+        (event.ctrlKey || event.metaKey) &&
+        !event.shiftKey &&
+        (event.key === "n" || event.key === "N")
+      ) {
+        if (onCreateDocument) {
+          event.preventDefault();
+          onCreateDocument();
+          return;
+        }
+      }
+
+      if (
+        (event.ctrlKey || event.metaKey) &&
+        !event.shiftKey &&
+        (event.key === "o" || event.key === "O")
+      ) {
+        if (onImportTxt) {
+          event.preventDefault();
+          onImportTxt();
+          return;
+        }
       }
 
       if ((event.ctrlKey || event.metaKey) && event.key === ",") {
@@ -43,5 +95,14 @@ export function useAppHotkeys({
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [enabled, onEscape, onFocusSearch, onToggleSettings]);
+  }, [
+    enabled,
+    onCopyResult,
+    onCreateDocument,
+    onEscape,
+    onFocusSearch,
+    onImportTxt,
+    onProcess,
+    onToggleSettings,
+  ]);
 }

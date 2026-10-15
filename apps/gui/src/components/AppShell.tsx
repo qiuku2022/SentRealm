@@ -1,11 +1,4 @@
-import {
-  FileUpIcon,
-  MonitorIcon,
-  PanelRightOpenIcon,
-  PlusIcon,
-  SlidersHorizontalIcon,
-  SmartphoneIcon,
-} from "lucide-react";
+import { FileUpIcon, PanelRightOpenIcon } from "lucide-react";
 import {
   useCallback,
   useEffect,
@@ -101,6 +94,8 @@ export function AppShell() {
   const [sourceText, setSourceText] = useState("");
   const [result, setResult] = useState<PreprocessResult | null>(null);
   const [flowState, setFlowState] = useState<FlowState>("new");
+  const [isStale, setIsStale] = useState(false);
+  const [isDraggingFile, setIsDraggingFile] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settingsPresent, setSettingsPresent] = useState(false);
   const [rulesOpen, setRulesOpen] = useState(false);
@@ -160,14 +155,6 @@ export function AppShell() {
     return `自定义 · ${settings.max_chars} 字`;
   }, [settings]);
 
-  const PresetIcon =
-    settings?.preset === "portrait"
-      ? SmartphoneIcon
-      : settings?.preset === "custom"
-        ? SlidersHorizontalIcon
-        : MonitorIcon;
-
-  const punctuationEnabled = (settings?.punctuation_remove.length ?? 0) > 0;
 
   const healthBannerKind = mapHealthToBannerKind(status, wasEverReady);
   const activeBannerKind: BannerKind = useMemo(() => {
@@ -229,6 +216,7 @@ export function AppShell() {
       setResult(null);
       setFlowState(doc.source_text.trim() ? "ready" : "new");
     }
+    setIsStale(false);
   }, [baseUrl]);
 
   const bootstrap = useCallback(async () => {
@@ -341,12 +329,6 @@ export function AppShell() {
     settings,
     settingsOpen,
   ]);
-
-  useAppHotkeys({
-    onToggleSettings: toggleSettings,
-    onFocusSearch: focusSearch,
-    onEscape: handleEscape,
-  });
 
   const scheduleSaveSource = useCallback(
     (text: string) => {
@@ -473,13 +455,42 @@ export function AppShell() {
     if (!text.trim()) {
       setFlowState("new");
       setResult(null);
+      setIsStale(false);
       clearSourceHighlight();
-    } else if (flowState === "done" || flowState === "new") {
+    } else if (flowState === "done") {
+      setFlowState("ready");
+      setIsStale(true);
+      clearSourceHighlight();
+    } else if (flowState === "new") {
       setFlowState("ready");
       setResult(null);
+      setIsStale(false);
       clearSourceHighlight();
     }
     scheduleSaveSource(text);
+  };
+
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+    if (!isDraggingFile) setIsDraggingFile(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setIsDraggingFile(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingFile(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      void handleImportTxt(file);
+    }
   };
 
   const handleEditorBlur = () => {
@@ -636,6 +647,7 @@ export function AppShell() {
       setLastDurationMs(duration);
       setResult(data);
       setFlowState("done");
+      setIsStale(false);
       setResultStreaming(false);
       setProcessingLabel(undefined);
       if (activeProjectId && activeDocumentId) {
@@ -860,6 +872,20 @@ export function AppShell() {
         }
       : undefined;
 
+  useAppHotkeys({
+    onToggleSettings: toggleSettings,
+    onFocusSearch: focusSearch,
+    onEscape: handleEscape,
+    onProcess: canProcess ? () => void handleProcess() : undefined,
+    onCopyResult:
+      result?.processed && !processing ? () => void handleCopy() : undefined,
+    onCreateDocument:
+      status === "ready" && !processing
+        ? () => void handleCreateDocument()
+        : undefined,
+    onImportTxt: () => fileInputRef.current?.click(),
+  });
+
   const colsClass = [
     "shell-cols",
     sideCollapsed ? "is-collapsed" : "",
@@ -931,6 +957,7 @@ export function AppShell() {
               <button
                 type="button"
                 className="shell-import-btn"
+                title="导入 .txt (Ctrl+O)"
                 onClick={() => fileInputRef.current?.click()}
               >
                 <FileUpIcon className="size-4 inline" /> 导入 .txt
@@ -946,14 +973,6 @@ export function AppShell() {
                   e.target.value = "";
                 }}
               />
-              <span className="shell-pill-chip is-active">
-                <PlusIcon strokeWidth={1.6} />
-                {punctuationEnabled ? "去标点" : "保留标点"}
-              </span>
-              <span className="shell-pill-chip is-active">
-                <PresetIcon strokeWidth={1.6} />
-                {presetLabel || "加载中…"}
-              </span>
               {(isNarrow || rightPanelHidden) && (
                 <button
                   type="button"
@@ -974,7 +993,16 @@ export function AppShell() {
               <div
                 ref={editorRef}
                 className={`shell-editor ${sourceText.trim() ? "" : "is-empty"}`}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
               >
+                {isDraggingFile && (
+                  <div className="shell-editor-dropzone">
+                    <FileUpIcon className="size-8" />
+                    <span>松开鼠标以导入此文本文件</span>
+                  </div>
+                )}
                 {!sourceText.trim() && (
                   <div className="shell-editor-empty">
                     <div className="shell-editor-empty-inner">
@@ -1027,6 +1055,7 @@ export function AppShell() {
               flowState={flowState}
               streaming={resultStreaming}
               copied={copied}
+              isStale={isStale}
               activeLineIndex={activeResultLine}
               onLineClick={handleResultLineClick}
               onCopy={() => void handleCopy()}
@@ -1096,6 +1125,7 @@ export function AppShell() {
       {draftSettings && (
         <SettingsDrawer
           open={settingsOpen}
+          baseUrl={baseUrl ?? undefined}
           settings={draftSettings}
           llmKeyStatus={llmKeyStatus}
           saving={savingSettings}

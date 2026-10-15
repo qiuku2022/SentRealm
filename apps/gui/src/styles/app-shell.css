@@ -28,8 +28,10 @@
   --shell-ok: var(--success);
   --shell-success: var(--success);
   --shell-ok-soft: var(--success-soft);
+  --shell-ok-fg: var(--success-fg);
   --shell-warn: var(--warn);
   --shell-warn-soft: var(--warn-soft);
+  --shell-warn-fg: var(--warn-fg);
   --shell-warn-line: color-mix(in oklab, var(--warn) 45%, var(--surface));
   --shell-err: var(--danger);
   --shell-danger: var(--danger);
@@ -1147,7 +1149,7 @@
   font-size: var(--shell-font-label);
   font-weight: var(--shell-font-weight-caption);
   padding: 0 10px;
-  border-radius: var(--radius-pill);
+  border-radius: var(--shell-r-md);
   border: 1px solid var(--shell-border);
   color: var(--shell-muted-2);
   background: var(--shell-surface-2);
@@ -1168,7 +1170,7 @@
   font-size: 12px;
   line-height: 1.2;
   padding: 0 10px;
-  border-radius: var(--radius-pill);
+  border-radius: var(--shell-r-md);
   border: 1px solid var(--shell-border);
   color: var(--shell-fg-2);
   background: var(--shell-surface-2);
@@ -1188,6 +1190,19 @@
   color: var(--shell-fg);
   border-color: var(--shell-scrollbar-thumb);
   background: var(--shell-hover-strong);
+}
+
+button.shell-pill-chip {
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard),
+    box-shadow var(--motion-fast) var(--ease-standard);
+}
+
+button.shell-pill-chip:hover {
+  background: color-mix(in oklab, var(--shell-surface-warm), var(--shell-surface) 30%);
+  border-color: var(--shell-scrollbar-thumb);
 }
 
 .shell-import-btn {
@@ -1280,6 +1295,36 @@
 @media (prefers-reduced-motion: reduce) {
   .shell-editor-pulse-mark {
     animation: none;
+  }
+}
+
+.shell-editor-dropzone {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background: color-mix(in oklab, var(--shell-surface-warm) 92%, transparent);
+  border: 2px dashed var(--shell-accent);
+  border-radius: var(--shell-r-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--shell-accent);
+  font-size: 14px;
+  font-weight: 600;
+  pointer-events: none;
+  animation: shell-dropzone-enter var(--motion-fast) var(--ease-standard);
+}
+
+@keyframes shell-dropzone-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
@@ -1655,11 +1700,23 @@
   font-weight: 600;
   letter-spacing: 0;
   text-transform: none;
-  color: var(--shell-ok);
+  color: var(--shell-ok-fg);
   padding: 2px 7px;
   border-radius: var(--shell-r-md);
   background: var(--shell-ok-soft);
   animation: shell-live-pulse 1.2s ease-in-out infinite;
+}
+
+.shell-right-stale-tag {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--shell-warn-fg);
+  padding: 2px 7px;
+  border-radius: var(--shell-r-md);
+  background: var(--shell-warn-soft);
+  border: 1px solid var(--shell-warn-line);
 }
 
 @keyframes shell-live-pulse {
@@ -1678,6 +1735,64 @@
   gap: 6px;
   color: var(--shell-muted);
   flex-shrink: 0;
+}
+
+.shell-flagged-nav {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  gap: 1px;
+  background: var(--shell-warn-soft);
+  border: 1px solid var(--shell-warn-line);
+  border-radius: var(--shell-r-md);
+  padding: 2px 3px;
+  height: 24px;
+}
+
+.shell-flagged-btn {
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  border: none;
+  background: transparent;
+  color: var(--shell-warn-fg);
+  cursor: pointer;
+  padding: 0;
+  outline: none;
+  transition:
+    background-color var(--motion-fast) var(--ease-standard),
+    color var(--motion-fast) var(--ease-standard);
+}
+
+.shell-flagged-btn:hover {
+  background: color-mix(in oklab, var(--shell-warn) 20%, transparent);
+}
+
+.shell-flagged-btn:active {
+  background: color-mix(in oklab, var(--shell-warn) 32%, transparent);
+}
+
+.shell-flagged-btn:focus-visible {
+  box-shadow: 0 0 0 1.5px var(--shell-warn-fg);
+}
+
+.shell-flagged-btn svg {
+  width: 12px;
+  height: 12px;
+  stroke-width: 2.2;
+}
+
+.shell-flagged-nav-count {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--shell-warn-fg);
+  padding: 0 3px;
+  line-height: 1;
+  user-select: none;
+  font-variant-numeric: tabular-nums;
 }
 
 .shell-right-head-actions .shell-icon-btn {
@@ -1746,6 +1861,11 @@
   flex-direction: column;
   gap: 4px;
   padding: 0 4px;
+}
+
+.shell-results-list.is-stale {
+  opacity: 0.65;
+  transition: opacity var(--motion-fast) var(--ease-standard);
 }
 
 .shell-result-line {
@@ -1848,7 +1968,7 @@
 }
 
 .shell-result-line.is-long .shell-result-ct {
-  color: var(--shell-warn);
+  color: var(--shell-warn-fg);
 }
 
 .shell-result-tag {
@@ -1858,7 +1978,7 @@
   margin-left: 8px;
   font-size: var(--shell-font-caption-sm);
   font-weight: 600;
-  color: var(--shell-warn);
+  color: var(--shell-warn-fg);
   vertical-align: baseline;
 }
 
@@ -1867,7 +1987,7 @@
   width: 4px;
   height: 4px;
   border-radius: var(--radius-pill);
-  background: var(--shell-warn);
+  background: var(--shell-warn-fg);
   flex-shrink: 0;
 }
 
@@ -1904,7 +2024,16 @@
 }
 
 .shell-stat.is-warn .shell-stat-v {
-  color: var(--shell-warn);
+  color: var(--shell-warn-fg);
+}
+
+.shell-stat.is-interactive {
+  cursor: pointer;
+  transition: background-color var(--motion-fast) var(--ease-standard);
+}
+
+.shell-stat.is-interactive:hover {
+  background: color-mix(in oklab, var(--shell-warn-soft), var(--shell-surface) 20%);
 }
 
 .shell-right-actions {
@@ -1941,8 +2070,8 @@
 
 .shell-btn-copy.is-copied {
   background: var(--shell-ok-soft);
-  color: var(--shell-ok);
-  border-color: var(--shell-ok);
+  color: var(--shell-ok-fg);
+  border-color: var(--shell-ok-fg);
 }
 
 .shell-btn-copy:disabled {
@@ -2436,6 +2565,44 @@
 
 .shell-drawer-key-pill.is-ready .dot {
   background: var(--shell-ok);
+}
+
+.shell-drawer-test-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.shell-drawer-test-feedback {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 550;
+}
+
+.shell-drawer-test-feedback.is-ok {
+  color: var(--shell-ok-fg);
+}
+
+.shell-drawer-test-feedback.is-ok .dot {
+  background: var(--shell-ok);
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-pill);
+}
+
+.shell-drawer-test-feedback.is-err {
+  color: var(--shell-danger);
+}
+
+.shell-drawer-test-feedback.is-err .dot {
+  background: var(--shell-danger);
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-pill);
 }
 
 .shell-llm-status {
