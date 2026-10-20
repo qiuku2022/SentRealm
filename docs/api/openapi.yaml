@@ -4,7 +4,7 @@ info:
   description: |
     gui/ui 与 apps/gui/api 之间的本地 HTTP 契约。
     人类可读说明见 docs/api/README.md。
-  version: 1.0.0
+  version: 1.0.1
 
 servers:
   - url: http://127.0.0.1:17300

@@ -4,7 +4,7 @@
 
 **核对日期**：2026-09-18  
 **工作区根**：`d:\Work\Dev\SentRealm`  
-**当前版本**：桌面壳 `1.0.0`（`apps/gui/src-tauri/tauri.conf.json`）
+**当前版本**：桌面壳 `1.0.1`（`apps/gui/src-tauri/tauri.conf.json`）
 
 ## 结论
 

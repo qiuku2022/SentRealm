@@ -163,10 +163,26 @@
 }
 
 .shell-appbar-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-size: 13px;
   font-weight: 600;
   color: var(--shell-fg-2);
   pointer-events: none;
+}
+
+.shell-preview-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  padding: 2px 6px;
+  border-radius: 9999px;
+  color: var(--shell-accent);
+  background: var(--shell-accent-soft);
+  border: 1px solid color-mix(in oklab, var(--shell-accent) 25%, transparent);
 }
 
 .shell-win-controls {

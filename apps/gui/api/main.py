@@ -53,7 +53,7 @@ def create_app(
 ) -> FastAPI:
     load_project_env()
 
-    app = FastAPI(title="SentRealm GUI API", version="1.0.0")
+    app = FastAPI(title="SentRealm GUI API", version="1.0.1")
     app.state.store = store or SqliteSettingsStore()
     app.state.workspace_store = workspace_store or WorkspaceStore()
 
