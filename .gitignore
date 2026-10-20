@@ -61,6 +61,8 @@ Desktop.ini
 .local/
 # Agent SDD 会话草稿（brief / review pkg / ledger）；正式 spec/plan 在 docs/superpowers/
 .superpowers/
+# 本机 Agent 技能（不入库）
+.agents/
 
 # --- Packaging (PyInstaller) ---
 packaging/build/
