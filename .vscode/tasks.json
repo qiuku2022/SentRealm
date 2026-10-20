@@ -15,35 +15,6 @@
       }
     },
     {
-      "label": "ui:dev",
-      "type": "shell",
-      "command": "pnpm",
-      "args": ["dev:vite"],
-      "options": {
-        "cwd": "${workspaceFolder}/apps/gui",
-        "env": {
-          "BROWSER": "none"
-        }
-      },
-      "isBackground": true,
-      "problemMatcher": {
-        "owner": "vite",
-        "pattern": {
-          "regexp": "^$"
-        },
-        "background": {
-          "activeOnStart": true,
-          "beginsPattern": ".",
-          "endsPattern": "Local:.*1420"
-        }
-      },
-      "presentation": {
-        "reveal": "always",
-        "panel": "dedicated",
-        "group": "sentrealm"
-      }
-    },
-    {
       "label": "ui:build",
       "type": "shell",
       "command": "pnpm",
@@ -56,25 +27,6 @@
         "reveal": "silent",
         "panel": "shared"
       }
-    },
-    {
-      "label": "cargo:build-debug",
-      "type": "cargo",
-      "command": "build",
-      "options": {
-        "cwd": "${workspaceFolder}/apps/gui/src-tauri"
-      },
-      "group": "build",
-      "presentation": {
-        "reveal": "silent",
-        "panel": "shared"
-      }
-    },
-    {
-      "label": "tauri:debug-build",
-      "dependsOn": ["cargo:build-debug", "ui:dev"],
-      "dependsOrder": "parallel",
-      "group": "build"
     },
     {
       "label": "pytest",

@@ -26,17 +26,16 @@ health 成功前，前端不调用 `/api/v1/*` 业务接口。
 
 ## IDE 调试（Cursor / VS Code）
 
-仓库根 [`.vscode/launch.json`](../../.vscode/launch.json) 提供 F5 配置。Python 走项目 `.venv` + debugpy；须先 `uv sync`（Python 类配置会自动跑 `uv:sync` task）。
+仓库根 [`.vscode/launch.json`](../../.vscode/launch.json) 提供 F5 配置。Python 走项目 `.venv` + debugpy（首次使用前请先运行 `uv sync`）。
 
 | 配置 | 用途 |
 |------|------|
-| **▶ Desktop + API 断点**（推荐） | compound：FastAPI 断点 + Desktop（Tauri 不 spawn，等 debugpy） |
-| `Desktop: pnpm dev` | 日常调试：Tauri 自动 `uv run uvicorn` |
-| `Desktop: pnpm dev（断点模式）` | 仅桌面；须另有 API（如 `Python: FastAPI`） |
-| `Python: FastAPI` | 仅后端断点 |
-| `Python: pytest` | 单元测试 |
-| `Rust: Tauri` | Rust 断点；须先启动 `Python: FastAPI` |
-| `Rust + API 断点` | compound：MSVC + FastAPI |
+| **▶ 桌面 + API 断点**（推荐） | compound：FastAPI 断点 + 桌面前端（Tauri 不 spawn 后端，等待 debugpy） |
+| `Python: FastAPI` | 仅后端断点调试（用于 Apifox / curl 验证） |
+| `Desktop: 完整桌面 (免断点)` | 日常调试：Tauri 自动拉起 `uv run uvicorn` 后端 |
+| `Desktop: 桌面前端 (断点模式)` | 仅桌面前端；须另有 API 实例（通常由上面的 compound 组合调用） |
+
+> **提示**：单元测试直接在 VS Code「测试」侧边栏或代码行号旁运行/调试（已在 `.vscode/settings.json` 启用 pytest 集成）。
 
 **断点模式机制**：`SENTREALM_SKIP_BACKEND_SPAWN=1` 时 Tauri 不 spawn 后端；前端轮询 `/health`（最多 30s）。见 `apps/gui/src-tauri/src/backend.rs`。
 
