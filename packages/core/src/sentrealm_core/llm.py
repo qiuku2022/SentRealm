@@ -15,20 +15,41 @@ from sentrealm_core.models import Settings
 logger = logging.getLogger(__name__)
 
 _SYSTEM_PROMPT = (
-    "你是中文口播断句助手。任务：把用户给出的一行文本切成多行，便于朗读与字幕匹配。"
-    "必须遵守："
-    "1. 只切分，不改写：不得增删改任何字，标点也保持原样（仅通过换行切分）。"
+    "你是中文口播断句助手。任务：把用户给出的一行文本切成多行，便于朗读与字幕匹配。\n"
+    "【核心优先级金字塔】\n"
+    "语义完整与原意防篡改 >> 硬性字数上限 N >> 避免过短行 >> 行长均衡。\n"
+    "当行长均衡与语义完整冲突时，坚决放弃行长均衡！宁可各行长短不一，也严禁在核心意群中间切刀。\n\n"
+    "必须严格遵守：\n"
+    "1. 只切分，不改写：不得增删改任何字，标点也保持原样（仅通过换行切分）。\n"
     "2. 字数上限 N（用户给出）：每一行 countable 字数必须 ≤ N。"
     "只要还能在语义或语法边界切开，就禁止保留超长行；"
-    "仅当段内完全找不到合理切点时，才允许单行略超 N。"
+    "仅当段内完全找不到合理切点时，才允许单行略超 N。\n"
     "3. 最短行长 M（用户给出）：尽量每行 ≥ M；禁止单字成行"
     "（如单独的「的」「了」「是」「在」「被」「把」「和」等）；"
-    "也不要拆出无意义的两字碎句。不要为凑长度而改写原文。"
-    "4. 切在语义完整处：意群、短语、并列、分句成分之间；"
-    "禁止拆开双音节词（如「现在」「已经」「中国」）与固定搭配；"
-    "符合现代汉语语法与口播习惯。"
-    "5. 在满足 ≤N 与避免过短的前提下，尽量少分行，并使各行长度接近。"
-    "6. 英文与数字：不要在英文单词或连续数字中间断开。"
+    "也不要拆出无意义的两字碎句。不要为凑长度而改写原文。\n"
+    "4. 切在语义完整处（三大语法禁则）：\n"
+    "   - 严禁拆开否定结构：否定词/状语与核心谓语必须同在一行（如「不能/接受」❌，「拒绝/承认」❌）。\n"
+    "   - 严禁拆开紧密动宾与主谓搭配：禁止将动词与紧随的核心宾语无故切开；禁止拆开双音节词（如「现在」「已经」「中国」）与固定搭配。\n"
+    "   - 严禁行首悬挂结构助词或介词：行首禁止出现「的」「地」「得」「着」「了」「过」「在」「向」「被」等词。\n"
+    "5. 长度均衡为最低优先级：在满足语义完整与 ≤N 的前提下，尽量少分行；若为凑等长而割裂语法，属于严重错误。\n"
+    "6. 英文与数字：不要在英文单词或连续数字中间断开。\n\n"
+    "【正反例对照】\n"
+    "例 1（否定与动宾完整性）：\n"
+    "待切分：我们坚决拒绝接受这种不合理的安排\n"
+    "错误切分（改变原意）：\n"
+    "我们坚决拒绝\n"
+    "接受这种不合理的安排\n"
+    "正确切分：\n"
+    "我们坚决拒绝接受\n"
+    "这种不合理的安排\n\n"
+    "例 2（状语从句自然停顿）：\n"
+    "待切分：在这个长达三年的持续探索过程中我们找到了方向\n"
+    "错误切分（机械等长）：\n"
+    "在这个长达三年的持续\n"
+    "探索过程中我们找到了方向\n"
+    "正确切分：\n"
+    "在这个长达三年的持续探索过程中\n"
+    "我们找到了方向\n\n"
     "输出：仅输出切分后的多行文本，每行一条，不要编号、不要解释。"
 )
 
@@ -68,6 +89,7 @@ class LlmClient(Protocol):
         *,
         min_chars: int | None = None,
         retry_hints: Sequence[str | None] | None = None,
+        contexts: Sequence[tuple[str | None, str | None] | None] | None = None,
         wave: int = 1,
     ) -> list[LineBreakResult]: ...
 
@@ -95,6 +117,7 @@ class MockLlmClient:
         self._bad_remaining = bad_results_before_ok
         self.calls: list[list[str]] = []
         self.hint_calls: list[list[str | None] | None] = []
+        self.context_calls: list[list[tuple[str | None, str | None] | None] | None] = []
 
     def break_line(
         self,
@@ -103,10 +126,12 @@ class MockLlmClient:
         *,
         min_chars: int | None = None,
         retry_hint: str | None = None,
+        context: tuple[str | None, str | None] | None = None,
     ) -> LineBreakResult:
         hints = [retry_hint] if retry_hint is not None else None
+        contexts = [context] if context is not None else None
         return self.break_lines(
-            [line], max_chars, min_chars=min_chars, retry_hints=hints
+            [line], max_chars, min_chars=min_chars, retry_hints=hints, contexts=contexts
         )[0]
 
     def break_lines(
@@ -116,6 +141,7 @@ class MockLlmClient:
         *,
         min_chars: int | None = None,
         retry_hints: Sequence[str | None] | None = None,
+        contexts: Sequence[tuple[str | None, str | None] | None] | None = None,
         wave: int = 1,
     ) -> list[LineBreakResult]:
         if max_chars < 1:
@@ -123,6 +149,7 @@ class MockLlmClient:
         del wave  # Mock ignores wave; production prompt uses it.
         self.calls.append(list(lines))
         self.hint_calls.append(list(retry_hints) if retry_hints is not None else None)
+        self.context_calls.append(list(contexts) if contexts is not None else None)
         if self._bad_remaining > 0:
             self._bad_remaining -= 1
             return [parsed_line_break(_corrupt_split(line)) for line in lines]
@@ -303,10 +330,12 @@ class OpenAILlmClient:
         *,
         min_chars: int | None = None,
         retry_hint: str | None = None,
+        context: tuple[str | None, str | None] | None = None,
     ) -> LineBreakResult:
         hints = [retry_hint] if retry_hint is not None else None
+        contexts = [context] if context is not None else None
         return self.break_lines(
-            [line], max_chars, min_chars=min_chars, retry_hints=hints
+            [line], max_chars, min_chars=min_chars, retry_hints=hints, contexts=contexts
         )[0]
 
     def break_lines(
@@ -316,6 +345,7 @@ class OpenAILlmClient:
         *,
         min_chars: int | None = None,
         retry_hints: Sequence[str | None] | None = None,
+        contexts: Sequence[tuple[str | None, str | None] | None] | None = None,
         wave: int = 1,
     ) -> list[LineBreakResult]:
         if max_chars < 1:
@@ -347,12 +377,16 @@ class OpenAILlmClient:
             hint = None
             if retry_hints is not None and index < len(retry_hints):
                 hint = retry_hints[index]
+            ctx = None
+            if contexts is not None and index < len(contexts):
+                ctx = contexts[index]
             result = self._break_one_line(
                 client,
                 line,
                 max_chars,
                 min_chars=min_chars,
                 retry_hint=hint,
+                context=ctx,
                 wave=wave,
             )
             results.append(result)
@@ -368,6 +402,7 @@ class OpenAILlmClient:
         *,
         min_chars: int | None = None,
         retry_hint: str | None = None,
+        context: tuple[str | None, str | None] | None = None,
         wave: int = 1,
     ) -> LineBreakResult:
         from openai import APIConnectionError, APITimeoutError, AuthenticationError
@@ -377,6 +412,7 @@ class OpenAILlmClient:
             max_chars,
             min_chars=min_chars,
             retry_hint=retry_hint,
+            contexts=[context] if context is not None else None,
             wave=wave,
         )
         max_tokens = _break_max_tokens(line)
@@ -527,12 +563,27 @@ def _completion_message_content(message: object) -> str:
     return ""
 
 
+def _format_context_block(prev_text: str | None, next_text: str | None) -> list[str]:
+    lines: list[str] = []
+    has_prev = bool(prev_text and prev_text.strip())
+    has_next = bool(next_text and next_text.strip())
+    if has_prev or has_next:
+        lines.append("【语境参考（只读，严禁输出或切分这部分内容）】")
+        if has_prev:
+            lines.append(f"前文：{prev_text.strip()}")
+        if has_next:
+            lines.append(f"后文：{next_text.strip()}")
+        lines.append("")
+    return lines
+
+
 def _build_batch_user_prompt(
     lines: list[str],
     max_chars: int,
     *,
     min_chars: int | None = None,
     retry_hint: str | None = None,
+    contexts: Sequence[tuple[str | None, str | None] | None] | None = None,
     wave: int = 1,
 ) -> str:
     from sentrealm_core.pipeline.llm_quality import resolve_min_chars
@@ -554,12 +605,19 @@ def _build_batch_user_prompt(
         )
 
     if n == 1:
+        ctx_tuple = contexts[0] if (contexts and len(contexts) > 0) else None
+        prev_ctx = ctx_tuple[0] if ctx_tuple else None
+        next_ctx = ctx_tuple[1] if ctx_tuple else None
+        ctx_block = _format_context_block(prev_ctx, next_ctx)
+
+        target_header = "【待切分目标文本】" if ctx_block else "待切分文本："
         return "\n".join(
             [
                 *length_rules,
                 "",
                 *hint_block,
-                "待切分文本：",
+                *ctx_block,
+                target_header,
                 lines[0],
                 "",
             ]
@@ -573,7 +631,15 @@ def _build_batch_user_prompt(
         *hint_block,
     ]
     for index, line in enumerate(lines, start=1):
+        ctx_tuple = contexts[index - 1] if (contexts and len(contexts) >= index) else None
+        prev_ctx = ctx_tuple[0] if ctx_tuple else None
+        next_ctx = ctx_tuple[1] if ctx_tuple else None
+        ctx_block = _format_context_block(prev_ctx, next_ctx)
+
         parts.append(f"### {index}")
+        if ctx_block:
+            parts.extend(ctx_block)
+            parts.append("【待切分目标文本】")
         parts.append(line)
         parts.append("")
     return "\n".join(parts).rstrip() + "\n"

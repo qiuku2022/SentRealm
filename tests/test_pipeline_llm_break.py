@@ -775,3 +775,43 @@ def test_llm_break_wave2_does_not_cross_slots(
     assert all(inp in (line_a, line_b) for inp in _PerLineClient.wave2_inputs)
     assert "可KK园区拆平" in result.split("\n")
     assert line_a[:2] + line_b not in "".join(result.split("\n"))
+
+
+def test_iter_llm_break_lines_passes_sliding_window_context(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("SENTREALM_LLM_API_KEY", "sk-test")
+    settings = _configured_settings()
+    client = MockLlmClient()
+
+    text = "第一行很短\n第二行是非常长需要进行模型切分的句子文本\n第三行作为后文"
+    list(iter_llm_break_lines(text, max_chars=10, settings=settings, llm_client=client))
+
+    assert len(client.context_calls) >= 1
+    call_ctxs = client.context_calls[0]
+    assert call_ctxs is not None
+    assert call_ctxs[0] == ("第一行很短", "第三行作为后文")
+
+
+def test_llm_break_retries_on_bad_semantic_split(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("SENTREALM_LLM_API_KEY", "sk-test")
+    settings = _configured_settings()
+
+    class _SemanticRetryClient(MockLlmClient):
+        def break_lines(self, lines, max_chars, *, min_chars=None, retry_hints=None, contexts=None, wave=1):
+            if not retry_hints or not retry_hints[0]:
+                # First attempt: intentionally split with trailing "的" at start of line 2
+                return [parsed_line_break(["这是一个经过验证", "的方法"])]
+            # Retry attempt: good semantic split
+            return [parsed_line_break(["这是一个", "经过验证的方法"])]
+
+    client = _SemanticRetryClient()
+    result = llm_break_lines(
+        "这是一个经过验证的方法",
+        max_chars=8,
+        settings=settings,
+        llm_client=client,
+    )
+    assert result == "这是一个\n经过验证的方法"

@@ -57,7 +57,7 @@ def test_multi_char_punctuation_em_dash_is_candidate() -> None:
     )
 
 
-def test_quotes_and_brackets_are_strip_only() -> None:
+def test_quotes_and_brackets_create_candidate_boundaries() -> None:
     text = "每当“降息”两个字（再次）登上新闻。"
     sentences = strip_punctuation_with_boundaries(
         text,
@@ -65,7 +65,12 @@ def test_quotes_and_brackets_are_strip_only() -> None:
         punctuation_keep=DEFAULT_PUNCTUATION_KEEP,
     )
     assert [sentence.text for sentence in sentences] == ["每当降息两个字再次登上新闻"]
-    assert sentences[0].boundaries == ()
+    assert sentences[0].boundaries == (
+        PunctuationBoundary(char_offset=2, penalty=NORMAL_BOUNDARY_PENALTY),
+        PunctuationBoundary(char_offset=4, penalty=NORMAL_BOUNDARY_PENALTY),
+        PunctuationBoundary(char_offset=7, penalty=NORMAL_BOUNDARY_PENALTY),
+        PunctuationBoundary(char_offset=9, penalty=NORMAL_BOUNDARY_PENALTY),
+    )
 
 
 def test_unknown_custom_remove_token_is_strip_only_and_keep_wins() -> None:

@@ -25,6 +25,12 @@ export const LEXICON_CATEGORIES = [
     description: "整词开始前可换行",
     file: "break_before_words.txt",
   },
+  {
+    key: "leading_particles",
+    label: "行首吸附字",
+    description: "禁止在行首出现的助词/虚词，当上一行容量允许时自动前移吸附",
+    file: "leading_particles.txt",
+  },
 ] as const;
 
 export type LexiconCategoryKey = (typeof LEXICON_CATEGORIES)[number]["key"];
@@ -35,6 +41,7 @@ export function emptyBreakLexicon(): BreakLexiconSettings {
     break_after_words: [],
     break_after_chars: [],
     break_before_words: [],
+    leading_particles: [],
   };
 }
 
@@ -42,10 +49,11 @@ export function cloneBreakLexicon(
   lexicon: BreakLexiconSettings,
 ): BreakLexiconSettings {
   return {
-    protected_words: [...lexicon.protected_words],
-    break_after_words: [...lexicon.break_after_words],
-    break_after_chars: [...lexicon.break_after_chars],
-    break_before_words: [...lexicon.break_before_words],
+    protected_words: [...(lexicon.protected_words ?? [])],
+    break_after_words: [...(lexicon.break_after_words ?? [])],
+    break_after_chars: [...(lexicon.break_after_chars ?? [])],
+    break_before_words: [...(lexicon.break_before_words ?? [])],
+    leading_particles: [...(lexicon.leading_particles ?? [])],
   };
 }
 
@@ -83,6 +91,11 @@ export function validateLexiconDraft(
   for (const char of lexicon.break_after_chars) {
     if ([...char].length !== 1) {
       return `后可断·字「${char}」必须为单个字符`;
+    }
+  }
+  for (const particle of lexicon.leading_particles ?? []) {
+    if (particle.length > 4) {
+      return `行首吸附字「${particle}」超过 4 字`;
     }
   }
   return null;

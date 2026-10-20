@@ -10,8 +10,10 @@ from sentrealm_core.pipeline.line_count import count_line_chars
 _HARD_BREAK_TOKENS = frozenset({"。", "！", "？", ".", "!", "?"})
 # Clause punctuation is preferred when an over-length sentence needs splitting.
 _STRONG_CANDIDATE_TOKENS = frozenset({"，", ",", "；", ";", "：", ":"})
-# Enumeration / pause punctuation is useful, but weaker than clause punctuation.
-_NORMAL_CANDIDATE_TOKENS = frozenset({"、", "——", "…"})
+# Enumeration, pause, and quote/bracket enclosure boundaries are candidate break points.
+_NORMAL_CANDIDATE_TOKENS = frozenset(
+    {"、", "——", "…", "“", "”", "‘", "’", '"', "'", "（", "）", "(", ")"}
+)
 
 STRONG_BOUNDARY_PENALTY = 0
 NORMAL_BOUNDARY_PENALTY = 4
@@ -43,7 +45,7 @@ def strip_punctuation_with_boundaries(
 
     Removed sentence terminators and source newlines end a natural sentence.
     Clause / enumeration punctuation is removed but only recorded as a candidate;
-    quotes, brackets, and unknown custom tokens are removed without forcing a break.
+    quote/bracket enclosures form candidate boundaries; unknown custom tokens are removed without forcing a break.
     ``char_offset`` is stable across whitespace normalization because whitespace is
     not countable under the product character-counting rules.
     """
@@ -117,7 +119,7 @@ def strip_punctuation_with_boundaries(
             add_boundary(STRONG_BOUNDARY_PENALTY)
         elif removed in _NORMAL_CANDIDATE_TOKENS:
             add_boundary(NORMAL_BOUNDARY_PENALTY)
-        # Quotes, brackets, and unknown custom tokens are strip-only.
+        # Other removed tokens (such as unknown custom tokens) are strip-only.
         index += len(removed)
 
     flush_sentence()

@@ -156,6 +156,7 @@ MVP 不引入独立业务错误码枚举。
 | `break_after_words` | string[] | 整词结束后可换行 |
 | `break_after_chars` | string[] | 单字结束后可换行（每项须为单字符） |
 | `break_before_words` | string[] | 整词开始前可换行 |
+| `leading_particles` | string[] | 行首吸附字（禁止行首出现，上一行容量允许时前移吸附） |
 
 ### Settings 默认值
 

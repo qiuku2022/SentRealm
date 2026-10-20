@@ -287,3 +287,47 @@ def test_check_llm_connection_returns_message_on_failure(
     message = check_llm_connection(settings, llm_client=_FailingClient())
     assert message is not None
     assert "boom" in message
+
+
+def test_llm_system_prompt_contains_priority_and_few_shot_rules() -> None:
+    from sentrealm_core.llm import _SYSTEM_PROMPT
+
+    assert "核心优先级金字塔" in _SYSTEM_PROMPT
+    assert "语义完整与原意防篡改" in _SYSTEM_PROMPT
+    assert "严禁拆开否定结构" in _SYSTEM_PROMPT
+    assert "严禁行首悬挂结构助词或介词" in _SYSTEM_PROMPT
+    assert "正反例对照" in _SYSTEM_PROMPT
+    assert "我们坚决拒绝接受" in _SYSTEM_PROMPT
+
+
+def test_build_batch_user_prompt_formats_sliding_window_context() -> None:
+    prompt = _build_batch_user_prompt(
+        ["他断然拒绝接受这种不合理的安排"],
+        max_chars=12,
+        min_chars=4,
+        contexts=[("上一句背景信息", "下一句补充信息")],
+    )
+    assert "【语境参考（只读，严禁输出或切分这部分内容）】" in prompt
+    assert "前文：上一句背景信息" in prompt
+    assert "后文：下一句补充信息" in prompt
+    assert "【待切分目标文本】" in prompt
+    assert "他断然拒绝接受这种不合理的安排" in prompt
+
+
+def test_build_batch_user_prompt_multi_line_contexts() -> None:
+    prompt = _build_batch_user_prompt(
+        ["第一行超长目标", "第二行超长目标"],
+        max_chars=10,
+        contexts=[("前文一", None), (None, "后文二")],
+    )
+    assert "前文：前文一" in prompt
+    assert "后文：后文二" in prompt
+    assert "### 1" in prompt
+    assert "### 2" in prompt
+
+
+def test_mock_llm_client_records_contexts() -> None:
+    client = MockLlmClient()
+    client.break_line("一二三四五六七八九十", max_chars=5, context=("前文", "后文"))
+    assert len(client.context_calls) == 1
+    assert client.context_calls[0] == [("前文", "后文")]

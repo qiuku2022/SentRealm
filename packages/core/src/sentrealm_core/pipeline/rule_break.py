@@ -67,7 +67,14 @@ def rule_break_lines(
             lex,
             punctuation_boundaries=preferred,
         )
-        output.extend(repair_short_lines(parts, max_chars=max_chars, min_chars=floor))
+        output.extend(
+            repair_short_lines(
+                parts,
+                max_chars=max_chars,
+                min_chars=floor,
+                particles=lex.leading_particles,
+            )
+        )
     return "\n".join(output)
 
 

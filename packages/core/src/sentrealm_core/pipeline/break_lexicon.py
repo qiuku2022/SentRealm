@@ -12,6 +12,11 @@ if TYPE_CHECKING:
 
 _LEXICON_DIR = Path(__file__).resolve().parent.parent / "data" / "break_lexicon"
 
+# Built-in high frequency disyllabic words that must never be split by single-character heuristics
+_BUILTIN_PROTECTED_WORDS: tuple[str, ...] = (
+    "现在", "正在", "存在", "实在", "撞在", "好在", "潜在", "内在", "外在", "所在",
+)
+
 
 def _read_word_list(path: Path) -> tuple[str, ...]:
     if not path.is_file():
@@ -33,11 +38,13 @@ class BreakLexicon:
     break_after_words: tuple[str, ...] = field(default_factory=tuple)
     break_after_chars: frozenset[str] = field(default_factory=frozenset)
     break_before_words: tuple[str, ...] = field(default_factory=tuple)
+    leading_particles: tuple[str, ...] = field(default_factory=tuple)
 
     def protected_ranges(self, line: str) -> list[tuple[int, int]]:
         """Return inclusive (start, end) index ranges for protected words."""
         ranges: list[tuple[int, int]] = []
-        for word in sorted(self.protected_words, key=len, reverse=True):
+        all_words = set(self.protected_words) | set(_BUILTIN_PROTECTED_WORDS)
+        for word in sorted(all_words, key=len, reverse=True):
             start = 0
             while start < len(line):
                 index = line.find(word, start)
@@ -77,6 +84,7 @@ def load_break_lexicon(lexicon_dir: Path | None = None) -> BreakLexicon:
         break_after_words=_read_word_list(base / "break_after_words.txt"),
         break_after_chars=frozenset(_read_word_list(base / "break_after_chars.txt")),
         break_before_words=_read_word_list(base / "break_before_words.txt"),
+        leading_particles=_read_word_list(base / "leading_particles.txt"),
     )
 
 
@@ -95,6 +103,7 @@ def bundled_break_lexicon_settings() -> BreakLexiconSettings:
         break_after_words=list(bundled.break_after_words),
         break_after_chars=sorted(bundled.break_after_chars),
         break_before_words=list(bundled.break_before_words),
+        leading_particles=list(bundled.leading_particles),
     )
 
 
@@ -104,6 +113,7 @@ def lexicon_from_settings(settings: BreakLexiconSettings) -> BreakLexicon:
         break_after_words=tuple(settings.break_after_words),
         break_after_chars=frozenset(settings.break_after_chars),
         break_before_words=tuple(settings.break_before_words),
+        leading_particles=tuple(settings.leading_particles),
     )
 
 
@@ -115,6 +125,17 @@ def resolve_break_lexicon(settings: Settings) -> BreakLexicon:
         and not lexicon_settings.break_after_words
         and not lexicon_settings.break_after_chars
         and not lexicon_settings.break_before_words
+        and not lexicon_settings.leading_particles
     ):
         return load_break_lexicon()
-    return lexicon_from_settings(lexicon_settings)
+    resolved = lexicon_from_settings(lexicon_settings)
+    if not resolved.leading_particles:
+        bundled = load_break_lexicon()
+        resolved = BreakLexicon(
+            protected_words=resolved.protected_words,
+            break_after_words=resolved.break_after_words,
+            break_after_chars=resolved.break_after_chars,
+            break_before_words=resolved.break_before_words,
+            leading_particles=bundled.leading_particles,
+        )
+    return resolved

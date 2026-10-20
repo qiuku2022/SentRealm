@@ -7,6 +7,7 @@ export interface BreakLexiconSettings {
   break_after_words: string[];
   break_after_chars: string[];
   break_before_words: string[];
+  leading_particles?: string[];
 }
 
 export interface Settings {

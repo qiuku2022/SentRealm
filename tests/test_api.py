@@ -73,6 +73,7 @@ def test_get_break_lexicon_defaults(client: TestClient) -> None:
     assert "非常" not in data["break_after_words"]
     assert "了" in data["break_after_chars"]
     assert "在" in data["break_before_words"]
+    assert "的" in data["leading_particles"]
 
 
 def test_put_settings_rejects_invalid_break_lexicon(client: TestClient) -> None:
@@ -244,3 +245,14 @@ def test_post_preprocess_stream_rejects_empty_text(client: TestClient) -> None:
 
     assert response.status_code == 400
     assert response.json() == {"detail": "文稿不能为空"}
+
+
+def test_put_settings_leading_particles_round_trip(client: TestClient) -> None:
+    payload = client.get("/api/v1/settings").json()
+    payload["break_lexicon"]["leading_particles"] = ["的", "在", "于"]
+
+    response = client.put("/api/v1/settings", json=payload)
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["break_lexicon"]["leading_particles"] == ["的", "在", "于"]

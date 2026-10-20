@@ -28,7 +28,7 @@ from sentrealm_core.pipeline.llm_quality import (
     llm_quality_ok,
     resolve_min_chars,
 )
-from sentrealm_core.pipeline.short_line_repair import repair_short_lines
+from sentrealm_core.pipeline.short_line_repair import repair_short_lines, shift_leading_particles
 
 logger = logging.getLogger(__name__)
 
@@ -52,6 +52,10 @@ _RETRY_HINTS: dict[str, str] = {
     "empty": "上次没有输出完整切分，请只输出多行切分结果",
     "still_overlength": "上次仍有行超过字数上限，请在语义边界继续切开，使每行不超过上限",
     "too_short": "上次出现过短行（含单字行），请把过短片段并入相邻意群，避免单字成行",
+    "bad_semantic_split": (
+        "上次切分破坏了否定词、助词或核心意群的完整性（如行首出现「的/地/得」或否定词被单独切开），"
+        "请务必在自然的语法主谓、状语或从句边界断开"
+    ),
 }
 
 
@@ -60,6 +64,8 @@ class _PoolItem:
     text: str
     ancestor_text: str
     slot_id: int
+    context_prev: str | None = None
+    context_next: str | None = None
     attempts: int = 0
     wave: int = 1
     retry_hint: str | None = None
@@ -107,7 +113,15 @@ def iter_llm_break_lines(
     )
 
     pool: list[_PoolItem] = [
-        _PoolItem(text=line, ancestor_text=line, slot_id=slot_id, attempts=0, wave=1)
+        _PoolItem(
+            text=line,
+            ancestor_text=line,
+            slot_id=slot_id,
+            context_prev=lines[slot_id - 1] if slot_id > 0 else None,
+            context_next=lines[slot_id + 1] if slot_id + 1 < len(lines) else None,
+            attempts=0,
+            wave=1,
+        )
         for slot_id, line in enumerate(lines)
         if count_line_chars(line) > max_chars
     ]
@@ -136,6 +150,7 @@ def iter_llm_break_lines(
         slots,
         slot_accepted_split=slot_accepted_split,
         ancestors=ancestors,
+        lines=lines,
         max_chars=max_chars,
         min_chars=settings.min_chars,
     )
@@ -165,6 +180,7 @@ def _enqueue_wave2(
     *,
     slot_accepted_split: set[int],
     ancestors: dict[int, str],
+    lines: list[str] | None = None,
     max_chars: int,
     min_chars: int,
 ) -> list[_PoolItem]:
@@ -176,11 +192,15 @@ def _enqueue_wave2(
             continue
         ancestor = ancestors[slot_id]
         logger.info("LLM wave2 slot=%s length noncompliant; requeue ancestor", slot_id)
+        prev_ctx = lines[slot_id - 1] if (lines and slot_id > 0 and slot_id - 1 < len(lines)) else None
+        next_ctx = lines[slot_id + 1] if (lines and slot_id + 1 < len(lines)) else None
         wave2.append(
             _PoolItem(
                 text=ancestor,
                 ancestor_text=ancestor,
                 slot_id=slot_id,
+                context_prev=prev_ctx,
+                context_next=next_ctx,
                 attempts=0,
                 wave=2,
                 retry_hint=_WAVE2_HINT,
@@ -216,6 +236,7 @@ def _drain_pool(
             max_attempts = (
                 _WAVE2_MAX_ATTEMPTS if item.wave == 2 else _MAX_ATTEMPTS
             )
+            particles = settings.break_lexicon.leading_particles or None
             failure_code = _classify_attempt(
                 item.ancestor_text,
                 result,
@@ -223,6 +244,7 @@ def _drain_pool(
                 min_chars=settings.min_chars,
                 attempts=item.attempts,
                 max_attempts=max_attempts,
+                particles=particles,
             )
             logger.info(
                 "LLM pool slot=%s wave=%s attempt=%s outcome=%s fail=%s "
@@ -242,6 +264,7 @@ def _drain_pool(
                     result.parts,
                     max_chars=max_chars,
                     min_chars=settings.min_chars,
+                    particles=particles,
                 )
                 slot_accepted_split.add(item.slot_id)
                 llm_current += 1
@@ -289,14 +312,34 @@ def _invoke_batch(
     settings: Settings,
 ) -> list[LineBreakResult]:
     wave = batch[0].wave if batch else 1
+    contexts = [(item.context_prev, item.context_next) for item in batch]
     try:
-        raw = client.break_lines(
-            [item.text for item in batch],
-            max_chars,
-            min_chars=settings.min_chars,
-            retry_hints=[item.retry_hint for item in batch],
-            wave=wave,
-        )
+        try:
+            raw = client.break_lines(
+                [item.text for item in batch],
+                max_chars,
+                min_chars=settings.min_chars,
+                retry_hints=[item.retry_hint for item in batch],
+                contexts=contexts,
+                wave=wave,
+            )
+        except TypeError:
+            try:
+                raw = client.break_lines(
+                    [item.text for item in batch],
+                    max_chars,
+                    min_chars=settings.min_chars,
+                    retry_hints=[item.retry_hint for item in batch],
+                    wave=wave,
+                )
+            except TypeError:
+                raw = client.break_lines(
+                    [item.text for item in batch],
+                    max_chars,
+                    min_chars=settings.min_chars,
+                    retry_hints=[item.retry_hint for item in batch],
+                )
+
         if len(raw) != len(batch):
             logger.warning(
                 "LLM batch size mismatch: got %s for %s items",
@@ -308,33 +351,13 @@ def _invoke_batch(
                 for _ in batch
             ]
         return list(raw)
-    except TypeError:
-        # Test doubles / older clients without wave= support.
-        try:
-            raw = client.break_lines(
-                [item.text for item in batch],
-                max_chars,
-                min_chars=settings.min_chars,
-                retry_hints=[item.retry_hint for item in batch],
-            )
-            if len(raw) != len(batch):
-                return [
-                    LineBreakResult(parts=[], outcome=OUTCOME_REQUEST_ERROR)
-                    for _ in batch
-                ]
-            return list(raw)
-        except Exception:
-            logger.exception("LLM batch failed; counting as quality attempt for batch")
-            return [
-                LineBreakResult(parts=[], outcome=OUTCOME_REQUEST_ERROR)
-                for _ in batch
-            ]
     except Exception:
         logger.exception("LLM batch failed; counting as quality attempt for batch")
         return [
             LineBreakResult(parts=[], outcome=OUTCOME_REQUEST_ERROR)
             for _ in batch
         ]
+
 
 
 def _slot_length_noncompliant(
@@ -359,12 +382,17 @@ def _finalize_accepted_parts(
     *,
     max_chars: int,
     min_chars: int,
+    particles: Sequence[str] | None = None,
 ) -> list[str]:
     """Strip empties, then merge locally short neighbors when conservation holds."""
     cleaned = [part.strip() for part in parts if part.strip()]
     floor = resolve_min_chars(max_chars, min_chars)
-    repaired = repair_short_lines(cleaned, max_chars=max_chars, min_chars=floor)
-    if conservation_ok(original, repaired) and llm_quality_ok(original, repaired):
+    repaired = repair_short_lines(
+        cleaned, max_chars=max_chars, min_chars=floor, particles=particles
+    )
+    if conservation_ok(original, repaired) and llm_quality_ok(
+        original, repaired, particles=particles
+    ):
         return repaired
     return cleaned
 
@@ -377,6 +405,7 @@ def _classify_attempt(
     min_chars: int,
     attempts: int,
     max_attempts: int,
+    particles: Sequence[str] | None = None,
 ) -> str | None:
     """Return failure code, or None when the attempt should be written back."""
     if result.outcome == OUTCOME_CONFIG_ERROR:
@@ -405,16 +434,24 @@ def _classify_attempt(
     if result.outcome != OUTCOME_PARSED:
         return OUTCOME_REQUEST_ERROR
 
+    parts = result.parts
+    candidate_parts = shift_leading_particles(
+        parts, max_chars=max_chars, particles=particles
+    )
+    if conservation_ok(original, candidate_parts):
+        parts = candidate_parts
+
     quality_fail = llm_quality_diagnose(
         original,
-        result.parts,
+        parts,
         max_chars=max_chars,
         min_chars=min_chars,
+        particles=particles,
     )
     if quality_fail is None:
         return None
     if is_soft_quality_code(quality_fail) and attempts >= max_attempts:
-        if llm_quality_ok(original, result.parts):
+        if llm_quality_ok(original, parts, particles=particles):
             return None
     return quality_fail
 

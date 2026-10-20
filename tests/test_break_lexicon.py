@@ -74,6 +74,7 @@ def test_bundled_break_lexicon_settings_matches_txt() -> None:
     assert settings.break_after_words == list(bundled.break_after_words)
     assert settings.break_after_chars == sorted(bundled.break_after_chars)
     assert settings.break_before_words == list(bundled.break_before_words)
+    assert settings.leading_particles == list(bundled.leading_particles)
 
 
 def test_lexicon_from_settings() -> None:
@@ -184,3 +185,17 @@ def test_sqlite_store_migrates_v1_to_v2(tmp_path: Path) -> None:
     conn.close()
     assert row is not None
     assert row[0] == SCHEMA_VERSION
+
+
+def test_leading_particles_validation() -> None:
+    # Valid particles
+    settings = BreakLexiconSettings(leading_particles=["的", "地", "得"])
+    assert settings.leading_particles == ["的", "地", "得"]
+
+    # Deduplication and stripping
+    settings_dedup = BreakLexiconSettings(leading_particles=[" 的 ", "的", "地 "])
+    assert settings_dedup.leading_particles == ["的", "地"]
+
+    # Reject particle > 4 chars
+    with pytest.raises(ValidationError):
+        BreakLexiconSettings(leading_particles=["超过四个字符了"])

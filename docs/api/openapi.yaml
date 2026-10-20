@@ -643,12 +643,13 @@ components:
 
     BreakLexiconSettings:
       type: object
-      description: 规则断句字词表（四类，与 data/break_lexicon/*.txt 对应）
+      description: 规则断句字词表（五类，与 data/break_lexicon/*.txt 对应）
       required:
         - protected_words
         - break_after_words
         - break_after_chars
         - break_before_words
+        - leading_particles
       properties:
         protected_words:
           type: array
@@ -670,6 +671,11 @@ components:
           items:
             type: string
           description: 整词开始前可换行
+        leading_particles:
+          type: array
+          items:
+            type: string
+          description: 行首吸附字，禁止行首出现；上一行容量允许时自动前移吸附
 
     PreprocessRequest:
       type: object

@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 import math
+import re
 
 from sentrealm_core.pipeline.line_count import count_line_chars
 
@@ -89,7 +91,44 @@ def quality_ok(
     )
 
 
-_SOFT_CODES = frozenset({"still_overlength", "too_short"})
+_CJK_RE = re.compile(r"[\u4e00-\u9fff\u3400-\u4dbf]")
+_FORBIDDEN_LINE_START_CHARS = frozenset({"的", "地", "得", "了", "着", "过"})
+_DISCOURAGED_NEGATION_ENDINGS = (
+    "不能", "不可", "不要", "决不", "绝不", "从不", "严禁", "拒绝",
+    "不得不", "并不会", "并不", "毫无", "绝非", "无法",
+)
+
+
+def has_bad_semantic_split(
+    parts: Sequence[str],
+    *,
+    particles: Sequence[str] | None = None,
+) -> bool:
+    """True when split breaks tightly bound negative predicates or hangs particles."""
+    forbidden = (
+        frozenset(particles) if particles is not None else _FORBIDDEN_LINE_START_CHARS
+    )
+    cleaned = [part.strip() for part in parts if part.strip()]
+    if len(cleaned) < 2:
+        return False
+    for i in range(1, len(cleaned)):
+        prev = cleaned[i - 1]
+        curr = cleaned[i]
+        if not curr or not prev:
+            continue
+        # 1. Non-first line starts with forbidden structural particle
+        if any(curr.startswith(p) for p in forbidden):
+            return True
+        # 2. Previous line ends with multi-character negation phrase
+        if any(prev.endswith(neg) for neg in _DISCOURAGED_NEGATION_ENDINGS):
+            return True
+        # 3. Single-character negation at line end before a Chinese character
+        if prev[-1] in {"不", "没", "非", "未"} and _CJK_RE.match(curr[:1]):
+            return True
+    return False
+
+
+_SOFT_CODES = frozenset({"still_overlength", "too_short", "bad_semantic_split"})
 
 
 def llm_quality_diagnose(
@@ -98,6 +137,7 @@ def llm_quality_diagnose(
     *,
     max_chars: int | None = None,
     min_chars: int | None = None,
+    particles: Sequence[str] | None = None,
 ) -> str | None:
     """Return None when LLM quality passes; else a fixed failure code.
 
@@ -132,6 +172,10 @@ def llm_quality_diagnose(
             if count_line_chars(part) < floor:
                 return "too_short"
 
+    if max_chars is not None or min_chars is not None:
+        if has_bad_semantic_split(cleaned, particles=particles):
+            return "bad_semantic_split"
+
     return None
 
 
@@ -141,6 +185,7 @@ def llm_quality_ok(
     *,
     max_chars: int | None = None,
     min_chars: int | None = None,
+    particles: Sequence[str] | None = None,
 ) -> bool:
     """LLM gate: conservation, real split (>=2 parts), and progress.
 
@@ -150,7 +195,11 @@ def llm_quality_ok(
     """
     return (
         llm_quality_diagnose(
-            original, parts, max_chars=max_chars, min_chars=min_chars
+            original,
+            parts,
+            max_chars=max_chars,
+            min_chars=min_chars,
+            particles=particles,
         )
         is None
     )

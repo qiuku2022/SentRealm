@@ -72,3 +72,7 @@ packaging/dist/
 *.log
 *.tmp
 .cache/
+# 本地临时测试目录（不入库；仓库自动化测试为 tests/）
+/test/
+/test
+

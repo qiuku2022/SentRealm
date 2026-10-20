@@ -50,7 +50,7 @@ export function RulesEditorModal({
   const activeCategory =
     LEXICON_CATEGORIES.find((item) => item.key === activeKey) ??
     LEXICON_CATEGORIES[0];
-  const activeWords = draftLexicon[activeKey];
+  const activeWords = draftLexicon[activeKey] ?? [];
 
   useEffect(() => {
     onPresentChange?.(present);

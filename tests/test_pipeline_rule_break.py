@@ -103,3 +103,22 @@ def test_protected_negative_modal_breaks_as_a_whole() -> None:
         "这个方案绝对",
         "不可能短期完成任务",
     ]
+
+
+def test_does_not_split_disyllabic_words_with_inward_zai() -> None:
+    # "现在", "正在", "撞在" must never be split by single-character break heuristics
+    line1 = "现在的就业难是一场洗牌"
+    res1 = rule_break_lines(line1, max_chars=10, min_chars=5)
+    for row in res1.splitlines():
+        assert not row.endswith("现") or not row.startswith("在")
+        assert "现在" in row or "现" not in row
+
+    line2 = "初级白领岗位正在结构性消失"
+    res2 = rule_break_lines(line2, max_chars=10, min_chars=5)
+    for row in res2.splitlines():
+        assert not (row.endswith("正") and "在" not in row)
+
+    line3 = "严重滞后这三件事撞在了一起"
+    res3 = rule_break_lines(line3, max_chars=10, min_chars=5)
+    for row in res3.splitlines():
+        assert "撞在" in row or ("撞" not in row and "在" not in row)

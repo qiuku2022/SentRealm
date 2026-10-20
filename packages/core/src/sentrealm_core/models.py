@@ -68,18 +68,20 @@ def _default_break_lexicon_settings() -> BreakLexiconSettings:
 
 
 class BreakLexiconSettings(BaseModel):
-    """User-editable break lexicon; maps to four bundled txt categories."""
+    """User-editable break lexicon; maps to five bundled txt categories."""
 
     protected_words: list[str] = Field(default_factory=list)
     break_after_words: list[str] = Field(default_factory=list)
     break_after_chars: list[str] = Field(default_factory=list)
     break_before_words: list[str] = Field(default_factory=list)
+    leading_particles: list[str] = Field(default_factory=list)
 
     @field_validator(
         "protected_words",
         "break_after_words",
         "break_after_chars",
         "break_before_words",
+        "leading_particles",
         mode="before",
     )
     @classmethod
@@ -93,6 +95,7 @@ class BreakLexiconSettings(BaseModel):
         self.protected_words = _dedupe_strip_words(self.protected_words)
         self.break_after_words = _dedupe_strip_words(self.break_after_words)
         self.break_before_words = _dedupe_strip_words(self.break_before_words)
+        self.leading_particles = _dedupe_strip_words(self.leading_particles)
 
         chars: list[str] = []
         seen_chars: set[str] = set()
@@ -117,6 +120,10 @@ class BreakLexiconSettings(BaseModel):
         for word in self.break_before_words:
             if not word:
                 raise ValueError("break_before_words entries must not be empty")
+
+        for word in self.leading_particles:
+            if len(word) > 4:
+                raise ValueError("leading_particles entries must be at most 4 characters")
 
         return self
 

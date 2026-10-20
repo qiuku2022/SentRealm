@@ -7,6 +7,7 @@ from sentrealm_core.pipeline.llm_quality import (
     length_ok,
     llm_quality_diagnose,
     llm_quality_ok,
+    is_soft_quality_code,
     min_chars_for,
     quality_ok,
 )
@@ -135,3 +136,46 @@ def test_llm_quality_diagnose_soft_too_short() -> None:
     assert (
         llm_quality_diagnose(original, parts, max_chars=10, min_chars=5) == "too_short"
     )
+
+
+def test_llm_quality_diagnose_bad_semantic_split_leading_particle() -> None:
+    original = "这是一个经过反复验证行之有效的方法"
+    parts_bad = ["这是一个经过反复验证行之有效", "的方法"]
+    assert (
+        llm_quality_diagnose(original, parts_bad, max_chars=15, min_chars=3)
+        == "bad_semantic_split"
+    )
+    parts_good = ["这是一个经过反复验证", "行之有效的方法"]
+    assert llm_quality_diagnose(original, parts_good, max_chars=15, min_chars=3) is None
+
+
+def test_llm_quality_diagnose_bad_semantic_split_negation_ending() -> None:
+    # 1. Multi-character negation
+    orig1 = "我们坚决拒绝接受这种不合理的安排"
+    parts1_bad = ["我们坚决拒绝", "接受这种不合理的安排"]
+    assert (
+        llm_quality_diagnose(orig1, parts1_bad, max_chars=15, min_chars=3)
+        == "bad_semantic_split"
+    )
+    parts1_good = ["我们坚决拒绝接受", "这种不合理的安排"]
+    assert llm_quality_diagnose(orig1, parts1_good, max_chars=15, min_chars=3) is None
+
+    # 2. Cannot split "绝不"
+    orig2 = "他表示绝不向任何外部施压妥协"
+    parts2_bad = ["他表示绝不", "向任何外部施压妥协"]
+    assert (
+        llm_quality_diagnose(orig2, parts2_bad, max_chars=15, min_chars=3)
+        == "bad_semantic_split"
+    )
+
+    # 3. Single-char negation "没" before Chinese character
+    orig3 = "我并没有答应参加明天的会议"
+    parts3_bad = ["我并没", "有答应参加明天的会议"]
+    assert (
+        llm_quality_diagnose(orig3, parts3_bad, max_chars=15, min_chars=3)
+        == "bad_semantic_split"
+    )
+
+
+def test_bad_semantic_split_is_soft_quality_code() -> None:
+    assert is_soft_quality_code("bad_semantic_split") is True
