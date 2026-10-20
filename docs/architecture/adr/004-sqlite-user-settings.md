@@ -6,7 +6,7 @@
 
 ## 背景
 
-根据 [ADR-007](./007-multi-entry-modules.md)，gui、cli、mcp **共用同一 SQLite 文件**持久化用户配置，且**无例外**。产品 MVP 需要记住：
+根据 [ADR-007](./007-multi-entry-modules.md)，gui、mcp **共用同一 SQLite 文件**持久化用户配置，且**无例外**。产品 MVP 需要记住：
 
 - 横屏/竖屏/自定义单行最大字数
 - 去标点保留/去除规则
@@ -14,13 +14,13 @@
 
 若配置散落在多文件或各入口独立存储，会导致行为不一致、难以测试与备份。需明确存储位置、schema 与访问边界。
 
-**不在本 ADR 范围**：LLM API 密钥存储与调用隐私（见 [ADR-005](./005-llm-integration-privacy.md)）。gui 文稿与处理结果持久化见 [ADR-010](./010-workspace-document-persistence.md)；cli/mcp 仍不接入工作区。
+**不在本 ADR 范围**：LLM API 密钥存储与调用隐私（见 [ADR-005](./005-llm-integration-privacy.md)）。gui 文稿与处理结果持久化见 [ADR-010](./010-workspace-document-persistence.md)；mcp 仍不接入工作区。
 
 ## 选项
 
 ### A. 各入口独立 JSON 配置文件
 
-cli、gui、mcp 各自读写不同路径的 JSON。
+各入口各自读写不同路径的 JSON。
 
 - 优点：实现简单
 - 缺点：违反 ADR-007 共用库决策；配置易分叉
@@ -121,7 +121,7 @@ CREATE TABLE app_settings (
 | `SqliteSettingsStore` | 默认实现，读写 `app_settings` 表 |
 | `default_config_path()` | 返回共用 DB 文件路径 |
 
-`gui/api`、cli、mcp 均通过 `core` 的 `SettingsStore` 访问，不直接拼 SQL。
+`gui/api`、mcp 均通过 `core` 的 `SettingsStore` 访问，不直接拼 SQL。
 
 ### 存储 / 不存储
 
@@ -152,7 +152,7 @@ CREATE TABLE app_settings (
 
 ### 正面
 
-- gui / cli / mcp 配置行为一致，符合 ADR-007
+- gui / mcp 配置行为一致，符合 ADR-007
 - 单文件便于用户备份与迁移
 - core 层可单测（内存库或临时文件）
 - 单行 JSON 便于 MVP 快速迭代字段

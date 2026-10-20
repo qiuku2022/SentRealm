@@ -1,7 +1,7 @@
 # API 文档
 
 > HTTP 契约以 [ADR-003](../architecture/adr/003-local-http-decoupling.md) 为准；`Settings` 字段以 [ADR-004](../architecture/adr/004-sqlite-user-settings.md) 为准。  
-> **适用范围**：仅 `gui/ui` ↔ `apps/gui/api`；cli、mcp 直连 `core`，不走本 API。
+> **适用范围**：仅 `gui/ui` ↔ `apps/gui/api`；mcp 直连 `core`，不走本 API。
 
 ## 单一事实来源
 
@@ -311,7 +311,7 @@ data: {"type":"done","original":"…","processed":"…","line_count":574,"flagge
 
 > 存储与路径约定以 [ADR-010](../architecture/adr/010-workspace-document-persistence.md) 为准；请求/响应字段以 [openapi.yaml](./openapi.yaml) 的 `workspace` 相关 schema 为准。本文只写行为约定。
 
-**适用范围**：仅 gui。cli / mcp 不调用本组端点。
+**适用范围**：仅 gui。mcp 不调用本组端点。
 
 ### 行为摘要
 

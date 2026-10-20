@@ -66,7 +66,7 @@ Go 后端 + WebView 前端。
 | 前端 | React + TypeScript，运行于 Tauri WebView |
 | 后端关系 | Tauri **不内嵌** Python 业务逻辑；通过 spawn **独立 FastAPI 子进程**（ADR-006） |
 | 系统能力 | 文件导入、API base URL 注入、子进程管理等经 **Tauri Rust 命令 / 插件** 暴露 |
-| 与多入口架构 | Tauri 仅属于 **gui** 模块；cli、mcp 为独立进程，不由 Tauri 管理（ADR-007） |
+| 与多入口架构 | Tauri 仅属于 **gui** 模块；mcp 为独立进程，不由 Tauri 管理（ADR-007） |
 
 ### 选型理由（摘要）
 

@@ -34,7 +34,7 @@ health 成功前，前端不调用 `/api/v1/*` 业务接口。
 | `Desktop: pnpm dev` | 日常调试：Tauri 自动 `uv run uvicorn` |
 | `Desktop: pnpm dev（断点模式）` | 仅桌面；须另有 API（如 `Python: FastAPI`） |
 | `Python: FastAPI` | 仅后端断点 |
-| `Python: pytest` / `CLI` | 单元测试 / CLI |
+| `Python: pytest` | 单元测试 |
 | `Rust: Tauri` | Rust 断点；须先启动 `Python: FastAPI` |
 | `Rust + API 断点` | compound：MSVC + FastAPI |
 
@@ -59,38 +59,6 @@ curl http://127.0.0.1:17300/api/v1/settings
 
 详见 [API 文档](../api/README.md) 与 [openapi.yaml](../api/openapi.yaml)。
 
-## CLI
-
-```bash
-# 帮助
-uv run sentrealm preprocess --help
-
-# 文件处理
-uv run sentrealm preprocess -i draft.txt -o out.txt --preset landscape
-
-# 管道
-uv run sentrealm preprocess --stdin < draft.txt
-```
-
-cli 与 gui **共用** SQLite 配置（`%APPDATA%/SentRealm/settings.db`，Windows），见 [ADR-004](../architecture/adr/004-sqlite-user-settings.md)。
-
-**输出约定**（Phase 0 起）：
-
-| 流 | 内容 |
-|----|------|
-| **stdout** 或 **`-o` 文件** | 处理后纯文本（`processed`），行以 `\n` 分隔 |
-| **stderr** | 单行 JSON：`{"line_count": 12, "flagged_lines": [2]}` |
-
-示例：
-
-```bash
-uv run sentrealm preprocess -i draft.txt -o out.txt 2> meta.json
-# out.txt   ← 可粘贴到剪映的正文
-# meta.json ← {"line_count":...,"flagged_lines":[...]}
-```
-
-完整参数、退出码见 [cli-mcp.md](../cli-mcp.md)。
-
 ## MCP Server
 
 ```bash
@@ -99,7 +67,7 @@ uv run sentrealm-mcp
 
 stdio 传输；MVP 暴露 `preprocess_text` tool。
 
-**Cursor 配置**：在 MCP 设置中添加本地 server，`command` 为 `uv`，`args` 为 `["run", "sentrealm-mcp"]`，`cwd` 为仓库根目录。完整 JSON 片段见 [cli-mcp.md](../cli-mcp.md)。
+**Cursor 配置**：在 MCP 设置中添加本地 server，`command` 为 `uv`，`args` 为 `["run", "sentrealm-mcp"]`，`cwd` 为仓库根目录。完整 JSON 片段见 [mcp.md](../mcp.md)。
 
 ## 联调要点
 
@@ -131,4 +99,4 @@ stdio 传输；MVP 暴露 `preprocess_text` tool。
 - [开发环境搭建](./setup.md)
 - [测试](./testing.md)
 - [架构概览](../architecture/overview.md)
-- [cli-mcp.md](../cli-mcp.md)
+- [mcp.md](../mcp.md)

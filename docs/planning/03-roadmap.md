@@ -18,7 +18,7 @@ M1 Phase 0 脚手架 ──► M2 Phase 1 MVP 核心 ──► M3 可分发 MVP 
 
 | 里程碑 | 版本意向 | 目标一句话 | 状态 |
 |--------|----------|------------|------|
-| **M1** Phase 0 | `0.1.0` | 多入口骨架 + HTTP/CLI/MCP 契约可联调 | ✅ 已完成 |
+| **M1** Phase 0 | `0.1.0` | 多入口骨架 + HTTP/MCP 契约可联调 | ✅ 已完成 |
 | **M2** Phase 1 | `0.2.0` | 完整预处理流水线 + GUI 核心体验 | ✅ 已完成 |
 | **M3** 可分发 MVP | `0.5.4` | 非开发者可安装使用；主流程可独立验收 | ✅ 已完成（作者工作环境多次验证） |
 | **正式发版** | `1.0.0` | 干净机冒烟 + 代码签名 + 公开发布 | 🔄 GitHub 已发 `1.0.0`；签名 / 干净机仍待 |
@@ -33,10 +33,10 @@ M1 Phase 0 脚手架 ──► M2 Phase 1 MVP 核心 ──► M3 可分发 MVP 
 
 | 交付 | 说明 |
 |------|------|
-| 四模块骨架 | `core` / `cli` / `gui` / `mcp`（[ADR-007](../architecture/adr/007-multi-entry-modules.md)） |
+| 多模块骨架 | `core` / `gui` / `mcp`（[ADR-007](../architecture/adr/007-multi-entry-modules.md)） |
 | Tauri ↔ FastAPI | 本机 `127.0.0.1:17300`，health 就绪（[ADR-006](../architecture/adr/006-tauri-spawn-fastapi.md)） |
 | Settings + SQLite | 三入口共用配置（[ADR-004](../architecture/adr/004-sqlite-user-settings.md)） |
-| 契约 | OpenAPI、`cli-mcp.md`；preprocess 可为 stub |
+| 契约 | OpenAPI、`mcp.md`；preprocess 可为 stub |
 
 ### M2 — Phase 1 MVP 核心
 
@@ -46,7 +46,7 @@ M1 Phase 0 脚手架 ──► M2 Phase 1 MVP 核心 ──► M3 可分发 MVP 
 | 字词表规则断句 | 禁止硬切；数据在 `break_lexicon/` |
 | LLM 发送池 | 批 ≤10；质检（内容守恒 + 有效切分 + 有进展，不做 min/max 硬门禁）；每行最多 3 次返工（[产品定义](./01-product-definition-and-mvp.md#llm-发送池与质检返工)、[ADR-005](../architecture/adr/005-llm-integration-privacy.md)） |
 | GUI 核心 | 输入 / 参数 / 对照预览 / 超长高亮 / 复制 |
-| 多入口一致 | 相同 Settings + 文稿 → gui/cli/mcp 结果一致 |
+| 多入口一致 | 相同 Settings + 文稿 → gui/mcp 结果一致 |
 | 隐私边界 | LLM 仅池内超长行；密钥环境变量（[ADR-005](../architecture/adr/005-llm-integration-privacy.md)） |
 
 **M2 成功标准**（与产品定义对齐，验收时核对）：
@@ -117,7 +117,7 @@ M3 已交付可安装的内部包。正式 `1.0.0` 补的是**对外发版证据
 | 方向 | 价值 | 备注 |
 |------|------|------|
 | 断点字词表持续扩充 | 减少标记行、提高剪映一次通过率 | 随真实文稿迭代；配套回归测试 |
-| 工作区 / 多文稿体验 | 项目侧栏、历史结果、备份心智 | 对齐 ADR-010；cli/mcp 项目管理非必须 |
+| 工作区 / 多文稿体验 | 项目侧栏、历史结果、备份心智 | 对齐 ADR-010；mcp 项目管理非必须 |
 | 批量处理 | 多文件管道 | 产品定义标为非 MVP |
 | 纯离线模式产品化 | 无 LLM 时的能力说明与 UI 状态 | 技术上 M2 已可跳过 LLM |
 | SRT 导出 / 校对辅助 | 剪辑下游 | 需单独产品设计 |
@@ -128,7 +128,7 @@ M3 已交付可安装的内部包。正式 `1.0.0` 补的是**对外发版证据
 |----|----------|------|
 | **ADR-009** uv workspace 物理拆包 | 流水线与依赖稳定 | 多包发布、边界更清晰 |
 | macOS / Linux | 有明确用户需求 | `default_config_path` / 工作区路径、WebView 前置 |
-| MCP settings / CLI `config` | 二期 | 当前仅 gui 写 Settings |
+| MCP settings 读写 tools | 二期 | 当前仅 gui 写 Settings |
 | CI 强化 | 发版前 | 前端 lint/test、打包冒烟 |
 
 ### 4.3 远期（二期+）

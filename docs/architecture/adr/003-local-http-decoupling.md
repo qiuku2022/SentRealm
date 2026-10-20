@@ -12,7 +12,7 @@
 
 - React 与后端独立开发与测试
 - 使用 Apifox 等工具调试 API（在 gui 运行、api 进程存在时）
-- 与 cli、mcp 的接入方式区分：后两者**直接调用 core**，不走 HTTP
+- 与 mcp 的接入方式区分：后者**直接调用 core**，不走 HTTP
 
 ## 选项
 
@@ -101,8 +101,8 @@ WebView 通过 PyO3、子进程脚本等方式直接调用 `core`。
 
 | 适用 | 不适用 |
 |------|--------|
-| `gui/ui` ↔ `apps/gui/api` | cli → core（直连） |
-| Apifox 调试 `gui/api` | mcp → core（直连） |
+| `gui/ui` ↔ `apps/gui/api` | mcp → core（直连） |
+| Apifox 调试 `gui/api` | |
 
 ## 后果
 

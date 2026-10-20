@@ -4,7 +4,7 @@ AI Agent **协作约定**（行为与边界）。产品范围、架构、API、�
 
 **优先级**：用户指令优先。若出现嵌套 `AGENTS.md`，以更靠近改动目录的为准。
 
-**项目一句话**：面向视频创作者的本地文稿预处理桌面工具（剪映「文稿匹配」前去标点、断句分行）；形态为 Tauri 2 + React + FastAPI，另有 cli / mcp 入口。进度见 [路线图](./docs/planning/03-roadmap.md)。
+**项目一句话**：面向视频创作者的本地文稿预处理桌面工具（剪映「文稿匹配」前去标点、断句分行）；形态为 Tauri 2 + React + FastAPI，另有 MCP 入口。进度见 [路线图](./docs/planning/03-roadmap.md)。
 
 ---
 
@@ -22,7 +22,7 @@ AI Agent **协作约定**（行为与边界）。产品范围、架构、API、�
 | 架构 | 流水线步骤、隐私边界 | [data-flow.md](./docs/architecture/data-flow.md) |
 | 架构 | 为何选某技术 | [docs/architecture/adr/](./docs/architecture/adr/README.md)（已接受 ADR；生产打包见 [ADR-008](./docs/architecture/adr/008-production-packaging.md)） |
 | 契约 | HTTP | [docs/api/README.md](./docs/api/README.md) + [openapi.yaml](./docs/api/openapi.yaml) |
-| 契约 | CLI / MCP | [docs/cli-mcp.md](./docs/cli-mcp.md) |
+| 契约 | MCP | [docs/mcp.md](./docs/mcp.md) |
 | 开发 | 环境、安装、运行、测试 | [docs/dev/](./docs/dev/README.md)（[setup](./docs/dev/setup.md) / [running](./docs/dev/running-locally.md) / [testing](./docs/dev/testing.md)） |
 | 开发 | 本工作区是否有完整代码 | [implementation-status.md](./docs/dev/implementation-status.md) |
 | UI | GUI / token 与组件落地 | [docs/ui/](./docs/ui/README.md)（视觉源自 Open Design；选型见 [ADR-002](./docs/architecture/adr/002-shadcn-ui.md)） |
@@ -70,9 +70,9 @@ AI Agent **协作约定**（行为与边界）。产品范围、架构、API、�
 
 ### 模块与契约（摘要，细则见 docs）
 
-- 业务断句逻辑只在 **`packages/core`**；`gui/api` 为薄 HTTP 层；cli / mcp **直连 core**，不经 gui HTTP（细则见 [modules.md](./docs/architecture/modules.md)）。
+- 业务断句逻辑只在 **`packages/core`**；`gui/api` 为薄 HTTP 层；mcp **直连 core**，不经 gui HTTP（细则见 [modules.md](./docs/architecture/modules.md)）。
 - 改 HTTP：同步 [openapi.yaml](./docs/api/openapi.yaml) 与 [docs/api/README.md](./docs/api/README.md)。
-- 改 CLI / MCP 行为：同步 [docs/cli-mcp.md](./docs/cli-mcp.md)。
+- 改 MCP 行为：同步 [docs/mcp.md](./docs/mcp.md)。
 - 改产品规则 / 范围：同步 [产品定义](./docs/planning/01-product-definition-and-mvp.md)；用户可见用法同步 [用户手册](./docs/user/README.md)。
 - 架构或选型变更：更新对应主文档与 ADR（见 [架构维护约定](./docs/architecture/README.md)）。
 
@@ -95,7 +95,7 @@ AI Agent **协作约定**（行为与边界）。产品范围、架构、API、�
 动手前已明确成功标准的前提下，按任务触及面核对（详见 [testing.md](./docs/dev/testing.md)）：
 
 1. 相关测试通过；至少默认集 **`uv run pytest`**（勿把未配置密钥的 integration 当成必过项）。触及前端时按仓库惯例做必要的 typecheck / lint。
-2. 若改了 API / CLI / MCP / 产品规则 / 用户流程：对应 **docs** 已同步。
+2. 若改了 API / MCP / 产品规则 / 用户流程：对应 **docs** 已同步。
 3. 无 secrets、无临时调试残留（硬编码密钥、丢弃用的 print/日志开关等）。
 
 ---

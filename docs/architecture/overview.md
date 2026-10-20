@@ -52,7 +52,7 @@ flowchart TB
 | 前端 | React + TypeScript；主壳为 OD 三栏布局（`AppShell` + `app-shell.css`）；shadcn/ui 用于基础控件与遗留调试页 | 文稿输入、参数配置、右侧结果预览、超长行高亮、一键复制；**不承载核心断句逻辑** |
 | 后端 | FastAPI | 提供 REST API；编排预处理流水线；读写 SQLite 用户配置；gui 工作区文件读写 |
 | 用户配置 | SQLite | 去标点规则、字数预设、`llm_enabled` / endpoint / model 等（[ADR-004](./adr/004-sqlite-user-settings.md)）；**不**存文稿正文 |
-| 文稿资产（gui） | `Documents/SentRealm/` | 项目 / 文稿文件夹、`source.txt`、最近 `result.json`（[ADR-010](./adr/010-workspace-document-persistence.md)）；cli/mcp 不接入 |
+| 文稿资产（gui） | `Documents/SentRealm/` | 项目 / 文稿文件夹、`source.txt`、最近 `result.json`（[ADR-010](./adr/010-workspace-document-persistence.md)）；mcp 不接入 |
 | LLM | Python SDK | 规则后仍超长的行入发送池（每批 ≤10），质检不合格最多返工 3 次；未满足启用条件时跳过；测试环境使用 mock |
 
 ## 进程模型
@@ -107,14 +107,14 @@ flowchart TB
 | 正文 | 每文稿 `source.txt`（UTF-8） |
 | 最近处理结果 | 可选 `result.json`（不含 `original`） |
 
-- cli / mcp **不**接入工作区；仍仅内存处理输入文本。
+- mcp **不**接入工作区；仍仅内存处理输入文本。
 - `POST /api/v1/preprocess` **本身不自动写盘**；gui 经独立 workspace / documents API 读写文件。
 
 详见 [ADR-004](./adr/004-sqlite-user-settings.md)、[ADR-010](./adr/010-workspace-document-persistence.md)。
 
 ## 模块视图
 
-除上述分层架构外，系统按 **core / cli / gui / mcp** 四个模块组织：业务逻辑集中在 `core`，gui 经 `gui/api`（FastAPI）为 React 提供服务，cli 与 mcp 直接调用 `core` 且不依赖 gui 是否运行。四模块共用同一 SQLite 配置。
+除上述分层架构外，系统按 **core / gui / mcp** 模块组织：业务逻辑集中在 `core`，gui 经 `gui/api`（FastAPI）为 React 提供服务，mcp 直接调用 `core` 且不依赖 gui 是否运行。各模块共用同一 SQLite 配置。
 
 **如何落地分离**（目录顺序、依赖验收）：见 [modules.md § Phase 0 落地步骤](./modules.md#phase-0-落地步骤)；决策背景见 [ADR-007](./adr/007-multi-entry-modules.md)。
 

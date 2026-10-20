@@ -54,7 +54,7 @@
 | 就绪 | 前端 `GET /health` 轮询（200ms / 30s）；Rust 只 spawn |
 | 配置与文稿 | 仍写用户目录：`%APPDATA%/SentRealm/settings.db`、`Documents/SentRealm/`；不打进安装包 |
 | 密钥 | 仍仅环境变量 / 用户本机配置；安装包**不**内置 API key |
-| cli / mcp | **不**随桌面安装包分发（开发者继续用源码 + uv）；桌面 MVP 只交付 gui |
+| mcp | **不**随桌面安装包分发（开发者继续用源码 + uv）；桌面 MVP 只交付 gui |
 
 ### 开发 vs 生产 spawn
 
@@ -78,7 +78,7 @@ Rust 侧应用启动/退出钩子在开发与生产共用生命周期语义；**
 
 ### 明确不做（本 ADR）
 
-- 安装包内分发 cli/mcp 入口
+- 安装包内分发 mcp 入口
 - 自动换端口
 - 代码签名 / SmartScreen 策略的最终方案（实现阶段补充运维清单；不阻塞架构选型）
 - macOS/Linux sidecar 与公证（后续 ADR 或修订本 ADR）

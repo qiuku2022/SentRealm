@@ -67,7 +67,7 @@ uv sync
 | 虚拟环境 | 仓库根 **`.venv/`**（`uv sync` 创建；不入 git） |
 | 依赖安装 / 更新 | `uv sync`（读 `uv.lock`） |
 | 运行入口 | `uv run <命令>`（或 IDE 选用 `.venv` 解释器） |
-| 可编辑包 | `sentrealm-core`、`sentrealm-cli`、`sentrealm-mcp`（Phase 0 起） |
+| 可编辑包 | `sentrealm-core`、`sentrealm-mcp`（Phase 0 起） |
 
 > 日常 Python 命令优先 `uv run …`，确保使用项目 `.venv` 与锁文件版本。Tauri spawn 后端同样走 `uv run uvicorn …`（见 [ADR-006](../architecture/adr/006-tauri-spawn-fastapi.md)）。
 

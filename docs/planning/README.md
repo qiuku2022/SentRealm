@@ -26,5 +26,5 @@
 | [docs/user/](../user/README.md) | 终端用户怎么用 |
 | [docs/architecture/](../architecture/README.md) | 怎么做（技术架构与 ADR） |
 | [docs/api/](../api/README.md) | gui 与后端的 HTTP 契约 |
-| [docs/cli-mcp.md](../cli-mcp.md) | cli / mcp 命令与 MCP tool 契约 |
+| [docs/mcp.md](../mcp.md) | MCP tool 契约 |
 | [docs/dev/](../dev/README.md) | 开发者如何搭建与运行 |

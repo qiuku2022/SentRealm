@@ -43,7 +43,7 @@ Phase 0–1 曾采用 **Miniconda 提供 Python 解释器 + uv 管理 pip 依赖
 | Python 版本 | **3.12.13**（`.python-version`） |
 | 虚拟环境 | 仓库根 `.venv/`（gitignore） |
 | 依赖同步 | `uv sync` |
-| 命令入口 | `uv run pytest` / `uv run sentrealm` / `uv run uvicorn` 等 |
+| 命令入口 | `uv run pytest` / `uv run sentrealm-mcp` / `uv run uvicorn` 等 |
 | IDE | `.vscode/settings.json` → `${workspaceFolder}/.venv/Scripts/python.exe`（Windows） |
 | IDE 断点 | compound 启动 `Python: FastAPI` + `Desktop: pnpm dev（断点模式）`；Tauri 设 `SENTREALM_SKIP_BACKEND_SPAWN=1`（见 [running-locally.md](../../dev/running-locally.md)） |
 
@@ -54,7 +54,7 @@ Phase 0–1 曾采用 **Miniconda 提供 Python 解释器 + uv 管理 pip 依赖
 ### 正面
 
 - 一条命令 `uv sync` 完成环境
-- F5、Tauri spawn、CLI/MCP、测试共用同一 `.venv`
+- F5、Tauri spawn、MCP、测试共用同一 `.venv`
 - 与 ADR-009（uv workspace 物理拆包）方向一致
 
 ### 负面

@@ -123,7 +123,7 @@ SentRealm 是一款面向视频创作者的**文稿预处理工具**，用于在
 - **增加保留项**：如 `+`、`-`；或覆盖默认保留（若用户明确不要 `%` / `％`）
 - **从默认去除列表中移除**：该符号不再删除；`punctuation_keep` 与去除列表冲突时以保留为准
 
-规则以配置形式保存，**持久化到本地 SQLite**（gui、cli、mcp 共用同一库；见 [ADR-004](../architecture/adr/004-sqlite-user-settings.md)）。`POST /api/v1/preprocess` 请求体中的 `settings` 可仅覆盖当次处理，不写库。
+规则以配置形式保存，**持久化到本地 SQLite**（gui、mcp 共用同一库；见 [ADR-004](../architecture/adr/004-sqlite-user-settings.md)）。`POST /api/v1/preprocess` 请求体中的 `settings` 可仅覆盖当次处理，不写库。
 
 ### 断句处理流程
 
@@ -258,7 +258,7 @@ SentRealm 是一款面向视频创作者的**文稿预处理工具**，用于在
 
 除标点候选与英文词界外，规则断句仅使用下列字词表位置；找不到合规切点时保留局部超长行，禁止硬切。
 
-**运行时词表**来自 SQLite `Settings.break_lexicon`（gui / cli / mcp 共用）；**出厂默认**与「恢复默认」来自打包 `packages/core/src/sentrealm_core/data/break_lexicon/*.txt`，由 `pipeline/break_lexicon.py` 加载。
+**运行时词表**来自 SQLite `Settings.break_lexicon`（gui / mcp 共用）；**出厂默认**与「恢复默认」来自打包 `packages/core/src/sentrealm_core/data/break_lexicon/*.txt`，由 `pipeline/break_lexicon.py` 加载。
 
 | 类别 | 文件 / Settings 字段 | 含义 | 示例 |
 |------|----------------------|------|------|

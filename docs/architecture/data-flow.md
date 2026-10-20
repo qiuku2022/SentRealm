@@ -110,7 +110,7 @@ flowchart TD
 | **当前** | 完整 8 步；LLM 为发送池 ≤10 / 质检 / 最多 3 次 | 放弃或仍不合格的行号 | 产品、ADR-005 与代码一致 |
 | **Phase 0（历史 stub）** | `processed` 可与原文相同或仅按 `\n` 拆行 | 恒为 `[]` | 仅脚手架时期；语义已废弃 |
 
-API / cli / mcp 的**字段结构**始终以 [openapi.yaml](../api/openapi.yaml) 与 [cli-mcp.md](../cli-mcp.md) 为准。
+API / mcp 的**字段结构**始终以 [openapi.yaml](../api/openapi.yaml) 与 [mcp.md](../mcp.md) 为准。
 
 ### 标点分级与去除（步骤 1）
 
@@ -173,7 +173,7 @@ API / cli / mcp 的**字段结构**始终以 [openapi.yaml](../api/openapi.yaml)
 
 ## core 模块边界
 
-预处理流水线与配置存储位于 **`packages/core`**；HTTP 适配层位于 **`apps/gui/api`**。cli 与 mcp **绕过 HTTP**，直接调用 `core.preprocess()` 与共用 `SettingsStore`（详见 [modules.md](./modules.md)）。
+预处理流水线与配置存储位于 **`packages/core`**；HTTP 适配层位于 **`apps/gui/api`**。mcp **绕过 HTTP**，直接调用 `core.preprocess()` 与共用 `SettingsStore`（详见 [modules.md](./modules.md)）。
 
 当前目录结构（与仓库对齐）：
 
@@ -219,7 +219,7 @@ apps/gui/api/
 
 | 数据 | 流向 |
 |------|------|
-| 文稿全文 | gui 持久化至 `Documents/SentRealm/.../source.txt`；cli/mcp 仍仅内存处理 |
+| 文稿全文 | gui 持久化至 `Documents/SentRealm/.../source.txt`；mcp 仍仅内存处理 |
 | LLM 请求 | 仅发送规则断句后仍超长的行（发送池，每批最多 **10** 行；长度第二波再发祖先整句）+ `max_chars` 硬性切分目标 |
 | LLM 响应 | 仅用于断句切分，**不改写文稿用词**；须过语义质检（`llm_quality_ok`）后写回 |
 | 用户配置 | 写入本地 SQLite（`%APPDATA%/SentRealm/settings.db`）；含 `break_lexicon` 字词表 |

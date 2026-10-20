@@ -13,7 +13,7 @@ Phase 1 MVP 将文稿正文与处理结果仅保存在内存中，退出应用�
 - 最近一次处理结果缓存（`result.json`）
 - 与现有全局 `Settings`（ADR-004）分离，避免配置与资产混存
 
-cli、mcp 本期不接入工作区管理，仅 gui 通过 HTTP API 读写。
+mcp 本期不接入工作区管理，仅 gui 通过 HTTP API 读写。
 
 ## 选项
 
@@ -66,7 +66,7 @@ Windows 默认 `%USERPROFILE%/Documents/SentRealm/`；每项目、每文稿独�
 ### 负面
 
 - 无文件监视（Phase 2.1 可选）：外部修改 `source.txt` 需重新打开文稿才同步
-- 无项目级 `Settings` 覆盖、无 CLI/MCP 项目管理（后续 Phase）
+- 无项目级 `Settings` 覆盖、无 MCP 项目管理（后续 Phase）
 - Windows 以外平台路径为占位，跨平台时需对齐
 
 ## 相关文档

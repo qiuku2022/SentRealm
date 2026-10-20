@@ -234,20 +234,19 @@ SentRealm 在**粘贴进剪映之前**完成本地预处理：去标点、识别
 
 备份：复制 `Documents\SentRealm`（文稿）与必要时的 `settings.db`（偏好）。删除项目/文稿一般为**直接删除文件**，无回收站语义时请先自行备份。
 
-cli / mcp 与桌面端**共用同一配置库**；文稿工作区仅桌面端（gui）读写，cli/mcp 不接入。
+mcp 与桌面端**共用同一配置库**；文稿工作区仅桌面端（gui）读写，mcp 不接入。
 
 ---
 
 ## 6. 其他入口（可选）
 
-不需要 GUI 时，开发者或脚本可用：
+不需要 GUI 时，开发者或 Agent 可用：
 
 | 入口 | 用途 | 文档 |
 |------|------|------|
-| **CLI** | `sentrealm preprocess -i in.txt -o out.txt` | [cli-mcp.md](../cli-mcp.md) |
-| **MCP** | Agent 调用 `preprocess_text` | 同上 |
+| **MCP** | Agent 调用 `preprocess_text` | [mcp.md](../mcp.md) |
 
-命令行参数里的 `--preset` / `--max-chars` 只影响**当次**处理，默认不改你在 GUI 里保存的设置。
+参数里的 `preset` / `max_chars` 只影响**当次**处理，默认不改你在 GUI 里保存的设置。
 
 ---
 
@@ -285,7 +284,7 @@ cli / mcp 与桌面端**共用同一配置库**；文稿工作区仅桌面端（
 
 ### 能一次处理很多文件吗？
 
-当前产品定位为**单篇**处理。批量可用 CLI 自行写脚本循环调用；GUI 批量不在 MVP 范围。
+当前产品定位为**单篇**处理。GUI 批量多文件不在 MVP 范围。
 
 ### macOS / 手机能用吗？
 
@@ -310,7 +309,7 @@ cli / mcp 与桌面端**共用同一配置库**；文稿工作区仅桌面端（
 | 产品范围与规则细节 | [产品定义与 MVP](../planning/01-product-definition-and-mvp.md) |
 | 下一步做什么 | [路线图](../planning/03-roadmap.md) |
 | 开发者运行与测试 | [docs/dev/](../dev/README.md) |
-| HTTP / CLI / MCP 契约 | [api](../api/README.md)、[cli-mcp](../cli-mcp.md) |
+| HTTP / MCP 契约 | [api](../api/README.md)、[mcp](../mcp.md) |
 
 ---
 

@@ -12,7 +12,7 @@
 
 **流水线已对齐文档**：标点分级（硬边界 / 超长候选 / 仅删除）→ 空格 → 自然边界规则断句（全局选点、短行回并、出厂词表 v3，ADR-012）→ LLM 发送池（可选）→ 标记。发送池：规则后仍超长行入池 → 每批 ≤10 调用 `break_lines` → 硬质检（守恒 + 有效切分 + 有进展）+ 超长/过短软返工 → 合格写回并短行回并；写回后仍长度不合规则祖先整句第二波（最多 2 次，失败保留第一波）；满 3 次硬失败则保留原文并由 `flag_overlength_lines` 标记。见 [产品定义](../planning/01-product-definition-and-mvp.md#llm-发送池与质检返工) 与 [ADR-005](../architecture/adr/005-llm-integration-privacy.md)。
 
-目录 `packages/{core,cli,mcp}`、`apps/gui/{src,src-tauri,api}` **已落地**。默认 `uv run pytest` **164 passed**（本核对日）。
+目录 `packages/{core,mcp}`、`apps/gui/{src,src-tauri,api}` **已落地**。默认 `uv run pytest` **164 passed**（本核对日）。
 
 本机笔记目录 `.local/` 已 gitignore，仓库不保证存在。
 
@@ -24,7 +24,7 @@
 | §1 流水线 1–3 | 完成 | `punctuation` / `whitespace` / `line_count` |
 | §2 词表 + 规则断句 | 完成 | `break_lexicon/` + Settings 持久化 + FAB Modal；`rule_break` 自然候选边界全局选点；`short_line_repair` 局部回并 |
 | §3 LLM + 标记 | 完成 | 发送池 / `llm_quality_ok` / `break_lines` / 语义质检返工 / `flag_lines` |
-| §4 编排 + 三入口 | 完成 | `preprocess()`；gui/cli/mcp 一致 |
+| §4 编排 + 多入口 | 完成 | `preprocess()`；gui/mcp 一致 |
 | §5 工作区 | 完成 | ADR-010 |
 | §6 GUI 核心 | 完成 | 三栏主路径；Wave A/B；词表 Modal；SSE；导出 |
 | §7 验收 | 完成 | 默认 pytest 绿；剪映粘贴建议本机手工抽样 |
@@ -82,12 +82,12 @@
 
 ## 已核对项（§7）
 
-1. **stub 语义已移除**：完整 8 步；三入口一致测试通过
+1. **stub 语义已移除**：完整 8 步；多入口一致测试通过
 2. **无密钥规则路径**：`llm_enabled=false` 时去标点 + 规则 + 标记可用
 3. **LLM 发送池**：`is_llm_configured` + 批 ≤10 + 硬质检（守恒 / 有效切分 / 有进展）+ 超长/过短软返工 + 写回短行回并 + 长度不合规祖先第二波；第一波最多 3 次、第二波最多 2 次；Mock 注入；integration 默认不跑
-4. **模块边界**：core 无 FastAPI/cli/mcp 依赖；React 仅 HTTP
+4. **模块边界**：core 无 FastAPI/mcp 依赖；React 仅 HTTP
 5. **Settings 共用**：SQLite @ `%APPDATA%/SentRealm/settings.db`
-6. **工作区**：`Documents/SentRealm/`；cli/mcp 不接入
+6. **工作区**：`Documents/SentRealm/`；mcp 不接入
 7. **GUI 文案**：与用户手册主路径一致；SSE `llm_current/total` 为终态口径
 8. **安装包**：脚本与 sidecar 资源路径在仓库内；作者侧 NSIS 多次验证已覆盖主流程（M3 关闭）；本核对日未在严格干净机重跑 packaging 清单
 

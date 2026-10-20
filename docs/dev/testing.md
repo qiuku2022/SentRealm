@@ -78,10 +78,9 @@ uv run pytest -m integration
 | `tests/test_api_workspace.py` | workspace HTTP 集成 |
 | `tests/test_preprocess.py` | 流水线（含空文稿、`EmptyTextError`、换行规范化） |
 | `tests/test_api.py` | health、settings round-trip、preprocess |
-| `tests/test_cli.py` | `--help`、stdin 管道、退出码 |
 | `tests/test_mcp.py` | MCP `preprocess_text` 契约 |
 | `tests/test_llm.py` | Mock / 批解析等 |
-| `tests/test_phase0_acceptance.py` | 三入口共用 Settings 等验收 |
+| `tests/test_phase0_acceptance.py` | 多入口共用 Settings 等验收 |
 | `tests/test_pipeline_*.py` / `test_break_lexicon.py` | 各步骤与字词表（Phase 1） |
 
 验收：`uv run pytest` 通过。

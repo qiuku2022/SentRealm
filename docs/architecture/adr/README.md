@@ -12,7 +12,7 @@
 | [004](./004-sqlite-user-settings.md) | SQLite 持久化用户配置 | 已接受 |
 | [005](./005-llm-integration-privacy.md) | LLM 集成与隐私边界 | 已接受（含发送池修订） |
 | [006](./006-tauri-spawn-fastapi.md) | Tauri 管理 FastAPI 子进程 | 已接受 |
-| [007](./007-multi-entry-modules.md) | 多入口模块化（core / cli / gui / mcp） | 已接受 |
+| [007](./007-multi-entry-modules.md) | 多入口模块化（core / gui / mcp） | 已接受 |
 | [008](./008-production-packaging.md) | 生产打包（PyInstaller sidecar） | 已接受 |
 | [010](./010-workspace-document-persistence.md) | 文稿与项目本地持久化 | 已接受 |
 | [011](./011-uv-python-environment.md) | uv 管理 Python 开发环境 | 已接受 |
@@ -26,7 +26,7 @@
 |-----|------|----------|
 | 009 | uv workspace 物理拆包 | 流水线稳定，决定拆分为独立 Python 包 |
 
-MCP settings tools、CLI `config` 子命令等二期能力见 [架构文档索引](../README.md)。允许断点字词表 v1 见 [产品定义](../../planning/01-product-definition-and-mvp.md#允许断点字词表)。
+MCP settings tools 等二期能力见 [架构文档索引](../README.md)。允许断点字词表 v1 见 [产品定义](../../planning/01-product-definition-and-mvp.md#允许断点字词表)。
 
 ## 模板
 

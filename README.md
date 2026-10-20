@@ -32,7 +32,7 @@
 | 规则断句 + 可选 LLM | 横屏 15 字 / 竖屏 10 字预设；规则层按候选边界全局选点并修复短行。切不干净的超长行可再走 LLM 语义切分（不改用词、不上传全文） |
 | 对照预览 | 右侧实时显示分行结果与行数；超长行橙色标记，点击可定位原文 |
 | 本机工作区 | 文稿在 `Documents/SentRealm`，配置在本机 SQLite；无云端账号 |
-| 多入口 | 桌面 GUI、CLI、MCP 共用同一套处理逻辑与配置 |
+| 多入口 | 桌面 GUI 与 MCP 共用同一套处理逻辑与配置 |
 
 处理规则细节见 [产品定义与 MVP](./docs/planning/01-product-definition-and-mvp.md)。
 
@@ -76,7 +76,7 @@ pnpm dev
 | 使用者 | [docs/user/](./docs/user/README.md) | 写稿 → 处理 → 剪映 |
 | 产品 | [docs/planning/](./docs/planning/README.md) | 产品范围、用户故事、路线图 |
 | 架构 | [docs/architecture/](./docs/architecture/README.md) | 分层、模块边界、ADR |
-| 契约 | [docs/api/](./docs/api/README.md) · [cli-mcp](./docs/cli-mcp.md) | HTTP / CLI / MCP |
+| 契约 | [docs/api/](./docs/api/README.md) · [mcp](./docs/mcp.md) | HTTP / MCP |
 | 开发 | [docs/dev/](./docs/dev/README.md) | 环境、运行、测试、安装包 |
 | UI | [docs/ui/](./docs/ui/README.md) | tokens、三栏壳、组件映射 |
 | Agent | [AGENTS.md](./AGENTS.md) | AI / 自动化协作约定 |

@@ -14,7 +14,7 @@
 - **生命周期绑定**：FastAPI 子进程须随桌面应用启动而启动、随应用退出而终止，避免残留后台进程
 - **就绪感知**：前端在 backend 未就绪时不应调用业务 API，否则出现难以理解的连接错误
 
-cli、mcp 为独立进程、直接调用 `core`，**不在本 ADR 范围**。
+mcp 为独立进程、直接调用 `core`，**不在本 ADR 范围**。
 
 ## 选项
 
@@ -103,7 +103,7 @@ Rust spawn 子进程后**立即返回**（不阻塞窗口）；前端轮询 `GET
 ### 与 ADR-007 的关系
 
 - 被 spawn 的对象是 **`apps/gui/api`**（gui 的 HTTP 适配层），不是独立的第五模块
-- `core` 由 `gui/api` 在进程内 import 调用；cli、mcp 各自独立进程，不由 Tauri 管理
+- `core` 由 `gui/api` 在进程内 import 调用；mcp 为独立进程，不由 Tauri 管理
 
 ## 后果
 
