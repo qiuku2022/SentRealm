@@ -6,12 +6,10 @@ import json
 
 import pytest
 from fastapi.testclient import TestClient
-from typer.testing import CliRunner
 
 from sentrealm_core import MockLlmClient, Settings, iter_preprocess, preprocess
 from sentrealm_core.models import BreakLexiconSettings, PreprocessProgress, PreprocessResult
 from sentrealm_core.pipeline import EmptyTextError
-from sentrealm_cli.main import app as cli_app
 from sentrealm_mcp.main import preprocess_text
 
 
@@ -144,7 +142,6 @@ def test_preprocess_rejects_empty_text(text: str) -> None:
 
 def test_multi_entry_preprocess_consistency(
     api_client: TestClient,
-    cli_runner: CliRunner,
     shared_store,
 ) -> None:
     del shared_store
@@ -153,20 +150,11 @@ def test_multi_entry_preprocess_consistency(
 
     direct = preprocess(text, settings)
     http = api_client.post("/api/v1/preprocess", json={"text": text}).json()
-    cli = cli_runner.invoke(cli_app, ["preprocess", "--stdin"], input=text)
     mcp = preprocess_text(text)
 
-    assert cli.exit_code == 0
-    cli_meta = json.loads(cli.stderr.strip())
-
-    assert http["processed"] == direct.processed == cli.stdout == mcp["processed"]
-    assert http["line_count"] == direct.line_count == cli_meta["line_count"] == mcp["line_count"]
-    assert (
-        http["flagged_lines"]
-        == direct.flagged_lines
-        == cli_meta["flagged_lines"]
-        == mcp["flagged_lines"]
-    )
+    assert http["processed"] == direct.processed == mcp["processed"]
+    assert http["line_count"] == direct.line_count == mcp["line_count"]
+    assert http["flagged_lines"] == direct.flagged_lines == mcp["flagged_lines"]
 
 
 def test_iter_preprocess_yields_rules_then_result() -> None:

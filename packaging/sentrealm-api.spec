@@ -47,12 +47,10 @@ hiddenimports = [
 for pkg in ("pydantic", "pydantic_core", "anyio", "starlette", "fastapi"):
     hiddenimports.extend(collect_submodules(pkg))
 
-# Desktop MVP does not ship cli/mcp (ADR-008).
+# Desktop MVP does not ship mcp (ADR-008).
 excludes = [
-    "sentrealm_cli",
     "sentrealm_mcp",
     "mcp",
-    "typer",
     "tkinter",
     "matplotlib",
     "numpy",
